@@ -1,0 +1,76 @@
+@charset "utf-8";
+
+/* Általános stílusok */
+body {
+    font-family: Arial, sans-serif;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    background-color: rgb(208, 214, 224); /* Világos háttér a body számára */
+}
+
+h4 {
+    text-transform: uppercase;
+    color: #0094FF;
+}
+
+/* Dátum stílusa */
+.date {
+    padding: 10px 20px;
+    margin: 0 auto;
+    margin-top: 5px;
+    width: 80%;
+    max-width: 800px;
+    font-size: 18px;
+    text-align: center;
+    border-radius: 5px;
+    background-color: inherit; /* Örökli a body háttérszínét */
+}
+
+/* Fejezet konténer */
+.day-paragraph {
+    border-radius: 10px;
+    padding: 20px;
+    margin: 5px auto;
+    width: 80%;
+    max-width: 800px;
+    background-color: #fff; /* Fehér háttér a fejezethez */
+}
+
+p {
+    text-align: justify;
+	text-indent: 30px; /* A bekezdés első sora 30px-t fog beljebb húzódni */
+}
+
+a {
+    color: #0094FF;
+}
+
+/* Világos téma */
+@media (prefers-color-scheme: light) {
+    body {
+        background-color: rgb(208, 214, 224); /* Világos háttér */
+    }
+    .day-paragraph {
+        background-color: #fff;
+    }
+    .date {
+        color: #333; /* Sötétebb szín a szövegre */
+    }
+}
+
+/* Sötét téma */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #1a1a1a; /* Sötét háttér */
+        color: #ccc;
+    }
+    .day-paragraph {
+        background-color: #333;
+        color: #ccc;
+    }
+    .date {
+        background-color: inherit; /* Örökli a sötét háttér színét */
+        color: #fff; /* Fehér szöveg */
+    }
+}
