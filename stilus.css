@@ -322,6 +322,9 @@ a {
     .date,
     .nevnap {
         width: 100%;
+        box-sizing: border-box;
+        padding-left: 16px;
+        padding-right: 16px;
     }
 
     .day-paragraph,
