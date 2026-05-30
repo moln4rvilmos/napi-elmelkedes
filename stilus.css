@@ -1,0 +1,337 @@
+@charset "utf-8";
+
+/* === ALAPSTÍLUSOK === */
+body {
+    font-family: Arial, sans-serif;
+    color: #1a2a5e;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f0dc;
+}
+
+h4 {
+    text-transform: uppercase;
+    color: #7a1520;
+}
+
+/* Dátum stílusa */
+.date {
+    padding: 10px 20px;
+    margin: 0 auto;
+    margin-top: 5px;
+    width: 80%;
+    max-width: 800px;
+    font-size: 18px;
+    text-align: center;
+    border-radius: 5px;
+    background-color: inherit;
+    color: #1a2a5e;
+}
+
+/* Névnap sor */
+.nevnap {
+    padding: 4px 20px 8px;
+    margin: 0 auto;
+    width: 80%;
+    max-width: 800px;
+    font-size: 15px;
+    text-align: center;
+    font-style: italic;
+    color: #4a5a8e;
+}
+
+/* Fejezet konténer */
+.day-paragraph {
+    border-radius: 10px;
+    padding: 20px;
+    margin: 5px auto;
+    width: 80%;
+    max-width: 800px;
+    background-color: #fdfaf0;
+    box-shadow: 0 6px 28px rgba(26, 42, 94, 0.13);
+}
+
+p {
+    text-align: justify;
+}
+
+.quote {
+    margin-bottom: 10px;
+    font-style: italic;
+}
+
+.book-icon::before {
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    content: "\f02d";
+    margin-right: 6px;
+    color: #7a1520;
+}
+
+.day-paragraph p::before {
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    content: "\f0eb";
+    margin-right: 6px;
+    color: #7a1520;
+}
+
+a {
+    color: #7a1520;
+}
+
+/* === RÖGZÍTETT IKONOK === */
+.ikonok {
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    z-index: 300;
+    display: flex;
+    gap: 14px;
+    align-items: center;
+}
+
+.ikon {
+    cursor: pointer;
+    font-size: 22px;
+    color: #7a1520;
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: rgba(253, 250, 240, 0.9);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+    transition: background-color 0.2s, transform 0.15s;
+}
+
+.ikon:hover {
+    background-color: #fdfaf0;
+    transform: scale(1.1);
+}
+
+.jozsan-uzenet .fa-cake-candles {
+    position: absolute;
+    left: 20px;
+    top: 18px;
+    color: #7a1520;
+    font-size: 18px;
+}
+
+/* === BEÁLLÍTÁSOK PANEL === */
+.beallitasok-hatter {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 400;
+}
+
+.beallitasok-hatter.nyitva {
+    display: block;
+}
+
+.beallitasok-panel {
+    position: fixed;
+    top: 0;
+    right: -320px;
+    width: 300px;
+    height: 100%;
+    background-color: #ede8d0;
+    box-shadow: -3px 0 16px rgba(0,0,0,0.18);
+    z-index: 500;
+    padding: 28px 24px;
+    box-sizing: border-box;
+    transition: right 0.3s ease;
+    border-radius: 16px 0 0 16px;
+}
+
+.beallitasok-panel.nyitva {
+    right: 0;
+}
+
+.beallitasok-panel h3 {
+    margin: 0 0 24px;
+    font-size: 18px;
+    color: #1a2a5e;
+}
+
+.beallitas-sor {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.beallitas-sor label {
+    font-size: 14px;
+    color: #4a5a8e;
+}
+
+.beallitas-sor input[type="date"] {
+    padding: 10px 12px;
+    border: 1px solid #b8b090;
+    border-radius: 10px;
+    font-size: 16px;
+    background-color: #fdfaf0;
+    color: #1a2a5e;
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.beallitas-gombok {
+    display: flex;
+    gap: 10px;
+}
+
+.beallitas-gombok button {
+    flex: 1;
+    padding: 11px 0;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: opacity 0.2s;
+}
+
+.beallitas-gombok button:hover {
+    opacity: 0.85;
+}
+
+.gomb-ment {
+    background-color: #7a1520;
+    color: #fdfaf0;
+}
+
+.gomb-torol {
+    background-color: #c8c0a0;
+    color: #1a2a5e;
+}
+
+/* === JÓZANSÁG ÜZENET === */
+.jozsan-uzenet {
+    display: none;
+    position: relative;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 5px auto;
+    width: 80%;
+    max-width: 800px;
+    background-color: #fdfaf0;
+    color: #1a2a5e;
+    text-align: center;
+    line-height: 1.7;
+    border-top: 4px solid #7a1520;
+    box-shadow: 0 6px 28px rgba(26, 42, 94, 0.13);
+}
+
+/* === VILÁGOS TÉMA === */
+@media (prefers-color-scheme: light) {
+    body {
+        background-color: #f5f0dc;
+        color: #1a2a5e;
+    }
+    .day-paragraph {
+        background-color: #fdfaf0;
+        color: #1a2a5e;
+    }
+    .date {
+        color: #1a2a5e;
+    }
+    .nevnap {
+        color: #4a5a8e;
+    }
+}
+
+/* === SÖTÉT TÉMA === */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #1e0805;
+        color: #f0e8c8;
+    }
+    h4 {
+        color: #d4a843;
+    }
+    .day-paragraph {
+        background-color: #2e1209;
+        color: #f0e8c8;
+        box-shadow: 0 6px 28px rgba(0, 0, 0, 0.45);
+    }
+    .date {
+        background-color: inherit;
+        color: #f0e8c8;
+    }
+    .nevnap {
+        color: #c8b888;
+    }
+    a {
+        color: #d4a843;
+    }
+    .book-icon::before,
+    .day-paragraph p::before {
+        color: #d4a843;
+    }
+    .ikon {
+        background-color: rgba(61, 26, 14, 0.9);
+        color: #d4a843;
+    }
+    .ikon:hover {
+        background-color: rgba(80, 35, 18, 0.95);
+    }
+    .jozsan-uzenet .fa-cake-candles {
+        color: #d4a843;
+        position: absolute;
+        left: 20px;
+        top: 18px;
+    }
+    .beallitasok-panel {
+        background-color: #180704;
+    }
+    .beallitasok-panel h3 {
+        color: #f0e8c8;
+    }
+    .beallitas-sor label {
+        color: #c8b888;
+    }
+    .beallitas-sor input[type="date"] {
+        background-color: #2e1209;
+        border-color: #6a3020;
+        color: #f0e8c8;
+    }
+    .gomb-ment {
+        background-color: #7a1520;
+        color: #f0e8c8;
+    }
+    .gomb-torol {
+        background-color: #4a2818;
+        color: #c8b888;
+    }
+    .jozsan-uzenet {
+        background-color: #2e1209;
+        color: #f0e8c8;
+        border-top-color: #d4a843;
+        box-shadow: 0 6px 28px rgba(0, 0, 0, 0.45);
+    }
+}
+
+/* === MOBIL (max 640px): nincs kártya, teljes szélesség === */
+@media (max-width: 640px) {
+    .date,
+    .nevnap {
+        width: 100%;
+    }
+
+    .day-paragraph,
+    .jozsan-uzenet {
+        width: 100%;
+        box-sizing: border-box;
+        border-radius: 0;
+        box-shadow: none;
+        background-color: inherit;
+        margin: 0;
+        padding: 16px;
+    }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Napi elmélkedések",
+  "short_name": "Napi Elmélkedések",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#d0d6e0",
+  "theme_color": "#0000ff",
+  "description": "Napi gondolatok AA-tagoktól AA-tagoknak.",
+  "icons": [
+    {
+      "src": "/icons/favicon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/favicon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

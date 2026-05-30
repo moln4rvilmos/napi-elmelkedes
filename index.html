@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+
+<!-- Google tag (GA4) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MN7L9NR82P"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-MN7L9NR82P', { 'anonymize_ip': true });
+</script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="me" href="https://freeframe.masto.host/@vili">
+	<title>Napi Elmélkedés</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+	<link rel="stylesheet" href="stilus.css">
+	<link rel="icon" href="/icons/favicon.ico" type="image/x-icon">
+	<link rel="manifest" href="/manifest.json">
+</head>
+<body>
+
+<!-- Rögzített ikonok jobb felül -->
+<div class="ikonok">
+    <span class="ikon" onclick="naptarNyit()"><i class="fa-solid fa-calendar-days"></i></span>
+    <span class="ikon" onclick="beallitasokNyit()"><i class="fa-solid fa-gear"></i></span>
+</div>
+
+<!-- Beállítások panel háttérfüggöny -->
+<div id="beallitasokHatter" class="beallitasok-hatter" onclick="beallitasokZar()"></div>
+
+<!-- Beállítások panel -->
+<div id="beallitasokPanel" class="beallitasok-panel">
+    <h3>Beállítások</h3>
+    <div class="beallitas-sor">
+        <label for="tisztaNapInput">Első tiszta napom:</label>
+        <input type="date" id="tisztaNapInput">
+    </div>
+    <div class="beallitas-gombok">
+        <button class="gomb-ment" onclick="datumMent()">Mentés</button>
+        <button class="gomb-torol" onclick="datumTorol()">Törlés</button>
+    </div>
+</div>
+
+<!-- Naptár panel háttérfüggöny -->
+<div id="naptarHatter" class="beallitasok-hatter" onclick="naptarZar()"></div>
+
+<!-- Naptár panel -->
+<div id="naptarPanel" class="beallitasok-panel">
+    <h3>Naptár</h3>
+    <div class="beallitas-sor">
+        <label for="naptarInput">Válassz napot:</label>
+        <input type="date" id="naptarInput">
+    </div>
+    <div class="beallitas-gombok">
+        <button class="gomb-ment" onclick="naptarMutat()">Mutasd</button>
+        <button class="gomb-torol" onclick="naptarMa()">Ma</button>
+    </div>
+</div>
+
+<!-- Főoldal tartalma -->
+<div class="date"><div id="datum" class="date"></div></div>
+<div id="nevnap" class="nevnap"></div>
+<div id="jozsanUzenet" class="jozsan-uzenet"></div>
+<div id="tartalom" class="day-paragraph"></div>
+
+<script src="napok.js"></script>
+<script src="nevnapok.js"></script>
+<script>
+    const today = new Date();
+    const KULCS = 'tisztaNap';
+    const ikon = '<i class="fa-solid fa-cake-candles"></i>';
+
+    function datumId(d) {
+        return String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+
+    function renderNap(d) {
+        const id = datumId(d);
+        const isToday = d.getFullYear() === today.getFullYear()
+                     && d.getMonth() === today.getMonth()
+                     && d.getDate() === today.getDate();
+
+        // === Dátum ===
+        const teljesDatum = d.toLocaleDateString('hu-HU', {
+            year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
+        });
+        document.getElementById('datum').textContent = teljesDatum;
+
+        // === Napi tartalom ===
+        const nap = napok[id];
+        document.getElementById('tartalom').innerHTML = nap ? nap.tartalom : '';
+
+        // === Névnap ===
+        const isLeap = new Date(d.getFullYear(), 1, 29).getMonth() === 1;
+        const nevnapId = (isLeap && id >= '02-24' && id <= '02-29') ? id + '_L' : id;
+        const nevnap = nevnapok[nevnapId] ?? nevnapok[id];
+        const nevnapDiv = document.getElementById('nevnap');
+        if (nevnap) {
+            let ige;
+            if (isToday) {
+                ige = 'van';
+            } else {
+                const dMidnight = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+                const tMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                ige = dMidnight > tMidnight ? 'lesz' : 'volt';
+            }
+            nevnapDiv.textContent = nevnap + ' napja ' + ige + '.';
+        } else {
+            nevnapDiv.textContent = '';
+        }
+
+        // === Józanság ===
+        const uzenetDiv = document.getElementById('jozsanUzenet');
+        const stored = localStorage.getItem(KULCS);
+
+        if (!stored) {
+            uzenetDiv.style.display = 'none';
+            return;
+        }
+
+        const tiszta = new Date(stored + 'T00:00:00');
+        const dMidnight = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        const napokSzama = Math.floor((dMidnight - tiszta) / 86400000) + 1;
+
+        if (napokSzama <= 0) {
+            uzenetDiv.style.display = 'none';
+            return;
+        }
+
+        let uzenet;
+
+        if (isToday) {
+            const mH = dMidnight.getMonth(), mN = dMidnight.getDate();
+            const tH = tiszta.getMonth(), tN = tiszta.getDate();
+
+            if (mN === tN && mH === tH && napokSzama > 1) {
+                const evek = dMidnight.getFullYear() - tiszta.getFullYear();
+                uzenet = `${ikon}Ma <strong>${evek} éve</strong>, azaz <strong>${napokSzama} napja</strong> vagy tiszta!<br><br>
+                Fontos vagy,<br>
+                egyszeri és megismételhetetlen érték!<br>
+                Ha elvesznél a jóvátehetetlen lenne!<br>
+                Kérlek, vigyázz magadra<br>
+                és segíts másoknak is a felépülésben!`;
+            } else if (mN === tN && napokSzama > 1) {
+                const honapok = (dMidnight.getFullYear() - tiszta.getFullYear()) * 12 + (mH - tH);
+                uzenet = `${ikon}Ma <strong>${honapok} hónapja</strong>, azaz <strong>${napokSzama} napja</strong> vagy tiszta. Gratulálok!`;
+            } else {
+                uzenet = `${ikon}Ma <strong>${napokSzama} napja</strong> vagy tiszta. Gratulálok!`;
+            }
+        } else {
+            const tMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+            const ige = dMidnight > tMidnight ? 'leszel' : 'voltál';
+            uzenet = `${ikon}Ekkor <strong>${napokSzama} napja</strong> ${ige} tiszta.`;
+        }
+
+        uzenetDiv.innerHTML = uzenet;
+        uzenetDiv.style.display = 'block';
+    }
+
+    // === Beállítások panel ===
+    function beallitasokNyit() {
+        const stored = localStorage.getItem(KULCS);
+        if (stored) document.getElementById('tisztaNapInput').value = stored;
+        document.getElementById('beallitasokPanel').classList.add('nyitva');
+        document.getElementById('beallitasokHatter').classList.add('nyitva');
+    }
+
+    function beallitasokZar() {
+        document.getElementById('beallitasokPanel').classList.remove('nyitva');
+        document.getElementById('beallitasokHatter').classList.remove('nyitva');
+    }
+
+    function datumMent() {
+        const val = document.getElementById('tisztaNapInput').value;
+        if (val) {
+            localStorage.setItem(KULCS, val);
+            renderNap(aktivDatum);
+            beallitasokZar();
+        }
+    }
+
+    function datumTorol() {
+        localStorage.removeItem(KULCS);
+        document.getElementById('tisztaNapInput').value = '';
+        renderNap(aktivDatum);
+        beallitasokZar();
+    }
+
+    // === Naptár panel ===
+    let aktivDatum = today;
+
+    function naptarNyit() {
+        const y = aktivDatum.getFullYear();
+        const m = String(aktivDatum.getMonth() + 1).padStart(2, '0');
+        const d = String(aktivDatum.getDate()).padStart(2, '0');
+        document.getElementById('naptarInput').value = `${y}-${m}-${d}`;
+        document.getElementById('naptarPanel').classList.add('nyitva');
+        document.getElementById('naptarHatter').classList.add('nyitva');
+    }
+
+    function naptarZar() {
+        document.getElementById('naptarPanel').classList.remove('nyitva');
+        document.getElementById('naptarHatter').classList.remove('nyitva');
+    }
+
+    function naptarMutat() {
+        const val = document.getElementById('naptarInput').value;
+        if (!val) return;
+        const parts = val.split('-');
+        aktivDatum = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+        renderNap(aktivDatum);
+        naptarZar();
+    }
+
+    function naptarMa() {
+        aktivDatum = today;
+        renderNap(aktivDatum);
+        naptarZar();
+    }
+
+    renderNap(today);
+
+    // === Service Worker ===
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/service-worker.js')
+                .then(r => console.log('Service Worker regisztrálva:', r))
+                .catch(e => console.error('Service Worker regisztrálása sikertelen:', e));
+        });
+    }
+</script>
+
+</body>
+</html>
