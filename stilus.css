@@ -22,7 +22,7 @@ h4 {
     width: 80%;
     max-width: 800px;
     font-size: 18px;
-    text-align: center;
+    text-align: left;
     border-radius: 5px;
     background-color: inherit;
     color: #1a2a5e;
@@ -41,7 +41,7 @@ h4 {
     width: 80%;
     max-width: 800px;
     font-size: 15px;
-    text-align: center;
+    text-align: left;
     font-style: italic;
     color: #4a5a8e;
 }
@@ -380,7 +380,7 @@ body.betu-nagy .jozan-uzenet { font-size: 22px; }
         width: 100%;
         box-sizing: border-box;
         padding-left: 16px;
-        padding-right: 16px;
+        padding-right: 64px;
     }
 
     .day-paragraph,
