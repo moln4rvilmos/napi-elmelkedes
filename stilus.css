@@ -111,7 +111,7 @@ a {
     transform: scale(1.1);
 }
 
-.jozsan-uzenet .fa-cake-candles {
+.jozan-uzenet .fa-cake-candles {
     position: absolute;
     left: 20px;
     top: 18px;
@@ -212,7 +212,7 @@ a {
 }
 
 /* === JÓZANSÁG ÜZENET === */
-.jozsan-uzenet {
+.jozan-uzenet {
     display: none;
     position: relative;
     border-radius: 10px;
@@ -281,7 +281,7 @@ a {
     .ikon:hover {
         background-color: rgba(100,10,10,0.95);
     }
-    .jozsan-uzenet .fa-cake-candles {
+    .jozan-uzenet .fa-cake-candles {
         color: #e03030;
         position: absolute;
         left: 20px;
@@ -309,7 +309,7 @@ a {
         background-color: #4a1010;
         color: #e08080;
     }
-    .jozsan-uzenet {
+    .jozan-uzenet {
         background-color: #2a0505;
         color: #f0e8c8;
         border-top-color: #e03030;
@@ -328,7 +328,7 @@ a {
     }
 
     .day-paragraph,
-    .jozsan-uzenet {
+    .jozan-uzenet {
         width: 100%;
         box-sizing: border-box;
         border-radius: 0;

@@ -63,7 +63,7 @@
 <!-- Főoldal tartalma -->
 <div id="datum" class="date"></div>
 <div id="nevnap" class="nevnap"></div>
-<div id="jozsanUzenet" class="jozsan-uzenet"></div>
+<div id="jozanUzenet" class="jozan-uzenet"></div>
 <div id="tartalom" class="day-paragraph"></div>
 
 <script src="napok.js"></script>
@@ -113,7 +113,7 @@
         }
 
         // === Józanság ===
-        const uzenetDiv = document.getElementById('jozsanUzenet');
+        const uzenetDiv = document.getElementById('jozanUzenet');
         const stored = localStorage.getItem(KULCS);
 
         if (!stored) {
