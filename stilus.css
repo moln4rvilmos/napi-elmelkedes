@@ -224,7 +224,7 @@ a {
     color: #1a2a5e;
     text-align: center;
     line-height: 1.7;
-    border-top: 4px solid #7a1520;
+
     box-shadow: 0 6px 28px rgba(26, 42, 94, 0.13);
 }
 
@@ -253,7 +253,7 @@ a {
         color: #f0e8c8;
     }
     h4 {
-        color: #e03030;
+        color: #d4a017;
     }
     .day-paragraph {
         background-color: #2a0505;
@@ -272,17 +272,17 @@ a {
     }
     .book-icon::before,
     .day-paragraph p::before {
-        color: #e03030;
+        color: #d4a017;
     }
     .ikon {
         background-color: rgba(80,5,5,0.9);
-        color: #e03030;
+        color: #d4a017;
     }
     .ikon:hover {
         background-color: rgba(100,10,10,0.95);
     }
     .jozan-uzenet .fa-cake-candles {
-        color: #e03030;
+        color: #d4a017;
         position: absolute;
         left: 20px;
         top: 18px;
@@ -312,7 +312,7 @@ a {
     .jozan-uzenet {
         background-color: #2a0505;
         color: #f0e8c8;
-        border-top-color: #e03030;
+
         box-shadow: 0 6px 28px rgba(0, 0, 0, 0.45);
     }
 }
