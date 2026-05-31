@@ -249,14 +249,14 @@ a {
 /* === SÖTÉT TÉMA === */
 @media (prefers-color-scheme: dark) {
     body {
-        background-color: #1e0805;
+        background-color: #1a0000;
         color: #f0e8c8;
     }
     h4 {
-        color: #d4a843;
+        color: #e03030;
     }
     .day-paragraph {
-        background-color: #2e1209;
+        background-color: #2a0505;
         color: #f0e8c8;
         box-shadow: 0 6px 28px rgba(0, 0, 0, 0.45);
     }
@@ -265,24 +265,24 @@ a {
         color: #f0e8c8;
     }
     .nevnap {
-        color: #c8b888;
+        color: #e08080;
     }
     a {
-        color: #d4a843;
+        color: #e03030;
     }
     .book-icon::before,
     .day-paragraph p::before {
-        color: #d4a843;
+        color: #e03030;
     }
     .ikon {
-        background-color: rgba(61, 26, 14, 0.9);
-        color: #d4a843;
+        background-color: rgba(80,5,5,0.9);
+        color: #e03030;
     }
     .ikon:hover {
-        background-color: rgba(80, 35, 18, 0.95);
+        background-color: rgba(100,10,10,0.95);
     }
     .jozsan-uzenet .fa-cake-candles {
-        color: #d4a843;
+        color: #e03030;
         position: absolute;
         left: 20px;
         top: 18px;
@@ -294,11 +294,11 @@ a {
         color: #f0e8c8;
     }
     .beallitas-sor label {
-        color: #c8b888;
+        color: #e08080;
     }
     .beallitas-sor input[type="date"] {
-        background-color: #2e1209;
-        border-color: #6a3020;
+        background-color: #2a0505;
+        border-color: #7a1515;
         color: #f0e8c8;
     }
     .gomb-ment {
@@ -306,13 +306,13 @@ a {
         color: #f0e8c8;
     }
     .gomb-torol {
-        background-color: #4a2818;
-        color: #c8b888;
+        background-color: #4a1010;
+        color: #e08080;
     }
     .jozsan-uzenet {
-        background-color: #2e1209;
+        background-color: #2a0505;
         color: #f0e8c8;
-        border-top-color: #d4a843;
+        border-top-color: #e03030;
         box-shadow: 0 6px 28px rgba(0, 0, 0, 0.45);
     }
 }
