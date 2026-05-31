@@ -42,7 +42,7 @@ Más a helyzet viszont otthon vagy a munkahelyemen. Az itteni szitu&shy;ációkb
 Olyan dilemmával néztem szembe, amilyennel még soha, de - mint később meg&shy;értettem - ez szük&shy;ség&shy;sze&shy;rű volt, ha sikert akartam elérni ebben a prog&shy;ram&shy;ban.</p>`},
   "01-06": {datum: `Január 06.`, tartalom: `<h4>Győz a feladás</h4>
 
- <div class="quote"><span class="book-icon"></span><em>Meg&shy;értjük, hogy épp ez a teljes kudarc teszi lehe&shy;tővé az első lépést a fel&shy;sza&shy;ba&shy;du&shy;lás és meg&shy;erősödés felé. Egyéni gyen&shy;ge&shy;sé&shy;günk beis&shy;merése végül is szilárd alapkővé válik, amire egy bol&shy;dog és céltuda&shy;tos élet építhető.<br>
+ <div class="quote"><span class="book-icon"></span><em>Meg&shy;értjük, hogy épp ez a teljes kudarc teszi lehe&shy;tővé az Első Lépést a fel&shy;sza&shy;ba&shy;du&shy;lás és meg&shy;erősödés felé. Egyéni gyen&shy;ge&shy;sé&shy;günk beis&shy;merése végül is szilárd alapkővé válik, amire egy bol&shy;dog és céltuda&shy;tos élet építhető.<br>
 (Tizen&shy;két lépés és Tizen&shy;két ha&shy;gyo&shy;mány, 21.old.)</em></div>
 
 <p>Amikor életem minden terü&shy;letét az al&shy;ko&shy;hol be&shy;fo&shy;lyásolta, és az üveg vált ön&shy;ma&shy;gam kényeztetésének és a magammal szembeni engedékenységnek a szimbólumává, amikor végül rájöttem, hogy egymagam semmit nem tehetek, hogy leg&shy;yőzzem az al&shy;ko&shy;hol hatalmát, akkor értettem meg&shy;, hogy semmilyen más kibúvóm nincs, mint a feladás. A feladásban meg&shy;ta&shy;lál&shy;tam a győzelmet: győzelmet saját magam önző kényeztetése felett, győzelmet a konok ellenállásom felett saját életemmel szemben.<br>
@@ -75,7 +75,7 @@ Az Első Lépés, amelyben be&shy;is&shy;mer&shy;tem, hogy te&shy;he&shy;tet&shy
   "01-10": {datum: `Január 10.`, tartalom: `<h4>Egységben az erő</h4>
 
 
-<div class="quote"><span class="book-icon"></span><em>Lelkünk leg&shy;mélyén el kell is&shy;mernünk, hogy al&shy;ko&shy;ho&shy;lis&shy;ták vagyunk. Ez az első lépés a gyó&shy;gyulás felé. El kell vetni azt a tévhitet, hogy olyanok vagyunk, vagy nem&shy;so&shy;ká&shy;ra olyanok lehetünk, mint má&shy;sok&shy;.<br>
+<div class="quote"><span class="book-icon"></span><em>Lelkünk leg&shy;mélyén el kell is&shy;mernünk, hogy al&shy;ko&shy;ho&shy;lis&shy;ták vagyunk. Ez az Első Lépés a gyó&shy;gyulás felé. El kell vetni azt a tévhitet, hogy olyanok vagyunk, vagy nem&shy;so&shy;ká&shy;ra olyanok lehetünk, mint má&shy;sok&shy;.<br>
 (Ano&shy;nim Al&shy;ko&shy;ho&shy;lis&shy;ták, 29.old.)</em></div>
 
 <p>Azért jöttem az Ano&shy;nim Al&shy;ko&shy;ho&shy;lis&shy;ták Kö&shy;zös&shy;ségébe, mert már nem tudtam az ivászatomat kontrollálni. Vagy a feleségem panaszkodott az ivászatom miatt, vagy a rendőrkapitány kö&shy;te&shy;lezett arra, hogy az AA-gyű&shy;lé&shy;sekre járjak, vagy talán a lelkem leg&shy;mélyén magam is tudtam, hogy nem tudok úgy inni, mint má&shy;sok&shy;, mégsem voltam haj&shy;lan&shy;dó ezt beis&shy;merni, mert az alternatíva elrettentett. Az Ano&shy;nim Al&shy;ko&shy;ho&shy;lis&shy;ták olyan kö&shy;zös&shy;ség, amelyben férfiak és nők egyesítik erejüket a közös, halálos beteg&shy;séggel szemben.<br>
@@ -462,7 +462,7 @@ Amikor rossz napom van és minden balul sül el, egy gyű&shy;lés vagy egy besz
  &hellip; Minden új tag, akiben meg&shy;van a készség, az AA-ban sejti élete hányódó hajójának biztos révét. Ha ez nem aka&shy;ratunk és éle&shy;tünk rábízása egy újon&shy;nan felfedezett Gond&shy;vi&shy;se&shy;lésre, akkor micsoda&shy;?<br>
 (Tizen&shy;két lépés és Tizen&shy;két ha&shy;gyo&shy;mány, 36.old.)</em></div>
 
-<p>Az első lépés a fel&shy;é&shy;pü&shy;lésem felé az volt, hogy rábíztam magam Istenre. Hiszek abba&shy;n, hogy Kö&shy;zös&shy;ségünk az Istennel újfajta kap&shy;cso&shy;latra nyitott spiri&shy;tua&shy;litást keresi. Amint igyek&shy;szem a Lépések ösvényét követni, olyan sza&shy;badságot érzek, amely ké&shy;pes&shy;sé tesz arra, hogy a saját fejemmel gon&shy;dol&shy;kodjak. Függőségem a sza&shy;badulás reménye nélkül rabul ejtett engem, és meg&shy;akadá&shy;lyozta, hogy kisza&shy;badulhassak a magam által létre&shy;hozott fogságból, de az AA biz&shy;to&shy;sítja számomra az előre haladás útját. Gon&shy;do&shy;lataink meg&shy;osztása, az egymással való törődés ter&shy;mé&shy;szet&shy;ünkből fakadó aján&shy;dék a többieknek, és az az aján&shy;dék, amit én kapok, erősödik, amikor másképp közeledem Isten felé. meg&shy;tanulom, hogy az életemet alávetem Isten aka&shy;ratának, meg&shy;tanulom becsülni magam, és tudom, hogy ezeket a tulaj&shy;don&shy;ságokat akkor tarthatom meg&shy;, ha tovább&shy;adom azt, amit kapok.</p>`},
+<p>Az Első Lépés a fel&shy;é&shy;pü&shy;lésem felé az volt, hogy rábíztam magam Istenre. Hiszek abba&shy;n, hogy Kö&shy;zös&shy;ségünk az Istennel újfajta kap&shy;cso&shy;latra nyitott spiri&shy;tua&shy;litást keresi. Amint igyek&shy;szem a Lépések ösvényét követni, olyan sza&shy;badságot érzek, amely ké&shy;pes&shy;sé tesz arra, hogy a saját fejemmel gon&shy;dol&shy;kodjak. Függőségem a sza&shy;badulás reménye nélkül rabul ejtett engem, és meg&shy;akadá&shy;lyozta, hogy kisza&shy;badulhassak a magam által létre&shy;hozott fogságból, de az AA biz&shy;to&shy;sítja számomra az előre haladás útját. Gon&shy;do&shy;lataink meg&shy;osztása, az egymással való törődés ter&shy;mé&shy;szet&shy;ünkből fakadó aján&shy;dék a többieknek, és az az aján&shy;dék, amit én kapok, erősödik, amikor másképp közeledem Isten felé. meg&shy;tanulom, hogy az életemet alávetem Isten aka&shy;ratának, meg&shy;tanulom becsülni magam, és tudom, hogy ezeket a tulaj&shy;don&shy;ságokat akkor tarthatom meg&shy;, ha tovább&shy;adom azt, amit kapok.</p>`},
   "03-09": {datum: `Március 09.`, tartalom: `<h4>Önfejűségünk feladása</h4>
 
 <div class="quote"><span class="book-icon"></span><em>Elha&shy;tároztuk, hogy aka&shy;ratunkat és éle&shy;tünk&shy;et - a saját fel&shy;fo&shy;gásunk szerinti - Isten Gond&shy;vi&shy;se&shy;lésére bízzuk.<br>
@@ -510,7 +510,7 @@ Való&shy;jában azonban a Harmadik Lépés is csak egy a többi tizenkettő kö
 (Ano&shy;nim Al&shy;ko&shy;ho&shy;lis&shy;ták, 50.old.)</em></div>
 
 <p>Ahogy a vak em&shy;ber fo&shy;ko&shy;zatosan vissza&shy;nyeri látását, olyan lassan, tapogatózva jutottam előre a Harmadik Lépéshez vezető úton. Amikor meg&shy;győződtem arról, hogy csak egy nálam ha&shy;tal&shy;ma&shy;sabb Erő ké&shy;pes kisza&shy;badítani abból a re&shy;mény&shy;te&shy;len szaka&shy;dékból, amelyben voltam, tudtam, hogy ebbe az Erőbe kell kapaszkodnom, és ez horgonyként tart meg a szomorúság tengerén. Bár akkoriban csak nagyon kevéske hitem volt, ele&shy;gen&shy;dő volt ahhoz, hogy belássam, nem hagyat&shy;kozhatom többé a büszke egómra, és inkább arra a fo&shy;ko&shy;zatosan növekvő erőre támasz&shy;kodom, mely egy nálamnál sokkal nagyobb Erőtől származik.</p>`},
-  "03-16": {datum: `Március 16.`, tartalom: `<h4>A saját fel&shy;fo&shy;gásunk szerinti isten</h4>
+  "03-16": {datum: `Március 16.`, tartalom: `<h4>A saját fel&shy;fo&shy;gásunk szerinti Isten</h4>
 
 <div class="quote"><span class="book-icon"></span><em>Ekkor ba&shy;rátom valami olyasmit vetett föl, ami új ötletet adott. Ezt mondta: &bdquo;Miért nem vá&shy;lasztasz egy saját elkép&shy;zelésed szerinti Isten-fogalmat?&rdquo; Ez a kijelen&shy;tés mélyen meg&shy;ragadott. meg&shy;törte azt a jeges intellektualizmust, melytől annyit szen&shy;vedtem éveken át. Végre napfényre kerültem. Már csak attól függött az egész, hogy haj&shy;lan&shy;dó vagyok-e hinni egy nálam nagyobb Hatalomban. Az elinduláshoz semmi többet nem kellett tennem.<br>
 (Ano&shy;nim Al&shy;ko&shy;ho&shy;lis&shy;ták, 11-12.old.)</em></div>
@@ -906,7 +906,7 @@ Az Ötödik Lépés meg&shy;tételéhez jó, ha olyas&shy;valakit vá&shy;laszto
 
 <p>Az alá&shy;zat hangzásra nagyon hasonló a meg&shy;alázkodáshoz, de való&shy;jában azt a ké&shy;pes&shy;séget jelen&shy;ti, hogy lássam és őszintén el&shy;fo&shy;gadjam magam.<br>
 Többé már nem kell a leg&shy;ügyesebbnek, leg&shy;makacsabbnak, egyáltalán semmi &bdquo;leg&shy;&rdquo;-nek lennem. Végül is, rendjén van, hogy én én vagyok. Számomra egy&shy;sze&shy;rűbb el&shy;fo&shy;gadni saját magamat, ha egész éltemet meg&shy;osztom má&shy;sok&shy;kal. Ha a gyű&shy;lé&shy;seken nem tudom meg&shy;osztani az érzéseimet, akkor kell, hogy leg&shy;yen szponzorom, egy olyan em&shy;ber, akivel meg tudom beszélni &bdquo;azokat a dolgokat&rdquo;, amelyek vissza&shy;vihetnek az iváshoz, a halálba. Mindegyik lépést meg kell tennem. Az Ötödik Lépésre azért van szük&shy;ségem, hogy alá&shy;zatot tanuljak. Ennél egy&shy;sze&shy;rűbb módszer nem létezik.</p>`},
-  "05-15": {datum: `Május 15.`, tartalom: `<h4>Ha meg&shy;ta&shy;lálod istent, meg&shy;ta&shy;lálod a békét</h4>
+  "05-15": {datum: `Május 15.`, tartalom: `<h4>Ha meg&shy;ta&shy;lálod Istent, meg&shy;ta&shy;lálod a békét</h4>
 
 <div class="quote"><span class="book-icon"></span><em>Nyilván&shy;való&shy;, hogy a súlyos neheztelésekkel teli élet ered&shy;ménytelenségre és bol&shy;dog&shy;talanságra vezet&hellip;. Mivel az al&shy;ko&shy;ho&shy;lis&shy;ta a spi&shy;ri&shy;tu&shy;á&shy;lis élmény meg&shy;őrzését és növekedését reméli, a neheztelés kimondhatatlanul súlyos a számára.<br>
 (Ano&shy;nim Al&shy;ko&shy;ho&shy;lis&shy;ták, 63.old.)</em></div>
@@ -949,7 +949,7 @@ Többé már nem kell a leg&shy;ügyesebbnek, leg&shy;makacsabbnak, egyáltalán
 
 <p>Miért kell hálásnak lennem? Leültem, hogy felsoroljam azt a sok áldást, amiket készen kaptam, kezdve azon, hogy testben és lélekben épnek születtem. Hetvennégy évnyi életem listája két oldalt tett ki, két órámba telt, hogy leírjam; benne van az egészség, a csa&shy;lád, pénz, az AA - teljes a leltár.<br>
 min&shy;den&shy;na&shy;pi imáimban arra kérem Istent, segítsen, hogy emlé&shy;kezzek erre a listára, és hogy egész nap hálás leg&shy;yek. Ha nem felejtem el ezt a hálalistát, nem hihetem azt, hogy Isten arra szemelt ki, hogy büntessen. </p>`},
-  "05-22": {datum: `Május 22.`, tartalom: `<h4>Első lépés</h4>
+  "05-22": {datum: `Május 22.`, tartalom: `<h4>Első Lépés</h4>
 
 <div class="quote"><span class="book-icon"></span><em>Mi &hellip;<sup>*</sup><br>
 (Tizen&shy;két lépés és Tizen&shy;két ha&shy;gyo&shy;mány, 21.old.)</em></div>
@@ -1107,7 +1107,7 @@ Amint az AA fényébe lépek, szívem eltelik Isten jelen&shy;létével.</p>`},
 (Ano&shy;nim Al&shy;ko&shy;ho&shy;lis&shy;ták, 15.old.)</em></div>
 
 <p>Mikor az AA-ba kerültem, rájöttem, hogy az AA remekül működik, mert segít józannak maradnom. De működik-e a való élet ivással nem össze&shy;függő prob&shy;lé&shy;mái meg&shy;oldásakor is? Kétségeim voltak. miu&shy;tán már több mint két éve voltam józan, vá&shy;laszt kaptam kérdésemre. Elvesztettem az állásomat, egészségi prob&shy;lé&shy;máim voltak, cukorbeteg apám lábát amputálni kellett, és az, akit szerettem, elhagyott egy másik miatt - és mindez két hét leforgása alatt történt. Rám tört a való&shy;ság, de az AA ott volt nekem: támogatott, vigasztalt, erősített. Az elvek, melyeket józan&shy;ságom kezdetén meg&shy;tanultam, életem vezérfonalává váltak, és így nemcsak hogy sikerült ezek szerint élnem, hanem az újaknak is mindig tudtam segíteni. Az AA meg&shy;ta&shy;ní&shy;tott arra, hogy ne ha&shy;tal&shy;masodjanak el rajtam a gondok, hanem el&shy;fo&shy;gadjam, és meg is értsem azt, amit az élet hoz.</p>`},
-  "06-15": {datum: `Június 15.`, tartalom: `<h4>Leg&shy;yen az AA a felsőbb erőd</h4>
+  "06-15": {datum: `Június 15.`, tartalom: `<h4>Leg&shy;yen az AA a Felsőbb Erőd</h4>
 
 <div class="quote"><span class="book-icon"></span><em>Ha akarod, meg&shy;teheted akár az AA-t is &bdquo;fel&shy;sőbb&shy;ren&shy;dű erődnek&rdquo;. Íme egy te&shy;kintélyes számú em&shy;bercsoport, amelynek tagjai meg&shy;oldották al&shy;ko&shy;holprob&shy;lé&shy;májukat&hellip; Sok tag &hellip; így lépte át a küszöböt &hellip; hitük meg&shy;erősödött és elmélyült &hellip; életük meg&shy;magya&shy;ráz&shy;hatatlanul meg&shy;változott, eljutottak egy Magasabbrendű Hatalomban való hitre&hellip;<br>
 (Tizen&shy;két lépés és Tizen&shy;két ha&shy;gyo&shy;mány, 28-29.old.)</em></div>
@@ -1934,7 +1934,7 @@ Az alapelv, hogy maradandó erőre mindaddig nem tehetünk szert, amíg be nem l
 (Tizen&shy;két lépés és Tizen&shy;két ha&shy;gyo&shy;mány, 29.old.)</em></div>
 
 <p>Józan&shy;ságom első éveiben Isten fogalma volt az egyik, amivel nagyon sokat küszködtem. A múltban gyökerező, bennem felmerülő képek tele voltak félelemmel, elutasí&shy;tással és ítélkezéssel. Aztán meg&shy;is&shy;mertem egy ba&shy;rátom, Ed Felsőbb Erőről alkotott képét: kisfiúként rábíztak egy alomnyi kiskutyát, mert úgy gon&shy;dol&shy;ták, fe&shy;le&shy;lős&shy;séggel fog gondoskodni róluk. Minden reggel ott ta&shy;lálta a kiskutyák elke&shy;rül&shy;he&shy;tet&shy;len melléktermékét a konyha padlóján.<br>
-Bosszankodott, de mégsem lett dühös, mivel - ahogy mondta – &bdquo;a kiskutyák már csak ilyenek&rdquo;. Ed úgy érzi, hogy Isten hasonló meg&shy;értéssel és meleg&shy;séggel te&shy;kint a mi fogya&shy;té&shy;kosságainkra és hibáinkra is. Ha valami meg&shy;zavar, sokszor merítek erőt Ed meg&shy;nyugtató isten fogalmából.</p>`},
+Bosszankodott, de mégsem lett dühös, mivel - ahogy mondta – &bdquo;a kiskutyák már csak ilyenek&rdquo;. Ed úgy érzi, hogy Isten hasonló meg&shy;értéssel és meleg&shy;séggel te&shy;kint a mi fogya&shy;té&shy;kosságainkra és hibáinkra is. Ha valami meg&shy;zavar, sokszor merítek erőt Ed meg&shy;nyugtató Isten fogalmából.</p>`},
   "10-21": {datum: `Október 21.`, tartalom: `<h4>Sötétben semmi sem nő</h4>
 
 <div class="quote"><span class="book-icon"></span><em>Azt akarjuk, hogy a ben&shy;nünk lappangó jó - és ez még a leg&shy;hitványabba&shy;kban is meg&shy;van - nőjön és virágozzon.<br>
@@ -2050,7 +2050,7 @@ Isten úgy vá&shy;laszol, hogy meg&shy;oldást küld a prob&shy;lé&shy;máimra
 
 <p>Mikor felkelek reggel, leg&shy;először ezt mondom: &bdquo;Felkelek Istenem, hogy tel&shy;je&shy;sítsem aka&shy;ratoda&shy;t.&rdquo;<br>
 Ez a leg&shy;rövidebb ima, amit is&shy;merek, de mélyen belém ivódott. Az ima nem Isten velem kap&shy;cso&shy;latos visel&shy;kedését változtatja meg&shy;, hanem az enyémet Ő iránta. Az ima abba&shy;n kü&shy;lönbözik a medi&shy;tációtól, hogy az utóbbi szavak nélküli csendes időszak, amikor koncentrálok, testileg és érzelmileg nyugodt vagyok, mentálisan össze&shy;szedett, spi&shy;ri&shy;tu&shy;á&shy;lisan pedig éber. Az Istennel való tuda&shy;tos kap&shy;cso&shy;lattartás tö&shy;ké&shy;le&shy;te&shy;sí&shy;té&shy;sé&shy;nek egyik módja a folya&shy;matos hála. Azokon a napokon, amikor hálás vagyok, jó dolgok történnek az életemben. abba&shy;n a pil&shy;la&shy;natban azonban, amikor elkezdek szit&shy;ko&shy;zód&shy;ni, a jó áramlása abba&shy;marad. Nem Isten állí&shy;totta meg az áramlást, hanem az én nega&shy;tívitásom.</p>`},
-  "11-07": {datum: `Novem&shy;ber 07.`, tartalom: `<h4>Engedd el és engedd istent működni</h4>
+  "11-07": {datum: `Novem&shy;ber 07.`, tartalom: `<h4>Engedd el és engedd Istent működni</h4>
 
 <div class="quote"><span class="book-icon"></span><em>&hellip; csupán azt kérve, hogy velünk kap&shy;cso&shy;latos aka&shy;ratát fel&shy;is&shy;merhessük, és erőt, hogy azt kivi&shy;te&shy;lez&shy;hessük.<br>
 (Tizen&shy;két lépés és Tizen&shy;két ha&shy;gyo&shy;mány, 98.old.)</em></div>
