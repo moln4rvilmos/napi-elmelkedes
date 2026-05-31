@@ -15,7 +15,7 @@ h4 {
 }
 
 /* Dátum stílusa */
-.date {
+.datum {
     padding: 10px 20px;
     margin: 0 auto;
     margin-top: 5px;
@@ -238,7 +238,7 @@ a {
         background-color: #fdfaf0;
         color: #1a2a5e;
     }
-    .date {
+    .datum {
         color: #1a2a5e;
     }
     .nevnap {
@@ -260,7 +260,7 @@ a {
         color: #f0e8c8;
         box-shadow: 0 6px 28px rgba(0, 0, 0, 0.45);
     }
-    .date {
+    .datum {
         background-color: inherit;
         color: #f0e8c8;
     }
@@ -319,7 +319,7 @@ a {
 
 /* === MOBIL (max 640px): nincs kártya, teljes szélesség === */
 @media (max-width: 640px) {
-    .date,
+    .datum,
     .nevnap {
         width: 100%;
         box-sizing: border-box;
