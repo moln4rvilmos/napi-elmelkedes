@@ -165,9 +165,9 @@
                 és segíts másoknak is a felépülésben!`;
             } else if (mN === tN && napokSzama > 1) {
                 const honapok = (dMidnight.getFullYear() - tiszta.getFullYear()) * 12 + (mH - tH);
-                uzenet = `${ikon}Ma <strong>${honapok} hónapja</strong>, azaz <strong>${napokSzama} napja</strong> vagy tiszta. Gratulálok!`;
+                uzenet = `${ikon}Ma <strong>${honapok} hónapja</strong>, azaz <strong>${napokSzama} napja</strong> vagy tiszta.<br>Gratulálok!`;
             } else {
-                uzenet = `${ikon}Ma <strong>${napokSzama} napja</strong> vagy tiszta. Gratulálok!`;
+                uzenet = `${ikon}Ma <strong>${napokSzama} napja</strong> vagy tiszta.<br>Gratulálok!`;
             }
         } else {
             const tMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());

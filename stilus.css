@@ -118,11 +118,9 @@ a {
 }
 
 .jozan-uzenet .fa-cake-candles {
-    position: absolute;
-    left: 20px;
-    top: 18px;
     color: #7a1520;
     font-size: 18px;
+    margin-right: 6px;
 }
 
 /* === BEÁLLÍTÁSOK PANEL === */
@@ -220,7 +218,6 @@ a {
 /* === JÓZANSÁG ÜZENET === */
 .jozan-uzenet {
     display: none;
-    position: relative;
     border-radius: 10px;
     padding: 20px;
     margin: 5px auto;
@@ -228,9 +225,8 @@ a {
     max-width: 800px;
     background-color: #fdfaf0;
     color: #1a2a5e;
-    text-align: center;
+    text-align: left;
     line-height: 1.7;
-
     box-shadow: 0 6px 28px rgba(26, 42, 94, 0.13);
 }
 
@@ -327,9 +323,6 @@ body.betu-nagy .jozan-uzenet { font-size: 22px; }
     }
     .jozan-uzenet .fa-cake-candles {
         color: #d4a017;
-        position: absolute;
-        left: 20px;
-        top: 18px;
     }
     .beallitasok-panel {
         background-color: #180704;
