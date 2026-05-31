@@ -228,6 +228,44 @@ a {
     box-shadow: 0 6px 28px rgba(26, 42, 94, 0.13);
 }
 
+/* === BETŰMÉRET === */
+body.betu-kozepes .datum     { font-size: 21px; }
+body.betu-kozepes .nevnap    { font-size: 18px; }
+body.betu-kozepes .day-paragraph,
+body.betu-kozepes .jozan-uzenet { font-size: 19px; }
+
+body.betu-nagy .datum        { font-size: 24px; }
+body.betu-nagy .nevnap       { font-size: 21px; }
+body.betu-nagy .day-paragraph,
+body.betu-nagy .jozan-uzenet { font-size: 22px; }
+
+.betu-valaszto {
+    display: flex;
+    gap: 8px;
+}
+
+.betu-gomb {
+    flex: 1;
+    padding: 10px 0;
+    border: 2px solid #b8b090;
+    border-radius: 10px;
+    background-color: #fdfaf0;
+    color: #1a2a5e;
+    cursor: pointer;
+    font-weight: 700;
+    transition: all 0.2s;
+}
+
+.betu-gomb:hover:not(.aktiv) {
+    background-color: #ede8d0;
+}
+
+.betu-gomb.aktiv {
+    background-color: #7a1520;
+    border-color: #7a1520;
+    color: #fdfaf0;
+}
+
 /* === VILÁGOS TÉMA === */
 @media (prefers-color-scheme: light) {
     body {
@@ -312,8 +350,20 @@ a {
     .jozan-uzenet {
         background-color: #2a0505;
         color: #f0e8c8;
-
         box-shadow: 0 6px 28px rgba(0, 0, 0, 0.45);
+    }
+    .betu-gomb {
+        background-color: #2a0505;
+        border-color: #7a1515;
+        color: #f0e8c8;
+    }
+    .betu-gomb:hover:not(.aktiv) {
+        background-color: #3a0808;
+    }
+    .betu-gomb.aktiv {
+        background-color: #7a1520;
+        border-color: #7a1520;
+        color: #f0e8c8;
     }
 }
 

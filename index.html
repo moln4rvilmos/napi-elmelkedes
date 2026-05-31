@@ -42,6 +42,14 @@
         <button class="gomb-ment" onclick="datumMent()">Mentés</button>
         <button class="gomb-torol" onclick="datumTorol()">Törlés</button>
     </div>
+    <div class="beallitas-sor">
+        <label>Betűméret:</label>
+        <div class="betu-valaszto">
+            <button id="betuKicsi"    class="betu-gomb" onclick="betuMeretAllit('')"><span style="font-size:13px">A</span></button>
+            <button id="betuKozepes"  class="betu-gomb" onclick="betuMeretAllit('betu-kozepes')"><span style="font-size:17px">A</span></button>
+            <button id="betuNagy"     class="betu-gomb" onclick="betuMeretAllit('betu-nagy')"><span style="font-size:21px">A</span></button>
+        </div>
+    </div>
 </div>
 
 <!-- Naptár panel háttérfüggöny -->
@@ -71,7 +79,19 @@
 <script>
     const today = new Date();
     const KULCS = 'tisztaNap';
+    const BETU_KULCS = 'betuMeret';
     const ikon = '<i class="fa-solid fa-cake-candles"></i>';
+    const betuOsztalyok = ['', 'betu-kozepes', 'betu-nagy'];
+    const betuGombIds  = ['betuKicsi', 'betuKozepes', 'betuNagy'];
+
+    function betuMeretAllit(osztaly) {
+        document.body.classList.remove('betu-kozepes', 'betu-nagy');
+        if (osztaly) document.body.classList.add(osztaly);
+        localStorage.setItem(BETU_KULCS, osztaly);
+        betuGombIds.forEach((id, i) =>
+            document.getElementById(id).classList.toggle('aktiv', betuOsztalyok[i] === osztaly)
+        );
+    }
 
     function datumId(d) {
         return String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
@@ -221,6 +241,7 @@
         naptarZar();
     }
 
+    betuMeretAllit(localStorage.getItem(BETU_KULCS) || '');
     renderNap(today);
 
     // === Service Worker ===
