@@ -7,6 +7,9 @@ body {
     margin: 0;
     padding: 0;
     background-color: #f5f0dc;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 h4 {
@@ -185,6 +188,14 @@ a {
     box-sizing: border-box;
 }
 
+.adatkezeles-link {
+    display: block;
+    margin-top: 4px;
+    font-size: 13px;
+    color: #4a5a8e;
+    text-decoration: underline;
+}
+
 .beallitas-gombok {
     display: flex;
     gap: 10px;
@@ -270,20 +281,14 @@ body.betu-nagy .jozan-uzenet { font-size: 22px; }
 
 /* === LÁBLÉC === */
 .labjegyzet {
-    max-width: 800px;
-    width: 80%;
+    width: 100%;
     box-sizing: border-box;
-    margin: 30px auto 10px;
+    margin-top: auto;
     padding: 14px 20px;
     display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 8px;
+    justify-content: center;
+    text-align: center;
     font-size: 13px;
-}
-
-.labjegyzet a {
-    text-decoration: underline;
 }
 
 /* === VILÁGOS TÉMA === */
@@ -304,10 +309,6 @@ body.betu-nagy .jozan-uzenet { font-size: 22px; }
     }
     .labjegyzet {
         color: #4a5a8e;
-        border-top: 1px solid rgba(26, 42, 94, 0.15);
-    }
-    .labjegyzet a {
-        color: #7a1520;
     }
 }
 
@@ -358,6 +359,9 @@ body.betu-nagy .jozan-uzenet { font-size: 22px; }
     .beallitas-sor label {
         color: #e08080;
     }
+    .adatkezeles-link {
+        color: #e08080;
+    }
     .beallitas-sor input[type="date"] {
         background-color: #2a0505;
         border-color: #7a1515;
@@ -391,10 +395,6 @@ body.betu-nagy .jozan-uzenet { font-size: 22px; }
     }
     .labjegyzet {
         color: #e08080;
-        border-top: 1px solid rgba(240, 232, 200, 0.15);
-    }
-    .labjegyzet a {
-        color: #d4a017;
     }
 }
 
@@ -417,12 +417,5 @@ body.betu-nagy .jozan-uzenet { font-size: 22px; }
         background-color: inherit;
         margin: 0;
         padding: 16px;
-    }
-
-    .labjegyzet {
-        width: 100%;
-        box-sizing: border-box;
-        padding-left: 16px;
-        padding-right: 16px;
     }
 }
