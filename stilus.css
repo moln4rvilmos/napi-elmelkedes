@@ -268,6 +268,24 @@ body.betu-nagy .jozan-uzenet { font-size: 22px; }
     color: #fdfaf0;
 }
 
+/* === LÁBLÉC === */
+.labjegyzet {
+    max-width: 800px;
+    width: 80%;
+    box-sizing: border-box;
+    margin: 30px auto 10px;
+    padding: 14px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 13px;
+}
+
+.labjegyzet a {
+    text-decoration: underline;
+}
+
 /* === VILÁGOS TÉMA === */
 @media (prefers-color-scheme: light) {
     body {
@@ -283,6 +301,13 @@ body.betu-nagy .jozan-uzenet { font-size: 22px; }
     }
     .nevnap {
         color: #4a5a8e;
+    }
+    .labjegyzet {
+        color: #4a5a8e;
+        border-top: 1px solid rgba(26, 42, 94, 0.15);
+    }
+    .labjegyzet a {
+        color: #7a1520;
     }
 }
 
@@ -364,6 +389,13 @@ body.betu-nagy .jozan-uzenet { font-size: 22px; }
         border-color: #7a1520;
         color: #f0e8c8;
     }
+    .labjegyzet {
+        color: #e08080;
+        border-top: 1px solid rgba(240, 232, 200, 0.15);
+    }
+    .labjegyzet a {
+        color: #d4a017;
+    }
 }
 
 /* === MOBIL (max 640px): nincs kártya, teljes szélesség === */
@@ -385,5 +417,12 @@ body.betu-nagy .jozan-uzenet { font-size: 22px; }
         background-color: inherit;
         margin: 0;
         padding: 16px;
+    }
+
+    .labjegyzet {
+        width: 100%;
+        box-sizing: border-box;
+        padding-left: 16px;
+        padding-right: 16px;
     }
 }

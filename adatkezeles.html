@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adatkezelés — Napi Elmélkedés</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="stilus.css">
+    <link rel="icon" href="/icons/favicon.ico" type="image/x-icon">
+    <style>
+        .info-oldal { max-width: 700px; margin: 0 auto; padding: 24px 20px 48px; box-sizing: border-box; }
+        .info-oldal h1 { font-size: 20px; }
+        .info-oldal h2 { font-size: 16px; margin-top: 24px; }
+        .info-oldal p, .info-oldal li { font-size: 14px; line-height: 1.7; }
+        .info-oldal ul { padding-left: 20px; }
+        .vissza { display: inline-block; margin-top: 24px; }
+    </style>
+</head>
+<body>
+<div class="info-oldal">
+    <h1>Adatkezelés és sütik</h1>
+
+    <p>A „Napi Elmélkedés” Molnár Vilmos magánjellegű, nem kereskedelmi weboldala.</p>
+
+    <h2>Google Analytics</h2>
+    <p>Az oldal a Google Analytics (GA4) szolgáltatást használja a látogatottság mérésére, anonimizált IP-cím
+    kezeléssel. Ez sütiket helyezhet el a böngésződben, és a látogatás adatait elküldi a Google-nek.</p>
+
+    <h2>Font Awesome ikonkészlet</h2>
+    <p>Az oldalon használt ikonok a Cloudflare CDN-jéről (cdnjs.cloudflare.com) töltődnek be, ezért a látogató
+    IP-címe eljut a Cloudflare-hez is.</p>
+
+    <h2>Helyi tárolás (localStorage)</h2>
+    <ul>
+        <li><strong>Első tiszta nap dátuma</strong> — kizárólag a saját böngésződben tárolódik, sehova nem kerül
+        elküldésre, csak a józanság-számláló megjelenítéséhez használja az oldal.</li>
+        <li><strong>Betűméret-beállítás</strong> — szintén csak helyben tárolt preferencia.</li>
+    </ul>
+
+    <h2>Service Worker (PWA)</h2>
+    <p>Az oldal telepíthető alkalmazásként, és egy Service Worker gondoskodik az offline működésről azáltal, hogy
+    a saját fájljait (HTML, CSS, JS) a böngésződben gyorsítótárazza.</p>
+
+    <h2>Elérhetőség</h2>
+    <p>Adatkezeléssel kapcsolatos kérdés esetén az oldal üzemeltetője a
+    <a href="https://freeframe.masto.host/@vili" target="_blank" rel="noopener">Mastodon-profilján</a> érhető el.</p>
+
+    <a class="vissza" href="index.html"><i class="fa-solid fa-arrow-left"></i> Vissza a főoldalra</a>
+</div>
+</body>
+</html>

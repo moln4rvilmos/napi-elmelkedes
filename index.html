@@ -73,10 +73,16 @@
 <div id="tartalom" class="day-paragraph"></div>
 <div id="jozanUzenet" class="jozan-uzenet"></div>
 
+<footer class="labjegyzet">
+    <span>&copy; <span id="evszam"></span> Molnár Vilmos</span>
+    <a href="adatkezeles.html">Adatkezelés</a>
+</footer>
+
 <script src="napok.js"></script>
 <script src="nevnapok.js"></script>
 <script>
     const today = new Date();
+    document.getElementById('evszam').textContent = today.getFullYear();
     const KULCS = 'tisztaNap';
     const BETU_KULCS = 'betuMeret';
     const ikon = '<i class="fa-solid fa-cake-candles"></i>';
