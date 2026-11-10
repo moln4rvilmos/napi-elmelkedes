@@ -1,0 +1,36 @@
+name: Deploy
+
+# Minden main ágra feltöltés után a weboldal fájljai kimennek az aa.vilix.hu-ra (Nethely, home/AA).
+# Csak a weboldalhoz kellő fájlok mennek ki; az Android-app, node_modules, APK stb. a GitHubon marad.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy via rsync
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.NETHELY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ssh.nethely.hu >> ~/.ssh/known_hosts
+          rsync -az --delete --itemize-changes \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes" \
+            --include='index.html' \
+            --include='adatkezeles.html' \
+            --include='stilus.css' \
+            --include='napok.js' \
+            --include='nevnapok.js' \
+            --include='manifest.json' \
+            --include='service-worker.js' \
+            --include='icons/' \
+            --include='icons/*.png' \
+            --include='icons/*.ico' \
+            --exclude='*' \
+            ./ vh-84024@ssh.nethely.hu:/var/www/customers/vh-84024/web/home/AA/

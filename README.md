@@ -22,7 +22,7 @@ Magyar nyelvű AA (Névtelen Alkoholisták) napi elmélkedések webapplikáció.
 | `stilus.css` | Stíluslap (világos + sötét mód) |
 | `service-worker.js` | PWA offline cache |
 | `manifest.json` | PWA manifest |
-| `deploy.sh` | FTP deploy szkript |
+| `.github/workflows/deploy.yml` | Automatikus kiküldés a szerverre |
 
 ## Telepítés / Fejlesztés
 
@@ -30,24 +30,6 @@ A projekt statikus HTML/JS/CSS, nincs build lépés. Elég egy webszerver a gyö
 
 ## Deploy
 
-**GitHub:**
-```bash
-git add -u
-git commit -m "Leírás"
-git push origin main
-```
-
-**Webszerver (Nethely FTP):**
-```bash
-./deploy.sh eles
-```
-
-Teszt feltöltés (`/AA/teszt` mappába):
-```bash
-./deploy.sh
-```
-
-> A GitHub token a remote URL-ben van tárolva. Ha tokent újítasz meg:
-> ```bash
-> git remote set-url origin https://UJTOKEN@github.com/moln4rvilmos/napi-elmelkedes.git
-> ```
+A `main` ágra történő minden feltöltés (push) után a GitHub Actions automatikusan kimásolja a weboldal
+fájljait az aa.vilix.hu-ra (Nethely, `home/AA`), SSH-kulccsal (`NETHELY` repository secret).
+Csak a weboldalhoz kellő fájlok mennek ki; az Android-app és a fejlesztői fájlok a GitHubon maradnak.
