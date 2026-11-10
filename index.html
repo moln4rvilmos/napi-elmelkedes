@@ -3,6 +3,15 @@
 <head>
 
     <meta charset="UTF-8">
+    <script>
+        // Mentett téma (világos/sötét) érvényesítése még a CSS előtt, hogy ne villanjon
+        (function () {
+            try {
+                var t = localStorage.getItem('tema');
+                if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+            } catch (e) {}
+        })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="me" href="https://freeframe.masto.host/@vili">
 	<title>Napi Elmélkedés</title>
@@ -13,10 +22,24 @@
 </head>
 <body>
 
-<!-- Rögzített ikonok jobb felül -->
-<div class="ikonok">
-    <span class="ikon" onclick="beallitasokNyit()"><i class="fa-solid fa-gear"></i></span>
-</div>
+<!-- Fejléc: cím + naptár, beállítások, témaválasztó -->
+<header class="fejlec">
+    <div class="fejlec-belso">
+        <a class="cim" href="./"><i class="fa-solid fa-book-open"></i> Napi Elmélkedés</a>
+        <div class="ikonok">
+            <button class="ikon" onclick="naptarNyit()" title="Naptár" aria-label="Naptár"><i class="fa-solid fa-calendar-days"></i></button>
+            <button class="ikon" onclick="beallitasokNyit()" title="Beállítások" aria-label="Beállítások"><i class="fa-solid fa-gear"></i></button>
+            <div class="tema-valaszto">
+                <button class="ikon" id="temaGomb" title="Téma" aria-label="Téma"><i class="fa-solid fa-circle-half-stroke"></i></button>
+                <div class="tema-menu" id="temaMenu">
+                    <button type="button" data-tema="light"><i class="fa-solid fa-sun"></i> Világos</button>
+                    <button type="button" data-tema="dark"><i class="fa-solid fa-moon"></i> Sötét</button>
+                    <button type="button" data-tema="auto"><i class="fa-solid fa-circle-half-stroke"></i> Automatikus</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
 
 <!-- Beállítások panel háttérfüggöny -->
 <div id="beallitasokHatter" class="beallitasok-hatter" onclick="beallitasokZar()"></div>
@@ -66,7 +89,10 @@
 <div id="jozanUzenet" class="jozan-uzenet"></div>
 
 <footer class="labjegyzet">
-    <span>&copy; <span id="evszam"></span> Molnár Vilmos</span>
+    <span class="pirula"><i class="fa-solid fa-users"></i> Látogatók összesen <b id="szamlaloOsszes">…</b></span>
+    <span class="pirula"><i class="fa-solid fa-calendar-day"></i> Ma <b id="szamlaloMa">…</b></span>
+    <span class="pirula"><i class="fa-solid fa-chart-line"></i> Ezen a héten <b id="szamlaloHet">…</b></span>
+    <span class="copy">&copy; <span id="evszam"></span> Molnár Vilmos · <a href="adatkezeles.html">Adatkezelés</a></span>
 </footer>
 
 <script src="napok.js"></script>
@@ -238,6 +264,41 @@
     }
 
     betuMeretAllit(localStorage.getItem(BETU_KULCS) || '');
+
+    // ── Témaválasztó (világos / sötét / automatikus) ──
+    (function () {
+        const gomb = document.getElementById('temaGomb');
+        const menu = document.getElementById('temaMenu');
+        function alkalmaz(t) {
+            if (t === 'light' || t === 'dark') {
+                document.documentElement.setAttribute('data-theme', t);
+                try { localStorage.setItem('tema', t); } catch (e) {}
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                try { localStorage.removeItem('tema'); } catch (e) {}
+                t = 'auto';
+            }
+            menu.querySelectorAll('button').forEach(b => b.classList.toggle('aktiv', b.dataset.tema === t));
+        }
+        let mentett = 'auto';
+        try { mentett = localStorage.getItem('tema') || 'auto'; } catch (e) {}
+        alkalmaz(mentett);
+        gomb.addEventListener('click', e => { e.stopPropagation(); menu.classList.toggle('nyitva'); });
+        menu.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { alkalmaz(b.dataset.tema); menu.classList.remove('nyitva'); }));
+        document.addEventListener('click', () => menu.classList.remove('nyitva'));
+    })();
+
+    // ── Látogatószámláló (saját, külső szolgáltatás nélkül) ──
+    fetch('counter.php', { cache: 'no-store' })
+        .then(r => r.json())
+        .then(d => {
+            document.getElementById('szamlaloOsszes').textContent = d.total;
+            document.getElementById('szamlaloMa').textContent = d.daily;
+            document.getElementById('szamlaloHet').textContent = d.weekly;
+        })
+        .catch(() => {
+            document.querySelectorAll('.labjegyzet .pirula').forEach(el => el.style.display = 'none');
+        });
     renderNap(today);
 
     // === Service Worker ===

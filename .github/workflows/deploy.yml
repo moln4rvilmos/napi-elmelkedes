@@ -29,6 +29,8 @@ jobs:
             --include='nevnapok.js' \
             --include='manifest.json' \
             --include='service-worker.js' \
+            --include='counter.php' \
+            --include='.htaccess' \
             --include='icons/' \
             --include='icons/*.png' \
             --include='icons/*.ico' \

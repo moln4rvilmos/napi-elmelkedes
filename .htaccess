@@ -1,0 +1,2 @@
+# A számláló adatfájlja ne legyen közvetlenül letölthető
+RedirectMatch 403 ^/data/

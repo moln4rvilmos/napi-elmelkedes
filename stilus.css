@@ -1,12 +1,71 @@
 @charset "utf-8";
 
+/* =====================================================================
+   Napi Elmélkedés — színvilág: a KEM REKUSOK családja
+   (indigókék fejléc, narancs kiemelés; világos és sötét téma).
+   Téma: automatikusan a rendszer szerint, vagy kézzel a fejléc
+   témaválasztójával (data-theme="light"/"dark" a <html> elemen).
+   ===================================================================== */
+
+:root {
+    --bg:        #e9ebf0;
+    --card:      #ffffff;
+    --text:      #1f1d3a;
+    --muted:     #5d5a7a;
+    --head:      #2a2a7a;
+    --link:      #2a2a7a;
+    --icon:      #e08a1e;
+    --acc:       #ffad42;
+    --acc-text:  #231a55;
+    --border:    #d6d6e6;
+    --input-bg:  #f6f6fb;
+    --panel:     #f4f4f9;
+    --hdr1:      #2b2c80;
+    --hdr2:      #241f6b;
+    --footer:    #0b0f2a;
+    --shadow:    0 2px 12px rgba(30, 20, 90, 0.10);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --bg:        #1d0b45;
+        --card:      #2a1160;
+        --text:      #e8e3f7;
+        --muted:     #b2a9d0;
+        --head:      #ffad42;
+        --link:      #ffb85c;
+        --icon:      #ffad42;
+        --border:    #3e2585;
+        --input-bg:  #22094f;
+        --panel:     #170838;
+        --hdr1:      #2a1470;
+        --hdr2:      #1d0b45;
+        --shadow:    0 6px 24px rgba(0, 0, 0, 0.45);
+    }
+}
+:root[data-theme="dark"] {
+    --bg:        #1d0b45;
+    --card:      #2a1160;
+    --text:      #e8e3f7;
+    --muted:     #b2a9d0;
+    --head:      #ffad42;
+    --link:      #ffb85c;
+    --icon:      #ffad42;
+    --border:    #3e2585;
+    --input-bg:  #22094f;
+    --panel:     #170838;
+    --hdr1:      #2a1470;
+    --hdr2:      #1d0b45;
+    --shadow:    0 6px 24px rgba(0, 0, 0, 0.45);
+}
+
 /* === ALAPSTÍLUSOK === */
 body {
     font-family: Arial, sans-serif;
-    color: #1a2a5e;
+    color: var(--text);
+    background-color: var(--bg);
     margin: 0;
     padding: 0;
-    background-color: #f5f0dc;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -14,30 +73,114 @@ body {
 
 h4 {
     text-transform: uppercase;
-    color: #7a1520;
+    color: var(--head);
 }
 
-/* Dátum stílusa */
+a { color: var(--link); }
+
+/* === FEJLÉC === */
+.fejlec {
+    background: linear-gradient(90deg, var(--hdr1), var(--hdr2));
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
+    position: sticky;
+    top: 0;
+    z-index: 300;
+}
+.fejlec-belso {
+    max-width: 800px;
+    margin: 0 auto;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 20px;
+}
+.cim {
+    color: #ffffff;
+    font-size: 19px;
+    font-weight: 600;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    letter-spacing: 0.3px;
+}
+.cim i { color: var(--acc); }
+.ikonok {
+    margin-left: auto;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.ikon {
+    cursor: pointer;
+    font-size: 18px;
+    color: #ffffff;
+    width: 38px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+    border: none;
+    transition: background-color 0.2s, transform 0.15s;
+}
+.ikon:hover {
+    background: var(--acc);
+    color: var(--acc-text);
+    transform: scale(1.06);
+}
+
+/* Témaválasztó */
+.tema-valaszto { position: relative; }
+.tema-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 46px;
+    min-width: 160px;
+    background: var(--card);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 6px;
+    z-index: 350;
+}
+.tema-menu.nyitva { display: block; }
+.tema-menu button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    background: none;
+    border: none;
+    color: var(--text);
+    font-size: 14px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: left;
+}
+.tema-menu button:hover { background: var(--bg); }
+.tema-menu button i { width: 16px; color: var(--icon); }
+.tema-menu button.aktiv { font-weight: 700; }
+
+/* === TARTALOM === */
 .datum {
     padding: 10px 20px;
     margin: 0 auto;
-    margin-top: 5px;
+    margin-top: 14px;
     width: 80%;
     max-width: 800px;
     font-size: 18px;
     text-align: left;
-    border-radius: 5px;
-    background-color: inherit;
-    color: #1a2a5e;
+    color: var(--text);
     cursor: pointer;
     transition: opacity 0.2s;
 }
+.datum:hover { opacity: 0.7; }
 
-.datum:hover {
-    opacity: 0.7;
-}
-
-/* Névnap sor */
 .nevnap {
     padding: 4px 20px 8px;
     margin: 0 auto;
@@ -46,23 +189,21 @@ h4 {
     font-size: 15px;
     text-align: left;
     font-style: italic;
-    color: #4a5a8e;
+    color: var(--muted);
 }
 
-/* Fejezet konténer */
 .day-paragraph {
-    border-radius: 10px;
+    border-radius: 14px;
     padding: 20px;
     margin: 5px auto;
     width: 80%;
     max-width: 800px;
-    background-color: #fdfaf0;
-    box-shadow: 0 6px 28px rgba(26, 42, 94, 0.13);
+    background-color: var(--card);
+    color: var(--text);
+    box-shadow: var(--shadow);
 }
 
-p {
-    text-align: justify;
-}
+p { text-align: justify; }
 
 .quote {
     margin-bottom: 10px;
@@ -74,7 +215,7 @@ p {
     font-weight: 900;
     content: "\f02d";
     margin-right: 6px;
-    color: #7a1520;
+    color: var(--icon);
 }
 
 .day-paragraph p::before {
@@ -82,51 +223,16 @@ p {
     font-weight: 900;
     content: "\f0eb";
     margin-right: 6px;
-    color: #7a1520;
-}
-
-a {
-    color: #7a1520;
-}
-
-/* === RÖGZÍTETT IKONOK === */
-.ikonok {
-    position: fixed;
-    top: 12px;
-    right: 16px;
-    z-index: 300;
-    display: flex;
-    gap: 14px;
-    align-items: center;
-}
-
-.ikon {
-    cursor: pointer;
-    font-size: 22px;
-    color: #7a1520;
-    width: 40px;
-    height: 40px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    background-color: rgba(253, 250, 240, 0.9);
-    box-shadow: 0 1px 4px rgba(0,0,0,0.18);
-    transition: background-color 0.2s, transform 0.15s;
-}
-
-.ikon:hover {
-    background-color: #fdfaf0;
-    transform: scale(1.1);
+    color: var(--icon);
 }
 
 .jozan-uzenet .fa-cake-candles {
-    color: #7a1520;
+    color: var(--icon);
     font-size: 18px;
     margin-right: 6px;
 }
 
-/* === BEÁLLÍTÁSOK PANEL === */
+/* === BEÁLLÍTÁSOK / NAPTÁR PANEL === */
 .beallitasok-hatter {
     display: none;
     position: fixed;
@@ -134,10 +240,7 @@ a {
     background-color: rgba(0, 0, 0, 0.4);
     z-index: 400;
 }
-
-.beallitasok-hatter.nyitva {
-    display: block;
-}
+.beallitasok-hatter.nyitva { display: block; }
 
 .beallitasok-panel {
     position: fixed;
@@ -145,23 +248,21 @@ a {
     right: -320px;
     width: 300px;
     height: 100%;
-    background-color: #ede8d0;
-    box-shadow: -3px 0 16px rgba(0,0,0,0.18);
+    background-color: var(--panel);
+    color: var(--text);
+    box-shadow: -3px 0 16px rgba(0,0,0,0.25);
     z-index: 500;
     padding: 28px 24px;
     box-sizing: border-box;
     transition: right 0.3s ease;
     border-radius: 16px 0 0 16px;
 }
-
-.beallitasok-panel.nyitva {
-    right: 0;
-}
+.beallitasok-panel.nyitva { right: 0; }
 
 .beallitasok-panel h3 {
     margin: 0 0 24px;
     font-size: 18px;
-    color: #1a2a5e;
+    color: var(--head);
 }
 
 .beallitas-sor {
@@ -170,29 +271,28 @@ a {
     gap: 8px;
     margin-bottom: 24px;
 }
-
 .beallitas-sor label {
     font-size: 14px;
-    color: #4a5a8e;
+    color: var(--muted);
 }
-
 .beallitas-sor input[type="date"] {
     padding: 10px 12px;
-    border: 1px solid #b8b090;
+    border: 1px solid var(--border);
     border-radius: 10px;
     font-size: 16px;
-    background-color: #fdfaf0;
-    color: #1a2a5e;
+    background-color: var(--input-bg);
+    color: var(--text);
     outline: none;
     width: 100%;
     box-sizing: border-box;
+    color-scheme: light dark;
 }
 
 .adatkezeles-link {
     display: block;
     margin-top: 4px;
     font-size: 13px;
-    color: #4a5a8e;
+    color: var(--muted);
     text-decoration: underline;
 }
 
@@ -200,7 +300,6 @@ a {
     display: flex;
     gap: 10px;
 }
-
 .beallitas-gombok button {
     flex: 1;
     padding: 11px 0;
@@ -211,34 +310,31 @@ a {
     font-weight: 600;
     transition: opacity 0.2s;
 }
-
-.beallitas-gombok button:hover {
-    opacity: 0.85;
-}
+.beallitas-gombok button:hover { opacity: 0.85; }
 
 .gomb-ment {
-    background-color: #7a1520;
-    color: #fdfaf0;
+    background-color: var(--acc);
+    color: var(--acc-text);
 }
-
 .gomb-torol {
-    background-color: #c8c0a0;
-    color: #1a2a5e;
+    background-color: transparent;
+    color: var(--text);
+    border: 1px solid var(--border) !important;
 }
 
 /* === JÓZANSÁG ÜZENET === */
 .jozan-uzenet {
     display: none;
-    border-radius: 10px;
+    border-radius: 14px;
     padding: 20px;
     margin: 5px auto;
     width: 80%;
     max-width: 800px;
-    background-color: #fdfaf0;
-    color: #1a2a5e;
+    background-color: var(--card);
+    color: var(--text);
     text-align: left;
     line-height: 1.7;
-    box-shadow: 0 6px 28px rgba(26, 42, 94, 0.13);
+    box-shadow: var(--shadow);
 }
 
 /* === BETŰMÉRET === */
@@ -256,157 +352,83 @@ body.betu-nagy .jozan-uzenet { font-size: 22px; }
     display: flex;
     gap: 8px;
 }
-
 .betu-gomb {
     flex: 1;
     padding: 10px 0;
-    border: 2px solid #b8b090;
+    border: 2px solid var(--border);
     border-radius: 10px;
-    background-color: #fdfaf0;
-    color: #1a2a5e;
+    background-color: var(--input-bg);
+    color: var(--text);
     cursor: pointer;
     font-weight: 700;
     transition: all 0.2s;
 }
-
-.betu-gomb:hover:not(.aktiv) {
-    background-color: #ede8d0;
-}
-
+.betu-gomb:hover:not(.aktiv) { border-color: var(--acc); }
 .betu-gomb.aktiv {
-    background-color: #7a1520;
-    border-color: #7a1520;
-    color: #fdfaf0;
+    background-color: var(--acc);
+    border-color: var(--acc);
+    color: var(--acc-text);
 }
 
-/* === LÁBLÉC === */
+/* === LÁBLÉC (látogatószámlálóval) === */
 .labjegyzet {
     width: 100%;
     box-sizing: border-box;
     margin-top: auto;
-    padding: 14px 20px;
+    padding: 18px 20px 22px;
+    background: var(--footer);
+    color: #cfcbe8;
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
+    align-items: center;
+    gap: 8px;
     text-align: center;
     font-size: 13px;
 }
-
-/* === VILÁGOS TÉMA === */
-@media (prefers-color-scheme: light) {
-    body {
-        background-color: #f5f0dc;
-        color: #1a2a5e;
-    }
-    .day-paragraph {
-        background-color: #fdfaf0;
-        color: #1a2a5e;
-    }
-    .datum {
-        color: #1a2a5e;
-    }
-    .nevnap {
-        color: #4a5a8e;
-    }
-    .labjegyzet {
-        color: #4a5a8e;
-    }
+.labjegyzet .pirula {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid rgba(255, 173, 66, 0.55);
+    border-radius: 6px;
+    padding: 5px 10px;
+    color: #ffffff;
+    font-size: 12px;
 }
+.labjegyzet .pirula i { color: var(--acc); }
+.labjegyzet .pirula b { font-weight: 700; }
+.labjegyzet .copy { width: 100%; margin-top: 6px; color: #9d98bf; font-size: 12px; }
+.labjegyzet a { color: #9d98bf; }
+body { margin-top: 0; }
+.datum { margin-top: 14px; }
 
-/* === SÖTÉT TÉMA === */
-@media (prefers-color-scheme: dark) {
-    body {
-        background-color: #1a0000;
-        color: #f0e8c8;
-    }
-    h4 {
-        color: #d4a017;
-    }
-    .day-paragraph {
-        background-color: #2a0505;
-        color: #f0e8c8;
-        box-shadow: 0 6px 28px rgba(0, 0, 0, 0.45);
-    }
-    .datum {
-        background-color: inherit;
-        color: #f0e8c8;
-    }
-    .nevnap {
-        color: #e08080;
-    }
-    a {
-        color: #e03030;
-    }
-    .book-icon::before,
-    .day-paragraph p::before {
-        color: #d4a017;
-    }
-    .ikon {
-        background-color: rgba(80,5,5,0.9);
-        color: #d4a017;
-    }
-    .ikon:hover {
-        background-color: rgba(100,10,10,0.95);
-    }
-    .jozan-uzenet .fa-cake-candles {
-        color: #d4a017;
-    }
-    .beallitasok-panel {
-        background-color: #180704;
-    }
-    .beallitasok-panel h3 {
-        color: #f0e8c8;
-    }
-    .beallitas-sor label {
-        color: #e08080;
-    }
-    .adatkezeles-link {
-        color: #e08080;
-    }
-    .beallitas-sor input[type="date"] {
-        background-color: #2a0505;
-        border-color: #7a1515;
-        color: #f0e8c8;
-    }
-    .gomb-ment {
-        background-color: #7a1520;
-        color: #f0e8c8;
-    }
-    .gomb-torol {
-        background-color: #4a1010;
-        color: #e08080;
-    }
-    .jozan-uzenet {
-        background-color: #2a0505;
-        color: #f0e8c8;
-        box-shadow: 0 6px 28px rgba(0, 0, 0, 0.45);
-    }
-    .betu-gomb {
-        background-color: #2a0505;
-        border-color: #7a1515;
-        color: #f0e8c8;
-    }
-    .betu-gomb:hover:not(.aktiv) {
-        background-color: #3a0808;
-    }
-    .betu-gomb.aktiv {
-        background-color: #7a1520;
-        border-color: #7a1520;
-        color: #f0e8c8;
-    }
-    .labjegyzet {
-        color: #e08080;
-    }
-}
-
-/* === MOBIL (max 640px): nincs kártya, teljes szélesség === */
+/* === MOBIL (max 640px): csak a színek igazodnak, az elrendezés a régi === */
 @media (max-width: 640px) {
+    .fejlec {
+        position: fixed;
+        top: 10px;
+        right: 12px;
+        background: none;
+        box-shadow: none;
+    }
+    .fejlec-belso { height: auto; padding: 0; }
+    .cim { display: none; }
+    .ikon {
+        background: var(--acc);
+        color: var(--acc-text);
+        box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+    }
+
     .datum,
     .nevnap {
         width: 100%;
         box-sizing: border-box;
         padding-left: 16px;
-        padding-right: 64px;
+        padding-right: 150px;
     }
+    .datum { margin-top: 6px; }
+    .nevnap { padding-right: 16px; }
 
     .day-paragraph,
     .jozan-uzenet {
