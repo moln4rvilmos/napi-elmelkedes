@@ -32,6 +32,9 @@ jobs:
             --include='counter.php' \
             --include='.htaccess' \
             --include='icons/' \
+            --include='fonts/' \
+            --include='fonts/*.woff2' \
+            --include='fonts/*.txt' \
             --include='icons/*.png' \
             --include='icons/*.ico' \
             --exclude='*' \
