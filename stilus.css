@@ -447,25 +447,35 @@ body { margin-top: 0; }
 .latogatok dd { margin: 0; font-size: 1.5em; font-weight: 700; color: var(--head); line-height: 1.2; }
 .latogatok dt { font-size: .8em; color: var(--muted); }
 
-/* === OLDALSÓ DOBOZOK: a 12 lépés (bal) és a 12 hagyomány (jobb) – csak széles kijelzőn === */
+/* === HÁROM HASÁB széles kijelzőn (arányok, mint a dobozrendszeres oldalakon: 1 : 2 : 1, legfeljebb 1400 px) ===
+   balra az AA 12 lépése, középen az elmélkedés, jobbra a 12 hagyomány; keskenyen csak a középső rész látszik */
 .oldalso { display: none; }
 @media (min-width: 1180px) {
-    .oldalso {
-        display: block; position: fixed; top: 76px; width: clamp(270px, calc((100vw - 880px) / 2 - 40px), 360px); box-sizing: border-box;
-        max-height: calc(100vh - 96px); overflow-y: auto; scrollbar-width: thin; z-index: 5;
-        border-radius: 14px; padding: 16px 18px; background-color: var(--card); color: var(--text); box-shadow: var(--shadow);
-        font-size: 13.5px; line-height: 1.45;
+    .hasabok {
+        display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr); gap: 18px;
+        max-width: 1400px; margin: 0 auto; padding: 18px 18px 40px; box-sizing: border-box; align-items: start;
     }
-    .oldalso-bal { left: 20px; }
-    .oldalso-jobb { right: 20px; }
+    .oldalso {
+        display: block; border-radius: 14px; padding: 16px 18px; background-color: var(--card); color: var(--text);
+        box-shadow: var(--shadow); font-size: 14px; line-height: 1.5;
+    }
+    .oldalso-bal { grid-column: 1; grid-row: 1; }
+    .kozep-hasab { grid-column: 2; grid-row: 1; min-width: 0; }
+    .oldalso-jobb { grid-column: 3; grid-row: 1; }
     .oldalso h3 { margin: 0 0 10px; font-size: 1.05em; color: var(--head); }
     .oldalso ol { margin: 0; padding-left: 1.6em; }
     .oldalso li { margin-bottom: 7px; text-align: left; }
     .oldalso li::marker { color: var(--head); font-weight: 700; }
     .oldalso .forras { margin: 10px 0 0; font-size: .85em; color: var(--muted); text-align: left; font-style: italic; }
     .oldalso .forras a { color: var(--link); }
-    /* a középső oszlop ne fusson alájuk */
-    .datum, .nevnap, .day-paragraph, .jozan-uzenet, .latogatok { max-width: min(800px, calc(100vw - 2 * 290px - 80px)); }
+    /* a középső hasábban a dobozok kitöltik a szélességet */
+    .kozep-hasab .datum, .kozep-hasab .nevnap, .kozep-hasab .day-paragraph, .kozep-hasab .jozan-uzenet, .kozep-hasab .latogatok {
+        width: auto; max-width: none; margin-left: 0; margin-right: 0;
+    }
+    .kozep-hasab .datum { margin-top: 0; }
+    .kozep-hasab .latogatok { margin-bottom: 0; }
+    /* a felső sáv is a hasábokhoz igazodik */
+    .fejlec-belso { max-width: 1400px; padding: 0 18px; box-sizing: border-box; }
 }
 
 /* === MOBIL (max 640px): csak a színek igazodnak, az elrendezés a régi === */

@@ -16,7 +16,7 @@
 	<link rel="me" href="https://freeframe.masto.host/@vili">
 	<title>Napi Elmélkedés</title>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-	<link rel="stylesheet" href="stilus.css?v=5">
+	<link rel="stylesheet" href="stilus.css?v=6">
 	<link rel="icon" href="/icons/favicon.ico" type="image/x-icon">
 	<link rel="manifest" href="/manifest.json">
 </head>
@@ -82,7 +82,9 @@
     </div>
 </div>
 
-<!-- Széles kijelzőn két oldalsó doboz (a 12 lépés és a 12 hagyomány); keskenyen nem látszanak -->
+<!-- Három hasáb (mint a vilix.hu és a kem-rekusok.hu): széles kijelzőn balra a 12 lépés, jobbra a 12 hagyomány;
+     keskenyen csak a középső rész látszik -->
+<div class="hasabok">
 <aside class="oldalso oldalso-bal" aria-label="Az AA 12 lépése">
     <h3>Az AA 12 lépése</h3>
     <ol>
@@ -101,6 +103,25 @@
     </ol>
     <p class="forras">Forrás: <a href="https://anonimalkoholistak.hu/az-aa-rol/12-lepes/" target="_blank" rel="noopener">Anonim Alkoholisták</a></p>
 </aside>
+
+<main class="kozep-hasab">
+<!-- Főoldal tartalma -->
+<div id="datum" class="datum" onclick="naptarNyit()" title="Kattints a dátum megváltoztatásához"></div>
+<div id="nevnap" class="nevnap"></div>
+<div id="tartalom" class="day-paragraph"></div>
+<div id="jozanUzenet" class="jozan-uzenet"></div>
+
+<!-- Látogatószámláló (ugyanolyan, mint a vilix.hu és a kem-rekusok.hu dobozai) -->
+<section class="latogatok" id="latogatok" aria-label="Látogatók">
+    <h3>Látogatók</h3>
+    <dl>
+        <div><dd id="szamlaloMa">…</dd><dt>Ma</dt></div>
+        <div><dd id="szamlaloHet">…</dd><dt>Ezen a héten</dt></div>
+        <div><dd id="szamlaloOsszes">…</dd><dt>Összesen</dt></div>
+    </dl>
+</section>
+</main>
+
 <aside class="oldalso oldalso-jobb" aria-label="Az AA 12 hagyománya">
     <h3>Az AA 12 hagyománya</h3>
     <ol>
@@ -119,22 +140,7 @@
     </ol>
     <p class="forras">Forrás: <a href="https://anonimalkoholistak.hu/az-aa-rol/12_hagyomany/" target="_blank" rel="noopener">Anonim Alkoholisták</a></p>
 </aside>
-
-<!-- Főoldal tartalma -->
-<div id="datum" class="datum" onclick="naptarNyit()" title="Kattints a dátum megváltoztatásához"></div>
-<div id="nevnap" class="nevnap"></div>
-<div id="tartalom" class="day-paragraph"></div>
-<div id="jozanUzenet" class="jozan-uzenet"></div>
-
-<!-- Látogatószámláló (ugyanolyan, mint a vilix.hu és a kem-rekusok.hu dobozai) -->
-<section class="latogatok" id="latogatok" aria-label="Látogatók">
-    <h3>Látogatók</h3>
-    <dl>
-        <div><dd id="szamlaloMa">…</dd><dt>Ma</dt></div>
-        <div><dd id="szamlaloHet">…</dd><dt>Ezen a héten</dt></div>
-        <div><dd id="szamlaloOsszes">…</dd><dt>Összesen</dt></div>
-    </dl>
-</section>
+</div>
 
 <footer class="labjegyzet">
     <span class="copy">&copy; <span id="evszam"></span> Molnár Vilmos</span>
