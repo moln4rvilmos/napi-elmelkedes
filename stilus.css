@@ -228,7 +228,7 @@ a { color: var(--link); }
 .day-paragraph {
     border-radius: 14px;
     padding: 20px;
-    margin: 5px auto;
+    margin: 12px auto;   /* egyforma távolság az elmélkedés, a napszámláló és a látogatók között */
     width: 80%;
     max-width: 800px;
     background-color: var(--card);
@@ -360,7 +360,7 @@ p { text-align: justify; }
     display: none;
     border-radius: 14px;
     padding: 20px;
-    margin: 5px auto;
+    margin: 12px auto;
     width: 80%;
     max-width: 800px;
     background-color: var(--card);
