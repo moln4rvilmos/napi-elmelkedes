@@ -447,6 +447,27 @@ body { margin-top: 0; }
 .latogatok dd { margin: 0; font-size: 1.5em; font-weight: 700; color: var(--head); line-height: 1.2; }
 .latogatok dt { font-size: .8em; color: var(--muted); }
 
+/* === OLDALSÓ DOBOZOK: a 12 lépés (bal) és a 12 hagyomány (jobb) – csak széles kijelzőn === */
+.oldalso { display: none; }
+@media (min-width: 1180px) {
+    .oldalso {
+        display: block; position: fixed; top: 76px; width: clamp(270px, calc((100vw - 880px) / 2 - 40px), 360px); box-sizing: border-box;
+        max-height: calc(100vh - 96px); overflow-y: auto; scrollbar-width: thin; z-index: 5;
+        border-radius: 14px; padding: 16px 18px; background-color: var(--card); color: var(--text); box-shadow: var(--shadow);
+        font-size: 13.5px; line-height: 1.45;
+    }
+    .oldalso-bal { left: 20px; }
+    .oldalso-jobb { right: 20px; }
+    .oldalso h3 { margin: 0 0 10px; font-size: 1.05em; color: var(--head); }
+    .oldalso ol { margin: 0; padding-left: 1.6em; }
+    .oldalso li { margin-bottom: 7px; text-align: left; }
+    .oldalso li::marker { color: var(--head); font-weight: 700; }
+    .oldalso .forras { margin: 10px 0 0; font-size: .85em; color: var(--muted); text-align: left; font-style: italic; }
+    .oldalso .forras a { color: var(--link); }
+    /* a középső oszlop ne fusson alájuk */
+    .datum, .nevnap, .day-paragraph, .jozan-uzenet, .latogatok { max-width: min(800px, calc(100vw - 2 * 290px - 80px)); }
+}
+
 /* === MOBIL (max 640px): csak a színek igazodnak, az elrendezés a régi === */
 @media (max-width: 640px) {
     .fejlec {
