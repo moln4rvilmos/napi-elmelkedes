@@ -436,6 +436,17 @@ body.betu-nagy .jozan-uzenet { font-size: 22px; }
 body { margin-top: 0; }
 .datum { margin-top: 14px; }
 
+/* === LÁTOGATÓSZÁMLÁLÓ (ugyanaz a stílus, mint a dobozrendszeres oldalakon) === */
+.latogatok {
+    border-radius: 14px; padding: 16px 20px 18px; margin: 12px auto 18px; width: 80%; max-width: 800px;
+    background-color: var(--card); color: var(--text); box-shadow: var(--shadow);
+}
+.latogatok h3 { margin: 0 0 10px; font-size: 1.05em; }
+.latogatok dl { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0; text-align: center; }
+.latogatok dl div { background: var(--input-bg); border-radius: 8px; padding: 10px 4px; }
+.latogatok dd { margin: 0; font-size: 1.5em; font-weight: 700; color: var(--head); line-height: 1.2; }
+.latogatok dt { font-size: .8em; color: var(--muted); }
+
 /* === MOBIL (max 640px): csak a színek igazodnak, az elrendezés a régi === */
 @media (max-width: 640px) {
     .fejlec {

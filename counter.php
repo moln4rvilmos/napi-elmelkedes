@@ -1,7 +1,8 @@
 <?php
 // counter.php — egyszerű, saját látogatószámláló (a vilix.hu / KEM REKUSOK mintájára).
 // Nem tárol IP-címet és semmilyen azonosítót; csak darabszámokat.
-// Egy napig érvényes süti ('visited') akadályozza, hogy ugyanaz a látogató többször számítson.
+// Belépési látogatást számol (mint a vilix.hu és a kem-rekusok.hu): csak akkor nő, ha a látogató kívülről érkezett
+// (az oldal a document.referrer-t küldi ?r= paraméterben; a telepített alkalmazás indítása is ilyen). Süti nincs.
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 
@@ -21,14 +22,16 @@ if ($fp) {
 $today = date('Y-m-d');
 $week  = date('oW');
 
-if (!isset($_COOKIE['visited'])) {
+$honnan = strtolower((string)parse_url((string)($_GET['r'] ?? ''), PHP_URL_HOST));
+$belso = $honnan !== '' && ($honnan === 'vilix.hu' || str_ends_with($honnan, '.vilix.hu'));
+$robot = (bool)preg_match('/bot|crawl|spider|slurp|preview|monitor|curl|wget|python|headless/i', (string)($_SERVER['HTTP_USER_AGENT'] ?? ''));
+if (isset($_GET['r']) && !$belso && !$robot) {
     $data['total'] = (int)$data['total'] + 1;
     $data['daily'][$today] = (int)($data['daily'][$today] ?? 0) + 1;
     $data['weekly'][$week] = (int)($data['weekly'][$week] ?? 0) + 1;
     // régi bejegyzések kitakarítása (csak az utolsó ~60 nap / 10 hét kell)
     $data['daily']  = array_slice($data['daily'], -60, null, true);
     $data['weekly'] = array_slice($data['weekly'], -10, null, true);
-    setcookie('visited', '1', ['expires' => time() + 86400, 'path' => '/', 'samesite' => 'Lax']);
     if ($fp) {
         ftruncate($fp, 0);
         rewind($fp);
@@ -37,6 +40,7 @@ if (!isset($_COOKIE['visited'])) {
     }
 }
 if ($fp) { flock($fp, LOCK_UN); fclose($fp); }
+if (isset($_COOKIE['visited'])) setcookie('visited', '', time() - 3600, '/');   // a régi süti törlése
 
 echo json_encode([
     'total'  => (int)$data['total'],
