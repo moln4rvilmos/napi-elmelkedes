@@ -478,3 +478,8 @@ body { margin-top: 0; }
 /* sötét lábléc: mint a KEM REKUSOK-on */
 :root[data-theme="dark"] { --footer: #06101e; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --footer: #06101e; } }
+
+/* === Színtéma: „Esti mécses” (palaszürke–borostyán) – felülírja a fenti színeket === */
+:root{--bg:#ece8e1;--card:#fffcf7;--text:#1f1c18;--muted:#5a5248;--head:#c2410c;--link:#c2410c;--icon:#c2410c;--acc:#f59e0b;--acc-text:#2a1600;--border:rgba(0,0,0,.10);--input-bg:#f6f2ea;--panel:#f6f2ea;--hdr1:#2d3640;--hdr2:#1f262e;--footer:#1f262e;--shadow:0 1px 4px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#141210;--card:#1f1c19;--text:#f3eee6;--muted:#c4b9aa;--head:#f59e0b;--link:#f59e0b;--icon:#f59e0b;--acc:#f59e0b;--acc-text:#2a1600;--border:rgba(255,255,255,.10);--input-bg:#28241f;--panel:#28241f;--hdr1:#262c33;--hdr2:#15191e;--footer:#0c0e10;--shadow:0 6px 24px rgba(0,0,0,.45);}}
+:root[data-theme="dark"]{--bg:#141210;--card:#1f1c19;--text:#f3eee6;--muted:#c4b9aa;--head:#f59e0b;--link:#f59e0b;--icon:#f59e0b;--acc:#f59e0b;--acc-text:#2a1600;--border:rgba(255,255,255,.10);--input-bg:#28241f;--panel:#28241f;--hdr1:#262c33;--hdr2:#15191e;--footer:#0c0e10;--shadow:0 6px 24px rgba(0,0,0,.45);}
