@@ -408,9 +408,9 @@ body.betu-nagy .jozan-uzenet { font-size: 22px; }
     width: 100%;
     box-sizing: border-box;
     margin-top: auto;
-    padding: 18px 20px 22px;
-    background: var(--footer);
-    color: #cfcbe8;
+    padding: 6px 20px 22px;
+    background: transparent;   /* nincs sötét sáv – mint a másik két oldalon */
+    color: var(--muted);
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -431,8 +431,8 @@ body.betu-nagy .jozan-uzenet { font-size: 22px; }
 }
 .labjegyzet .pirula i { color: var(--acc); }
 .labjegyzet .pirula b { font-weight: 700; }
-.labjegyzet .copy { width: 100%; margin-top: 6px; color: #9d98bf; font-size: 12px; }
-.labjegyzet a { color: #9d98bf; }
+.labjegyzet .copy { width: 100%; margin-top: 6px; color: var(--muted); font-size: 12px; opacity: .8; }
+.labjegyzet a { color: var(--muted); }
 body { margin-top: 0; }
 .datum { margin-top: 14px; }
 
