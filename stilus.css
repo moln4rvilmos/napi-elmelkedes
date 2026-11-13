@@ -514,14 +514,16 @@ body { margin-top: 0; }
         background: var(--acc);
         color: var(--acc-text);
         box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+        width: 34px; height: 34px; font-size: 16px;   /* négy ikon fér el a dátum mellett */
     }
+    .ikonok { gap: 6px; }
 
     .datum,
     .nevnap {
         width: 100%;
         box-sizing: border-box;
         padding-left: 16px;
-        padding-right: 150px;
+        padding-right: 178px;   /* a jobb felső négy ikon mellett */
     }
     .datum { margin-top: 6px; }
     .nevnap { padding-right: 16px; }
