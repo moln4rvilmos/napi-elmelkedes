@@ -1,0 +1,44 @@
+name: Látogatószámlálók – a mai nap kézi beállítása
+
+# A mai napi számot a megadott értékre állítja; a heti és az összes számot ugyanannyival javítja.
+# Üresen hagyott mező: azt az oldalt nem bántja. (Mindhárom oldal ugyanazon a Nethely-tárhelyen van.)
+
+on:
+  workflow_dispatch:
+    inputs:
+      aa:    { description: 'aa.vilix.hu – mai látogatások', required: false }
+      vilix: { description: 'vilix.hu – mai látogatások', required: false }
+      kem:   { description: 'kem-rekusok.hu – mai látogatások', required: false }
+
+jobs:
+  allit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Beállítás a szerveren
+        env:
+          AA: ${{ github.event.inputs.aa }}
+          VILIX: ${{ github.event.inputs.vilix }}
+          KEM: ${{ github.event.inputs.kem }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.NETHELY }}" > ~/.ssh/k && chmod 600 ~/.ssh/k
+          ssh-keyscan -H ssh.nethely.hu >> ~/.ssh/known_hosts 2>/dev/null
+          H=/var/www/customers/vh-84024/web/home
+          for par in "$H/AA/data/counter.json=$AA" "$H/main/data/counter_data.json=$VILIX" "$H/KEM_REKUSOK/counter_data.json=$KEM"; do
+            f="${par%%=*}"; n="${par#*=}"
+            [ -z "$n" ] && continue
+            echo "$n" | grep -qE '^[0-9]+$' || { echo "Nem szám: $n"; exit 1; }
+            ssh -i ~/.ssh/k vh-84024@ssh.nethely.hu "php8.3 -r '
+              date_default_timezone_set(\"Europe/Budapest\");
+              \$f = \"$f\"; \$n = $n; \$h = fopen(\$f, \"c+\"); flock(\$h, LOCK_EX);
+              \$d = json_decode((string)stream_get_contents(\$h), true) ?: [];
+              \$d += [\"total\" => 0, \"daily\" => [], \"weekly\" => []];
+              \$ma = date(\"Y-m-d\"); \$het = date(\"oW\");
+              \$regi = (int)(\$d[\"daily\"][\$ma] ?? 0); \$kul = \$regi - \$n;
+              \$d[\"daily\"][\$ma] = \$n;
+              \$d[\"weekly\"][\$het] = max(0, (int)(\$d[\"weekly\"][\$het] ?? 0) - \$kul);
+              \$d[\"total\"] = max(0, (int)\$d[\"total\"] - \$kul);
+              ftruncate(\$h, 0); rewind(\$h); fwrite(\$h, json_encode(\$d)); fflush(\$h); flock(\$h, LOCK_UN);
+              echo basename(dirname(\$f)), \"/\", basename(\$f), \": ma \$regi → \$n, hét \", \$d[\"weekly\"][\$het], \", összes \", \$d[\"total\"], \"\n\";
+            '"
+          done
