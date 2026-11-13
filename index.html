@@ -342,7 +342,10 @@
     // ── Látogatószámláló (saját, külső szolgáltatás nélkül) ──
     // belépési látogatást számol: a hivatkozó oldal alapján (süti és IP nélkül)
     const ezres = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-    fetch('counter.php?r=' + encodeURIComponent(document.referrer), { cache: 'no-store' })
+    // frissítéskor és vissza/előre lépéskor csak lekérdezünk, nem számolunk
+    const navTipus = (performance.getEntriesByType && performance.getEntriesByType('navigation')[0] || {}).type;
+    const szamoljon = navTipus !== 'reload' && navTipus !== 'back_forward';
+    fetch(szamoljon ? 'counter.php?r=' + encodeURIComponent(document.referrer) : 'counter.php', { cache: 'no-store' })
         .then(r => r.json())
         .then(d => {
             document.getElementById('szamlaloOsszes').textContent = ezres(d.total);

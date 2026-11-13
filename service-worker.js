@@ -1,5 +1,5 @@
 // Cache-elési verzió megadása
-const CACHE_NAME = 'vilix-cache-v12';
+const CACHE_NAME = 'vilix-cache-v13';
 const urlsToCache = [
   '/',
   '/index.html',
