@@ -846,6 +846,14 @@ applyLook();
 render();
 updateSorJelzo();
 szinkron();
+/* megnyitáskor (és ha visszatér az alkalmazásba) friss adatok a táblázatból: új nevek, készlet, egyenleg */
+function hatterFrissites(){
+  if(!kapcs.pin || !navigator.onLine || syncFut) return;
+  if(adat && Date.now() - adat.ido < 5*60000) return;   // 5 percen belül nem kérdezi újra
+  frissit().then(()=>{ if(view) render(); }).catch(()=>{});
+}
+hatterFrissites();
+document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="visible") hatterFrissites(); });
 
 /* ---------- offline mód (csak saját tárhelyen működik) ---------- */
 if("serviceWorker" in navigator){ try{ navigator.serviceWorker.register("sw.js").catch(()=>{}); }catch(e){} }
