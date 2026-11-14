@@ -544,7 +544,7 @@ function nezetKeret(cim, alcim, tartalom, labResz){
 }
 function allapotSor(){
   const kor = adat ? new Date(adat.ido).toLocaleString("hu-HU",{month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}) : "még soha";
-  let s = `<p class="muted">Adatok frissítve: ${kor}${sor.length?` · <b>${sor.length} tétel vár küldésre</b>`:""}</p>`;
+  let s = `<p class="muted" id="allapot">Adatok frissítve: ${kor}${sor.length?` · <b>${sor.length} tétel vár küldésre</b>`:""}</p>`;
   if(syncAllapot && sor.length) s += `<p class="note">${esc(syncAllapot)}</p>`;
   return s;
 }
@@ -563,7 +563,7 @@ function renderKapcsolat(){
   $("k_test").onclick = async ()=>{
     kapcs.url = $("k_url").value.trim(); kapcs.pin = $("k_pin").value.trim(); saveKapcs();
     uzen("k_msg","Kapcsolódás…",true);
-    try{ const a = await frissit(); uzen("k_msg",`✓ Rendben! Egyenleg: <b>${ft(a.egyenleg)}</b>, ${a.szemelyek.length} név, ${a.keszlet.length} cikk.`,true); szinkron(); }
+    try{ const a = await frissit(); const al=$("allapot"); if(al) al.outerHTML = allapotSor(); uzen("k_msg",`✓ Rendben! Egyenleg: <b>${ft(a.egyenleg)}</b>, ${a.szemelyek.length} név, ${a.keszlet.length} cikk.`,true); szinkron(); }
     catch(e){ uzen("k_msg","✗ "+esc(e.message),false); }
   };
   if($("k_sor")) $("k_sor").onclick = ()=>{ view="sor"; render(); };
