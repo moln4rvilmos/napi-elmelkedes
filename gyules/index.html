@@ -83,7 +83,10 @@ footer{position:sticky;bottom:0;background:var(--bg);padding:10px 16px calc(12px
 .modal .box{max-height:90vh;overflow:auto}
 .menu{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:6px 0 14px}
 .menu button{font:inherit;font-size:.85em;font-weight:600;padding:14px 8px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
-.menu button .i{display:block;font-size:1.5em}
+.menu button .i{display:block;margin-bottom:4px;color:var(--green)}
+.ic{vertical-align:middle;flex:none}
+summary .ic{margin-top:-3px}
+.pill .ic{margin-top:-2px}
 .pill{font-size:13px;font-weight:700;background:var(--amber);color:#fff;border-radius:999px;padding:3px 8px;cursor:pointer;border:0}
 .seg{display:flex;gap:6px;margin:4px 0 14px}
 .seg button{flex:1;font:inherit;font-size:.8em;font-weight:600;padding:10px 4px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
@@ -111,7 +114,7 @@ h2.sub{font-size:.85em;text-transform:uppercase;letter-spacing:.06em;color:var(-
     <div class="clock" id="clock"></div>
     <button class="icon-btn" id="fsMinus" title="Kisebb betű">A−</button>
     <button class="icon-btn" id="fsPlus" title="Nagyobb betű">A+</button>
-    <button class="icon-btn" id="darkBtn" title="Sötét mód">🌙</button>
+    <button class="icon-btn" id="darkBtn" title="Sötét mód"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></button>
   </header>
   <div class="progress"><div id="bar"></div></div>
   <main id="main"></main>
@@ -307,8 +310,10 @@ const store = {
 };
 
 const settings = Object.assign({
-  nev:"", tipus:"nyitott", csoport:"székesfehérvári Lelki Ébredés", tema:"", hossz:60, fs:20, dark:false
+  nev:"", tipus:"nyitott", csoport:"dunaújvárosi Felépülés", tema:"", hossz:60, fs:20, dark:false
 }, store.get("aa_settings", {}));
+/* régi alapértelmezés cseréje (a korábbi papír mintájáról maradt) */
+if(settings.csoport === "székesfehérvári Lelki Ébredés"){ settings.csoport = "dunaújvárosi Felépülés"; try{ localStorage.setItem("aa_settings", JSON.stringify(settings)); }catch(e){} }
 
 let state = store.get("aa_session", null); // {current, history, start}
 let showHome = !state || state.current==="_vege";
@@ -386,10 +391,10 @@ function renderHome(){
     <p class="muted">Tipp: a jobb felső gombokkal állíthatod a betűméretet és a sötét módot.</p>
     <h2 class="sub">Szolgálatok</h2>
     <div class="menu">
-      <button data-v="penztar"><span class="i">💰</span>Pénztár</button>
-      <button data-v="keszlet"><span class="i">📚</span>Készlet, érmék</button>
-      <button data-v="leltar"><span class="i">📋</span>Leltár</button>
-      <button data-v="kapcsolat"><span class="i">🔗</span>Kapcsolat${sor.length?` (⏳ ${sor.length})`:""}</button>
+      <button data-v="penztar"><span class="i"><svg class="ic" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="13" rx="2"/><circle cx="12" cy="12.5" r="3"/><path d="M6 10v5M18 10v5"/></svg></span>Pénztár</button>
+      <button data-v="keszlet"><span class="i"><svg class="ic" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h6a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H4z"/><path d="M20 4h-6a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h7z"/></svg></span>Készlet, érmék</button>
+      <button data-v="leltar"><span class="i"><svg class="ic" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg></span>Leltár</button>
+      <button data-v="kapcsolat"><span class="i"><svg class="ic" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></span>Kapcsolat${sor.length?` (${sor.length} vár)`:""}</button>
     </div>`;
   document.querySelectorAll(".menu button").forEach(b=> b.onclick = ()=>{ view = b.dataset.v; render(); window.scrollTo(0,0); });
   $("f_tipus").value = settings.tipus;
@@ -414,7 +419,7 @@ function render(){
     try{ wakeLock && wakeLock.release(); }catch(e){}
     $("hdrTitle").textContent = "Vége";
     $("bar").style.width = "100%";
-    $("main").innerHTML = `<div class="done"><div class="big">🌿</div><h1>A gyűlés véget ért</h1>
+    $("main").innerHTML = `<div class="done"><div class="big"><svg class="ic" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19c0-8 5-14 15-15-1 10-7 15-15 15z"/><path d="M5 19l7-7"/></svg></div><h1>A gyűlés véget ért</h1>
       <p class="muted">Időtartam: ${fmt(Date.now()-state.start)}</p></div>`;
     $("foot").innerHTML = `<div class="row"><button class="back" id="bk">← Vissza</button><button class="back" id="hm">Kezdőlap</button></div>`;
     $("bk").onclick = back;
@@ -431,7 +436,7 @@ function render(){
   if(s.input) h += `<label class="field"><span>${s.input.label}</span><input id="f_in" value="${esc(settings[s.input.key]||"")}"></label>`;
   if(s.read) [].concat(s.read).forEach(key=>{
     const r = READINGS[key];
-    h += `<details class="reading"${s.readOpen?" open":""}><summary>📖 ${r.title}</summary><div class="body">${
+    h += `<details class="reading"${s.readOpen?" open":""}><summary><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h6a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H4z"/><path d="M20 4h-6a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h7z"/></svg> ${r.title}</summary><div class="body">${
       r.text ? esc(r.text) : "<span class='ph'>A szöveg még nincs beírva. Ha elküldöd, beteszem ide, és akkor innen is felolvasható lesz.</span>"}</div></details>`;
   });
   if(s.note) h += `<p class="note">${s.note}</p>`;
@@ -525,7 +530,7 @@ setInterval(()=>{ if(sor.length && !sor[0].hiba) szinkron(); }, 60000);
 function updateSorJelzo(){
   const el = $("sorJelzo"); if(!el) return;
   el.style.display = sor.length ? "" : "none";
-  el.textContent = "⏳ " + sor.length;
+  el.innerHTML = '<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12M6 21h12M7 3c0 5 10 5 10 9s-10 4-10 9M17 3c0 5-10 5-10 9"/></svg> ' + sor.length;
   el.title = syncAllapot;
 }
 
@@ -558,8 +563,8 @@ function renderKapcsolat(){
   $("k_test").onclick = async ()=>{
     kapcs.url = $("k_url").value.trim(); kapcs.pin = $("k_pin").value.trim(); saveKapcs();
     uzen("k_msg","Kapcsolódás…",true);
-    try{ const a = await frissit(); uzen("k_msg",`✅ Rendben! Egyenleg: <b>${ft(a.egyenleg)}</b>, ${a.szemelyek.length} név, ${a.keszlet.length} cikk.`,true); szinkron(); }
-    catch(e){ uzen("k_msg","❌ "+esc(e.message),false); }
+    try{ const a = await frissit(); uzen("k_msg",`✓ Rendben! Egyenleg: <b>${ft(a.egyenleg)}</b>, ${a.szemelyek.length} név, ${a.keszlet.length} cikk.`,true); szinkron(); }
+    catch(e){ uzen("k_msg","✗ "+esc(e.message),false); }
   };
   if($("k_sor")) $("k_sor").onclick = ()=>{ view="sor"; render(); };
 }
@@ -621,7 +626,7 @@ function renderPenztar(){
     ask(`Rögzíted? ${pTipus}: ${tetel}, ${ft(osszeg)}`, ()=>{
       sorba("naplo",[t], `${pTipus}: ${tetel} – ${ft(osszeg)}`);
       if(adat){ adat.egyenleg += pTipus==="Bevétel"?osszeg:-osszeg; store.set("aa_adatok",adat); }
-      render(); uzen("p_msg","✅ Rögzítve"+(navigator.onLine?"":" – térerő esetén elküldöm")+".",true);
+      render(); uzen("p_msg","✓ Rögzítve"+(navigator.onLine?"":" – térerő esetén elküldöm")+".",true);
     });
   };
 }
@@ -637,7 +642,7 @@ function renderKeszlet(){
     <input id="k_szuro" class="search" placeholder="Keresés…" value="${esc(kSzuro)}">
     <div id="k_lista">${lista.map(k=>`<div class="item" data-c="${esc(k.cikk)}"><div class="grow">${esc(k.cikk)}<br>
       <span class="muted">${k.ar!=null?ft(k.ar):"ár nélkül"}</span></div><div class="db ${k.db<=0?"zero":""}">${k.db}</div></div>`).join("") || `<p class="muted">Nincs találat.</p>`}</div>`,
-    `<div class="choices"><button class="btn next" id="k_leltar">📋 Leltár mód</button></div>`);
+    `<div class="choices"><button class="btn next" id="k_leltar">Leltár mód</button></div>`);
   document.querySelectorAll(".seg button").forEach(b=> b.onclick = ()=>{ kFajta = b.dataset.f; render(); });
   $("k_szuro").oninput = e=>{ kSzuro = e.target.value; const pos = e.target.selectionStart; render(); const s=$("k_szuro"); s.focus(); s.setSelectionRange(pos,pos); };
   document.querySelectorAll("#k_lista .item").forEach(el=> el.onclick = ()=> cikkPanel(adat.keszlet.find(k=>k.cikk===el.dataset.c)));
@@ -744,7 +749,7 @@ function renderRogzites(){
   $("hdrTitle").textContent = "Zárás";
   $("bar").style.width = Math.round(100*progress())+"%";
   if(state.rogzitve){
-    $("main").innerHTML = `<div class="section">Zárás</div><h1>Rögzítve ✅</h1><p class="muted">A 7. Hagyomány és az átadott érmék már rögzítve vannak${sor.length?" (küldésre várnak)":""}.</p>`;
+    $("main").innerHTML = `<div class="section">Zárás</div><h1>Rögzítve</h1><p class="muted">A 7. Hagyomány és az átadott érmék már rögzítve vannak${sor.length?" (küldésre várnak)":""}.</p>`;
     $("foot").innerHTML = `<div class="choices"><button class="btn next" id="r_tov">Tovább →</button></div><button class="back" id="bBack">← Vissza</button>`;
     $("r_tov").onclick = ()=>go("_vege"); $("bBack").onclick = back; return;
   }
