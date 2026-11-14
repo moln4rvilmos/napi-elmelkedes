@@ -22,6 +22,7 @@ Magyar nyelvű AA (Névtelen Alkoholisták) napi elmélkedések webapplikáció.
 | `stilus.css` | Stíluslap (világos + sötét mód) |
 | `service-worker.js` | PWA offline cache |
 | `manifest.json` | PWA manifest |
+| `gyules/` | Gyűlésvezetés segédlet (külön PWA, aa.vilix.hu/gyules/) – gyűlés menete, pénztár, készlet, leltár |
 | `.github/workflows/deploy.yml` | Automatikus kiküldés a szerverre |
 
 ## Telepítés / Fejlesztés

@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1f4e79">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Gyűlésvezetés">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Gyűlésvezetés segédlet</title>
+<style>
+:root{
+  --bg:#f3f7f6; --card:#ffffff; --ink:#16232e; --muted:#5b6b78; --line:#d6e0e4;
+  --blue:#1f4e79; --blue2:#2c6aa3; --green:#2e7d5b; --green2:#3a9a70; --amber:#a86b12;
+  --fs:20px;
+}
+body.ending{ --bg:#fbe3ec; --card:#fff3f7; --line:#f0c4d4; }
+body.dark{
+  --bg:#0f1519; --card:#182229; --ink:#e6edf1; --muted:#97a7b3; --line:#2a3842;
+  --blue:#5b9bd5; --blue2:#7db3e3; --green:#4fbf8b; --green2:#6fd3a3; --amber:#e0a84a;
+}
+body.dark.ending{ --bg:#4a0f1f; --card:#5c1628; --line:#7a2a3e; }
+body{transition:background-color 1.5s}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:var(--fs);line-height:1.45;-webkit-tap-highlight-color:transparent;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+.app{max-width:760px;margin:0 auto;min-height:100%;display:flex;flex-direction:column}
+header{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line);
+  background:var(--card);position:sticky;top:0;z-index:5}
+header .title{flex:1;font-weight:600;font-size:15px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.clock{font-variant-numeric:tabular-nums;font-size:15px;color:var(--muted);text-align:right;line-height:1.2}
+.clock b{color:var(--ink)}
+.clock .over{color:#c0392b}
+.icon-btn{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:10px;
+  min-width:40px;height:40px;font-size:16px;font-weight:600;cursor:pointer}
+.progress{height:4px;background:var(--line)}
+.progress div{height:100%;background:linear-gradient(90deg,var(--blue),var(--green));width:0;transition:width .3s}
+main{flex:1;padding:18px 16px 12px;display:flex;flex-direction:column}
+.section{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--green);font-weight:700;margin-bottom:6px}
+h1{font-size:1.15em;margin:0 0 14px;color:var(--blue)}
+.say{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--blue);border-radius:14px;
+  padding:16px 18px;margin-bottom:14px}
+.say p{margin:0 0 .6em}
+.say p:last-child{margin-bottom:0}
+.say .q{font-weight:600}
+.note{color:var(--muted);font-size:.8em;margin:0 0 14px;padding-left:4px}
+.note b{color:var(--amber)}
+details.reading{background:var(--card);border:1px dashed var(--green);border-radius:14px;margin-bottom:14px}
+details.reading summary{padding:12px 16px;cursor:pointer;color:var(--green);font-weight:600;font-size:.85em}
+details.reading .body{padding:0 18px 16px;white-space:pre-line}
+details.reading .ph{color:var(--muted);font-style:italic;font-size:.85em}
+.field{display:block;margin-bottom:14px}
+.field span{display:block;font-size:.75em;color:var(--muted);margin-bottom:4px}
+.field input,.field select{width:100%;font:inherit;font-size:.9em;padding:10px 12px;border-radius:10px;
+  border:1px solid var(--line);background:var(--card);color:var(--ink)}
+.spacer{flex:1}
+footer{position:sticky;bottom:0;background:var(--bg);padding:10px 16px calc(12px + env(safe-area-inset-bottom));
+  border-top:1px solid var(--line)}
+.choices{display:flex;gap:10px;margin-bottom:10px}
+.btn{flex:1;font:inherit;font-weight:700;font-size:1em;padding:16px 10px;border-radius:14px;border:0;cursor:pointer;
+  color:#fff;background:var(--blue2);min-height:60px}
+.btn.yes{background:var(--green)}
+.btn.no{background:var(--blue)}
+.btn.next{background:var(--blue)}
+.btn:active{transform:scale(.98);filter:brightness(1.1)}
+.back{width:100%;font:inherit;font-size:.8em;padding:10px;border-radius:12px;border:1px solid var(--line);
+  background:transparent;color:var(--muted);cursor:pointer}
+.back[disabled]{opacity:.35}
+.row{display:flex;gap:10px}
+.row .back{flex:1}
+.muted{color:var(--muted);font-size:.8em}
+.done{text-align:center;padding-top:30px}
+.done .big{font-size:2.4em}
+.wl{font-size:12px;color:var(--muted);text-align:center;margin-top:6px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:20;padding:20px}
+.modal.on{display:flex}
+.modal .box{background:var(--card);border-radius:16px;padding:20px;max-width:420px;width:100%}
+.modal .box p{margin-top:0}
+.modal .box{max-height:90vh;overflow:auto}
+.menu{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:6px 0 14px}
+.menu button{font:inherit;font-size:.85em;font-weight:600;padding:14px 8px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.menu button .i{display:block;font-size:1.5em}
+.pill{font-size:13px;font-weight:700;background:var(--amber);color:#fff;border-radius:999px;padding:3px 8px;cursor:pointer;border:0}
+.seg{display:flex;gap:6px;margin:4px 0 14px}
+.seg button{flex:1;font:inherit;font-size:.8em;font-weight:600;padding:10px 4px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.seg button.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.item{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;font-size:.85em;cursor:pointer}
+.item .grow{flex:1;min-width:0}
+.item .db{font-size:1.3em;font-weight:700;color:var(--green);min-width:2.2em;text-align:right}
+.item .db.zero{color:#c0392b}
+.item input.cnt{width:4.5em;font:inherit;font-size:1.1em;padding:8px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);text-align:center}
+.search{width:100%;font:inherit;font-size:.85em;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);margin-bottom:10px}
+.mini{font:inherit;font-size:.75em;padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--ink)}
+.big-num{font-size:2em;font-weight:800;color:var(--green);margin:4px 0 2px}
+.big-num span{display:block;font-size:.35em;font-weight:500;color:var(--muted)}
+h2.sub{font-size:.85em;text-transform:uppercase;letter-spacing:.06em;color:var(--green);margin:18px 0 8px}
+.msg{font-size:.85em;margin:8px 0;min-height:1em}
+.msg.ok{color:var(--green)} .msg.err,.errtxt{color:#c0392b}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <button class="icon-btn" id="homeBtn" title="Kezdőlap / beállítások">☰</button>
+    <div class="title" id="hdrTitle">Gyűlésvezetés</div>
+    <button class="pill" id="sorJelzo" style="display:none" title=""></button>
+    <div class="clock" id="clock"></div>
+    <button class="icon-btn" id="fsMinus" title="Kisebb betű">A−</button>
+    <button class="icon-btn" id="fsPlus" title="Nagyobb betű">A+</button>
+    <button class="icon-btn" id="darkBtn" title="Sötét mód">🌙</button>
+  </header>
+  <div class="progress"><div id="bar"></div></div>
+  <main id="main"></main>
+  <footer id="foot"></footer>
+</div>
+
+<div class="modal" id="modal"><div class="box">
+  <p id="modalText"></p>
+  <div class="row"><button class="back" id="modalNo">Mégse</button><button class="btn yes" id="modalYes" style="min-height:44px;padding:10px">Igen</button></div>
+</div></div>
+
+<script>
+/* =====================================================================
+   FELOLVASANDÓ SZÖVEGEK
+   Ide lehet beírni a teljes szövegeket. Üresen hagyva csak egy
+   emlékeztető jelenik meg a lenyitható dobozban.
+   ===================================================================== */
+const READINGS = {
+  meghatarozas:   { title: "Az Anonim Alkoholisták meghatározása", text: "Az Anonim Alkoholisták olyan emberek közössége, akik megosztják egymással tapasztalataikat, erejüket és reményüket azért, hogy megoldhassák közös problémájukat és segíthessenek másoknak felépülni az alkoholizmusból.\n\nA tagság egyetlen feltétele az ivással való felhagyás vágya. Az A.A.-tagság nem jár illetékkel vagy díjjal, mi önellátók vagyunk saját hozzájárulásainkból.\n\nAz A.A. nem szövetkezik semmiféle szektával, felekezettel, szervezettel vagy intézménnyel, nem politizál; nem kíván semmiféle vitába bocsátkozni, nem támogat és nem ellenez semmilyen ügyet.\n\nElsődleges célunk józannak maradni és segíteni más alkoholisták józanodását." },
+  hogyanMukodik:  { title: "Anonim Alkoholisták, 5. fejezet – Hogyan működik (részlet)", text: "Ritkán fordult elő, hogy valaki lelkiismeretesen járta utunkat, és mégis kudarcot vallott. Általában azok az emberek nem épülnek fel, akik nem tudják, vagy nem akarják fenntartás nélkül követni egyszerű programunkat: azokról a férfiakról és nőkről van szó, akik alkatuknál fogva képtelenek önmagukkal szemben őszinték lenni. Vannak ilyen szerencsétlenek. Nem tehetnek róla, úgy látszik, ilyennek születtek. Természetüknél fogva képtelenek a teljes őszinteséget követelő életstílus megértésére és kialakítására. Esélyük a felépülésre az átlag alatt marad. Vannak súlyos érzelmi és elmebeli rendellenességben szenvedő emberek is, de sokan még közülük is felépülhetnek, ha képesek őszinték lenni önmagukhoz.\n\nTörténeteink közérthetően tárják fel, milyenek voltunk, mi történt velünk, és milyenek vagyunk most. Ha úgy határozott, hogy részesülni akar abból, ami nekünk megadatott, és ezért bármire hajlandó, akkor készen áll arra, hogy bizonyos lépéseket megtegyen.\n\nEgyes lépéseknél megtorpantunk. Azt hittük, könnyebb, kényelmesebb megoldást is találhatunk. De nem tudtunk. Ezért a lehető legkomolyabban kérjük, kezdettől fogva tegyen félre minden félelmet, és legyen nagyon alapos. Néhányan megpróbáltunk korábbi elgondolásainkhoz ragaszkodni, de semmire sem mentünk, amíg teljes mértékben fel nem hagytunk ezzel.\n\nNe feledje, alkohollal van dolgunk. Alattomos, megtévesztő, hatalmas erejű alkohollal! Ha nem kapunk segítséget, leteper minket. De van Valaki, aki mindenre képes. Ez nem más, mint Isten. Reméljük, ezúttal megtalálja Őt.\n\nFélmegoldások semmire sem vittek. Válaszútnál álltunk. Az Ő oltalmát és gondoskodását kértük teljes ráhagyatkozással. Íme a Lépések, amelyeket megtettünk, és felépülési programként javasolunk:\n\n1. Beismertük, hogy tehetetlenek vagyunk az alkohollal szemben –, hogy életünk irányíthatatlanná vált.\n2. Eljutottunk arra a hitre, hogy egy nálunk hatalmasabb Erő helyreállíthatja lelki egészségünket.\n3. Elhatároztuk, hogy akaratunkat és életünket a saját felfogásunk szerinti Isten gondviselésére bízzuk.\n4. Félelem nélkül mélyreható erkölcsi leltárt készítettünk magunkról.\n5. Beismertük Istennek, magunknak és egy embertársunknak hibáink valódi természetét.\n6. Teljességgel készen álltunk arra, hogy Isten megszabadítson bennünket mindezektől a jellemhibáktól.\n7. Alázatosan kértük őt hiányosságaink felszámolására.\n8. Listát készítettünk mindazokról, akiknek valaha kárára voltunk, és hajlandóvá váltunk mindnyájuknak jóvátételt nyújtani.\n9. Közvetlen jóvátételt nyújtottunk nekik, ahol lehetséges volt, kivéve, ha ez sérelmes lett volna rájuk, vagy másokra nézve.\n10. Folytattuk a személyes leltár készítését, és haladéktalanul beismertük, amikor hibáztunk.\n11. Igyekeztünk ima és meditáció útján elmélyíteni tudatos kapcsolatunkat a saját felfogásunk szerinti Istennel, csak azért imádkoztunk, hogy felismerjük velünk kapcsolatos akaratát, és hogy legyen erőnk a teljesítéséhez.\n12. E lépések eredményeként spirituális ébredést éltünk át, megpróbáltuk ezt az üzenetet alkoholistákhoz eljuttatni, és ezeket az elveket életünk minden dolgában érvényre juttatni.\n\nSokan felkiáltottunk ennek hallatára: – Micsoda követelmény! Képtelen vagyok ezt végigcsinálni! – Ne csüggedjen! Egyikünk sem volt képes ezeket az elveket teljes mértékben követni. Nem vagyunk szentek. A lényeg az, hogy hajlandók vagyunk spirituálisan fejlődni. Az itt lefektetett elvek a fejlődés felé vezetnek. Lelki fejlődésre, nem pedig tökéletességre törekszünk.\n\nJellemzésünk az alkoholistáról, az Istenben kételkedőkről (az agnosztikusokról) szóló fejezet és a kijózanodásunk előtti és utáni személyes tapasztalataink három dolgot tesznek nyilvánvalóvá:\na) Alkoholisták vagyunk, és képtelenek vagyunk életünket irányítani.\nb) Valószínűleg semmilyen emberi hatalom nem tudott volna megszabadítani alkoholizmusunktól.\nc) Isten képes erre, és megteszi, ha keressük Őt." },
+  hagyomanyok12:  { title: "Az Anonim Alkoholisták 12 Hagyománya", text: "1. Közös boldogulásunk álljon az első helyen, személyes felépülésünk az A.A. egységétől függ.\n2. Csoportügyekben egyetlen abszolút tekintély létezik – egy szerető Isten –, aki csoporttudatunkban megnyilvánulhat. Vezetőink csupán bizalmunkat élvező szolgálattevők, nem pedig irányítók.\n3. Az A.A.-tagság egyetlen feltétele az ivással való felhagyás vágya.\n4. Legyen minden csoport független, kivéve azokat az ügyeket, amelyek más csoportokat, vagy az A.A. egészét érintik.\n5. Minden csoport egyetlen, elsődleges célja az, hogy eljuttassa üzenetét a még szenvedő alkoholistához.\n6. Egy A.A.-csoport soha ne adja pénzét, nevét vagy támogatását semmilyen kapcsolódó intézménynek vagy külső vállalkozásnak, nehogy a pénzzel, tulajdonnal és presztízzsel kapcsolatos problémák eltérítsék elsődleges céljától.\n7. Minden A.A.-csoport legyen teljesen önfenntartó, hárítsa el a külső hozzájárulásokat.\n8. Az Anonim Alkoholisták Közössége maradjon mindig nemhivatásos, bár szolgálati központjaink alkalmazhatnak hivatásos szakembereket.\n9. Az A.A. maga soha ne szerveződjék, de alakíthatunk szolgálati testületeket vagy bizottságokat, amelyek közvetlen felelősséggel tartoznak azoknak, akiket szolgálnak.\n10. Az Anonim Alkoholisták Közösségének nincs véleménye külső ügyekről, ezért az A.A. név soha ne legyen bevonható nyilvános vitába.\n11. A nyilvánossághoz való viszonyunk alapja elsősorban a vonzerő, nem a reklám. Személyes névtelenségünket mindig meg kell őriznünk a sajtóban, a rádióban és a filmekben.\n12. Hagyományaink spirituális alapja, a névtelenség mindig emlékeztet bennünket arra, hogy az elvek előbbre valók az egyes személyeknél." },
+  zarszo1:        { title: "1. zárszó – „Könyvünket csupán ötletadónak szánjuk…”", text: "Könyvünket csupán ötletadónak szánjuk. Belátjuk, hogy még csak kevés ismerettel rendelkezünk. Isten egyre újabb és újabb dolgokat tár fel előttünk és Ön előtt is. Kérdezze meg tőle reggeli elmélkedéseiben, hogy mit tehet nap mint nap a még beteg emberekért. Választ fog találni, ha az Ön portáján rend van. De nyilvánvaló, hogy Ön nem adhat át olyasmit, amivel nem rendelkezik. Ügyeljen arra, hogy rendben legyen viszonya Istennel, és akkor nagy dolgok fognak történni Önnel és számtalan más emberrel. Ez nagy dolog számunkra.\n\nAdja át magát a saját felfogása szerinti Istennek. Vallja be neki hibáit és embertársainak is. Takarítsa el a múlt romjait. Adja tovább másoknak bőkezűen mindazt a jót, amire csak rátalál, és csatlakozzon hozzánk. Egyek leszünk Önnel a Lélek társaságában, és bizonyosan találkozik majd valamelyikünkkel sorsa örömteli beteljesítése közben.\n\nAddig is – Isten áldja és tartsa meg Önt ezen az úton." },
+  zarszo2:        { title: "2. zárszó – „Újra és újra bebizonyosodik az igazság…”", text: "Újra és újra bebizonyosodik az igazság: „Aki alkoholista, az örökké az is marad.”\n\nHa valaki egy józan időszak után újra ivásra adja a fejét, akkor hamarosan oda jut, ahol azelőtt volt. Ha azt tervezzük, hogy abbahagyjuk az ivást, akkor egyáltalán nem szabad azt hinnünk, hogy egy szép napon immunisak leszünk az alkohollal szemben. A súlyos megbetegedéshez nem szükséges, hogy sokáig igyunk, vagy hogy olyan mennyiséget öntsünk magunkba, mint egyik-másik társunk. Többé már nincs arra szükség, hogy átverjem magam, akár azzal, hogy nekem másféle ivási szokásaim voltak, akár azzal, hogy „meggyógyultam”. Ma alkoholista vagyok, holnap ugyanúgy az leszek.\n\nAlkoholizmusom bennem él, ma és mindörökké. Nem szabad elfelejtenem, mi vagyok, az alkohol egész biztosan elpusztít, ha a betegségemről megfeledkezem, és nem veszem tudomásul nap mint nap.\n\nNem olyan játszma ez, amelyben a veszteség csak átmeneti hátráltató tényező. Foglalkozom a betegségemmel, melyre nincs más gyógymód, csak a mindennapi elfogadás és az éberség." },
+  ima:            { title: "A Lelki Béke Imája", text: "Istenem, adj lelki békét annak elfogadására, amin változtatni nem tudok,\nbátorságot, hogy változtassak azon, amin tudok,\nés bölcsességet, hogy felismerjem a különbséget." }
+};
+
+/* =====================================================================
+   A GYŰLÉS MENETE
+   say:   amit a levezető hangosan mond ({nev}, {csoport}, {tipus}, {tema} behelyettesítődik)
+   note:  teendő / emlékeztető a levezetőnek (nem kell felolvasni)
+   read:  lenyitható felolvasandó szöveg kulcsa (READINGS)
+   yes/no: két gomb → következő lépés azonosítója
+   next:  egy „Tovább” gomb
+   ===================================================================== */
+const STEPS = {
+  nyitas: { sec:"Megnyitás", title:"Köszöntés",
+    say:["Szervusztok! Szeretettel köszöntök mindenkit az Anonim Alkoholisták {csoport} csoportjának {tipus} gyűlésén!",
+         "{nev} vagyok, alkoholista."],
+    next:"meghatarozas" },
+
+  meghatarozas: { sec:"Megnyitás", title:"A közösség meghatározása",
+    say:["Megkérem társunkat a közösség meghatározásának felolvasására!"],
+    note:"Várd meg, amíg a társ felolvassa.", read:"meghatarozas", next:"orom" },
+
+  orom: { sec:"Megnyitás", title:"Öröm, bánat",
+    say:["<span class='q'>Volt-e valakinek olyan öröme vagy bánata, amit röviden meg szeretne osztani a közösséggel, és az alkohollal vagy a felépülésével kapcsolatos?</span>"],
+    yes:"orom_van", no:"szabalyok", yesLabel:"Van", noLabel:"Nincs" },
+
+  orom_van: { sec:"Megnyitás", title:"Rövid megosztások",
+    note:"<b>Teendő:</b> hallgasd végig a rövid megosztásokat. Ha mindenki végzett, lépj tovább.",
+    next:"szabalyok", nextLabel:"Megosztások vége – Tovább" },
+
+  szabalyok: { sec:"Megnyitás", title:"Magatartási szabályok",
+    say:["Mi tegeződünk, hozzászólási szándékunkat kézfeltartással jelezzük.",
+         "Nem vágunk egymás szavába, és mindenkit végighallgatunk. Nem hivatkozunk, és nem minősítjük más véleményét. Nincs kioktatás, számonkérés, elítélés, és nem bonyolódunk vitába.",
+         "Csak magunkról, érzéseinkről, az alkohollal és a felépülésünkkel kapcsolatos tapasztalatainkról beszélünk, egyes szám első személyben. Csak őszinte szót vagy semmit!",
+         "Kérjük, mindenki tartózkodjon a hosszadalmas hozzászólástól és az ide nem illő beszédtől!"],
+    next:"uj" },
+
+  uj: { sec:"Új társ", title:"Első alkalom",
+    say:["<span class='q'>Van-e közöttünk olyan, aki először jár AA-gyűlésen, és alkoholproblémája van?</span>"],
+    yes:"uj_nev", no:"telefon", yesLabel:"Van", noLabel:"Nincs" },
+
+  uj_nev: { sec:"Új társ", title:"Bemutatkozás",
+    say:["<span class='q'>Mondanál egy keresztnevet?</span>"],
+    note:"Várd meg a választ.", next:"uj_ivott" },
+
+  uj_ivott: { sec:"Új társ", title:"Fogyasztott-e ma alkoholt?",
+    say:["<span class='q'>Fogyasztottál ma alkoholt?</span>"],
+    yes:"uj_hallgass", no:"uj_magadrol", yesLabel:"Ivott", noLabel:"Nem ivott", yesStyle:"no", noStyle:"yes" },
+
+  uj_magadrol: { sec:"Új társ", title:"Pár szó magáról",
+    say:["<span class='q'>Pár szóval beszélnél magadról?</span>"],
+    note:"Várd meg, amíg befejezi.", next:"uj_erem" },
+
+  uj_erem: { sec:"Új társ", title:"Érme átadása",
+    say:["Megkérem társunkat, hogy adja át az érmét az AA nevében!"],
+    note:"Várd meg az átadást és a köszöntést.", next:"uj_meg" },
+
+  uj_hallgass: { sec:"Új társ", title:"Ha ivott",
+    say:["Akkor most megkérünk, hogy a gyűlés végéig hallgass bennünket!",
+         "A gyűlés végén, ha van kérdésed, szívesen a rendelkezésedre állunk!"],
+    next:"uj_meg" },
+
+  uj_meg: { sec:"Új társ", title:"Van-e még új társ?",
+    say:["<span class='q'>Van-e még közöttünk más is, aki először jár AA-gyűlésen?</span>"],
+    yes:"uj_nev", no:"telefon", yesLabel:"Van", noLabel:"Nincs" },
+
+  telefon: { sec:"Megnyitás", title:"Telefonok, anonimitás",
+    say:["Nem illik a mobiltelefonokat bekapcsolva hagyni!",
+         "Ha eltávoztok, semmi ne kerüljön ki a szoba falai közül!"],
+    next:"erem" },
+
+  erem: { sec:"Érmék, születésnapok", title:"Éremesély",
+    say:["<span class='q'>Van-e valakinek éremesélye?</span>","24 óra, 1 hónap, 2 hónap, 3 hónap, 6 hónap, 9 hónap?"],
+    note:"Ha <b>Van</b>: egyesével végigkérdezed a fokozatokat.",
+    yes:"erem_0", no:"szulinap", yesLabel:"Van", noLabel:"Nincs" },
+
+  szulinap: { sec:"Érmék, születésnapok", title:"Születésnap",
+    say:["<span class='q'>Kíván-e valaki születésnapot bejelenteni?</span>"],
+    yes:"szn_bemut", no:"hogyan", yesLabel:"Van", noLabel:"Nincs" },
+
+  szn_bemut: { sec:"Érmék, születésnapok", title:"Születésnap – bemutatkozás",
+    say:["Kérlek, mutatkozz be, és mondd el, hányadik születésnapodat ünnepled!"],
+    note:"Várd meg, amíg bemutatkozik.", next:"szn_kosz" },
+
+  szn_kosz: { sec:"Érmék, születésnapok", title:"Köszöntés",
+    say:["Megkérem társunkat, hogy köszöntse társunkat az AA nevében!"],
+    note:"Várd meg a köszöntést.", next:"szn_meg" },
+
+  szn_meg: { sec:"Érmék, születésnapok", title:"Van-e még születésnap?",
+    say:["<span class='q'>Kíván-e még valaki születésnapot bejelenteni?</span>"],
+    yes:"szn_bemut", no:"hogyan", yesLabel:"Van", noLabel:"Nincs" },
+
+  hogyan: { sec:"Felolvasások", title:"Hogyan működik",
+    say:["Megkérem társunkat, hogy olvassa fel a Nagykönyv „Hogyan működik” című fejezetének elejét!"],
+    note:"Várd meg a felolvasást.", read:"hogyanMukodik", next:"hagyomanyok" },
+
+  hagyomanyok: { sec:"Felolvasások", title:"A 12 Hagyomány",
+    say:["Megkérem társunkat, hogy olvassa fel az AA 12 Hagyományát!"],
+    note:"Várd meg a felolvasást.", read:"hagyomanyok12", next:"kovtema" },
+
+  kovtema: { sec:"Téma", title:"A következő gyűlés témája",
+    say:["A következő gyűlésünk témája: <b>{tema}</b>"],
+    input:{ key:"tema", label:"Következő gyűlés témája (ha még nincs beírva)" },
+    next:"temaatadas" },
+
+  temaatadas: { sec:"Téma", title:"A mai téma",
+    say:["Most átadom a szót társunknak, aki megosztja velünk a mai nap témáját."],
+    note:"<b>Teendő:</b> hallgasd végig a témavezető megosztását.",
+    next:"hozzaszolasok", nextLabel:"Megosztás vége – Tovább" },
+
+  hozzaszolasok: { sec:"Téma", title:"Hozzászólások",
+    say:["Megköszönjük társunknak a megosztását, átadom nektek a szót!"],
+    note:"<b>Teendő:</b> hozzászólások. Figyeld a fejlécben az időt, és ha közeledik a gyűlés vége, lépj tovább.",
+    next:"hetedik", nextLabel:"A gyűlés vége felé – Tovább" },
+
+  hetedik: { sec:"Zárás", title:"7. Hagyomány",
+    say:["Felhívom a figyelmeteket a 7. Hagyományra, miszerint:",
+         "„Minden A.A.-csoport legyen teljesen önfenntartó, hárítsa el a külső hozzájárulásokat.”"],
+    next:"vege" },
+
+  vege: { sec:"Zárás", title:"Szolgálati közlemény",
+    say:["A mai gyűlésidőnk sajnos elfogyott!",
+         "<span class='q'>A zárszó és az ima előtt szolgálati közleményt kíván-e valaki bejelenteni?</span>"],
+    yes:"kozlemeny", no:"zarszo", yesLabel:"Van", noLabel:"Nincs" },
+
+  kozlemeny: { sec:"Zárás", title:"Közlemények",
+    note:"<b>Teendő:</b> hallgasd meg a bejelentéseket, majd lépj tovább.",
+    next:"zarszo", nextLabel:"Bejelentések vége – Tovább" },
+
+  zarszo: { sec:"Zárás", title:"Zárszó",
+    say:["Megkérem társunkat, hogy a Zárszót olvassa fel!"],
+    note:"Kétféle zárszó van, a felolvasó választ közülük. Várd meg a felolvasást.", read:["zarszo1","zarszo2"], next:"ima" },
+
+  ima: { sec:"Zárás", title:"A Lelki Béke Imája",
+    say:["Köszönöm, hogy szolgálhattam!","És most mondjuk el közösen a Lelki Béke Imáját!"],
+    read:"ima", readOpen:true, next:"_rogzites", nextLabel:"Tovább: pénztár és érmék →" }
+};
+
+
+/* ---------- érmefokozatok: egyesével ---------- */
+const MEDALS = ["24 óra","1 hónap","2 hónap","3 hónap","6 hónap","9 hónap"];
+MEDALS.forEach((m,i)=>{
+  const nextQ = i < MEDALS.length-1 ? "erem_"+(i+1) : "szulinap";
+  STEPS["erem_"+i] = { sec:"Érmék, születésnapok", title:"Érme: "+m,
+    say:["<span class='q'>"+m+"?</span>"], note:"Nézz körbe.",
+    yes:"erem_"+i+"_b", no:nextQ, yesLabel:"Van", noLabel:"Nincs" };
+  STEPS["erem_"+i+"_b"] = { sec:"Érmék, születésnapok", title:"Érme: "+m+" – bemutatkozás",
+    say:["Kérlek, mutatkozz be!"], note:"Várd meg, amíg bemutatkozik.", next:"erem_"+i+"_a" };
+  STEPS["erem_"+i+"_a"] = { sec:"Érmék, születésnapok", title:"Érme: "+m+" – átadás",
+    say:["Megkérem társunkat, hogy adja át az érmét az AA nevében!"], note:"Várd meg az átadást és a köszöntést.", next:"erem_"+i+"_m" };
+  STEPS["erem_"+i+"_m"] = { sec:"Érmék, születésnapok", title:"Érme: "+m+" – van-e még?",
+    say:["<span class='q'>Van-e még valaki, akinek "+m+" éremesélye van?</span>"],
+    yes:"erem_"+i+"_b", no:nextQ, yesLabel:"Van", noLabel:"Nincs" };
+});
+
+/* A haladásjelző sávhoz: a fő vonal sorrendje */
+const MAIN = ["nyitas","meghatarozas","orom","szabalyok","uj","telefon","erem","szulinap","hogyan","hagyomanyok",
+  "kovtema","temaatadas","hozzaszolasok","hetedik","vege","zarszo","ima","_rogzites","_vege"];
+function progress(){
+  const path = state.history.concat(state.current);
+  for(let i=path.length-1;i>=0;i--){ const k = MAIN.indexOf(path[i]); if(k>=0) return k/(MAIN.length-1); }
+  return 0;
+}
+
+/* ===================================================================== */
+const $ = id => document.getElementById(id);
+const store = {
+  get(k,d){ try{ const v = localStorage.getItem(k); return v==null?d:JSON.parse(v);}catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} },
+  del(k){ try{ localStorage.removeItem(k);}catch(e){} }
+};
+
+const settings = Object.assign({
+  nev:"", tipus:"nyitott", csoport:"székesfehérvári Lelki Ébredés", tema:"", hossz:60, fs:20, dark:false
+}, store.get("aa_settings", {}));
+
+let state = store.get("aa_session", null); // {current, history, start}
+let showHome = !state || state.current==="_vege";
+let wakeLock = null, wlStatus = "";
+
+function saveSettings(){ store.set("aa_settings", settings); }
+function saveSession(){ if(state) store.set("aa_session", state); else store.del("aa_session"); }
+
+function esc(s){ return String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function fill(t){
+  return t.replace(/\{nev\}/g, settings.nev ? esc(settings.nev) : "<i>(keresztneved)</i>")
+          .replace(/\{csoport\}/g, esc(settings.csoport || "…"))
+          .replace(/\{tipus\}/g, esc(settings.tipus))
+          .replace(/\{tema\}/g, settings.tema ? esc(settings.tema) : "……………");
+}
+
+function applyLook(){
+  document.documentElement.style.setProperty("--fs", settings.fs+"px");
+  document.body.classList.toggle("dark", !!settings.dark);
+}
+
+/* ---------- óra ---------- */
+function fmt(ms){ const m = Math.floor(Math.abs(ms)/60000); const h = Math.floor(m/60); return (h? h+":"+String(m%60).padStart(2,"0") : m)+" p"; }
+function tick(){
+  const c = $("clock");
+  const active = state && state.start && state.current!=="_vege" && !showHome;
+  if(!state || !state.start){ c.innerHTML = ""; document.body.classList.remove("ending"); return; }
+  const el = Date.now() - state.start, left = settings.hossz*60000 - el;
+  c.innerHTML = "<b>"+fmt(el)+"</b><br>"+(left>=0 ? "még "+fmt(left) : "<span class='over'>+"+fmt(left)+"</span>");
+  /* az utolsó perctől (és túllépéskor) színes háttér */
+  document.body.classList.toggle("ending", !!active && left <= 60000);
+}
+setInterval(tick, 5000);
+
+/* ---------- képernyő ébren tartása ---------- */
+async function keepAwake(){
+  try{
+    if("wakeLock" in navigator){ wakeLock = await navigator.wakeLock.request("screen"); wlStatus = "A képernyő ébren marad."; }
+    else wlStatus = "Ez a böngésző nem tudja ébren tartani a képernyőt – állítsd hosszabbra a kijelző időkorlátját.";
+  }catch(e){ wlStatus = "A képernyő ébren tartása itt nem engedélyezett."; }
+}
+document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="visible" && state && state.current!=="_vege") keepAwake(); });
+
+/* ---------- megerősítő ablak ---------- */
+function ask(text, onYes){
+  $("modalText").textContent = text; $("modalYes").textContent = "Igen"; $("modal").classList.add("on");
+  $("modalYes").onclick = ()=>{ $("modal").classList.remove("on"); onYes(); };
+  $("modalNo").onclick = ()=> $("modal").classList.remove("on");
+}
+
+/* ---------- navigáció ---------- */
+function go(id){ state.history.push(state.current); state.current = id; saveSession(); render(); window.scrollTo(0,0); }
+function back(){ if(!state.history.length) return; state.current = state.history.pop(); saveSession(); render(); window.scrollTo(0,0); }
+
+function startMeeting(){
+  showHome = false;
+  state = { current:"nyitas", history:[], start:Date.now() };
+  saveSession(); keepAwake(); render();
+}
+
+/* ---------- kezdőképernyő ---------- */
+function renderHome(){
+  $("hdrTitle").textContent = "Gyűlésvezetés";
+  $("bar").style.width = "0";
+  const resumable = state && state.current && state.current!=="_vege" && (Date.now()-state.start) < 5*3600000;
+  $("main").innerHTML = `
+    <div class="section">Gyűlésvezetés segédlet</div>
+    <h1>Mielőtt elkezded</h1>
+    <label class="field"><span>A keresztneved</span><input id="f_nev" value="${esc(settings.nev)}" placeholder="pl. Vili" autocomplete="off"></label>
+    <label class="field"><span>A gyűlés jellege</span>
+      <select id="f_tipus"><option value="nyitott">nyitott</option><option value="zárt">zárt</option></select></label>
+    <label class="field"><span>Csoport (így hangzik el: „az Anonim Alkoholisták <i>…</i> csoportjának”)</span><input id="f_csoport" value="${esc(settings.csoport)}"></label>
+    <label class="field"><span>A következő gyűlés témája (ráér később is)</span><input id="f_tema" value="${esc(settings.tema)}"></label>
+    <label class="field"><span>A gyűlés hossza (perc)</span><input id="f_hossz" type="number" min="15" max="240" step="5" value="${settings.hossz}"></label>
+    <p class="muted">Tipp: a jobb felső gombokkal állíthatod a betűméretet és a sötét módot.</p>
+    <h2 class="sub">Szolgálatok</h2>
+    <div class="menu">
+      <button data-v="penztar"><span class="i">💰</span>Pénztár</button>
+      <button data-v="keszlet"><span class="i">📚</span>Készlet, érmék</button>
+      <button data-v="leltar"><span class="i">📋</span>Leltár</button>
+      <button data-v="kapcsolat"><span class="i">🔗</span>Kapcsolat${sor.length?` (⏳ ${sor.length})`:""}</button>
+    </div>`;
+  document.querySelectorAll(".menu button").forEach(b=> b.onclick = ()=>{ view = b.dataset.v; render(); window.scrollTo(0,0); });
+  $("f_tipus").value = settings.tipus;
+  const bind = (id,key,num)=> $(id).addEventListener("input", e=>{ settings[key] = num? (parseInt(e.target.value)||60) : e.target.value.trim(); saveSettings(); });
+  bind("f_nev","nev"); bind("f_csoport","csoport"); bind("f_tema","tema"); bind("f_hossz","hossz",true);
+  $("f_tipus").addEventListener("change", e=>{ settings.tipus = e.target.value; saveSettings(); });
+
+  $("foot").innerHTML = resumable
+    ? `<div class="choices"><button class="btn next" id="resume">Folytatás</button><button class="btn yes" id="start">Új gyűlés</button></div>`
+    : `<div class="choices"><button class="btn yes" id="start">Gyűlés indítása</button></div>`;
+  $("start").onclick = ()=> resumable ? ask("Új gyűlést kezdesz? Az előző menete elvész.", startMeeting) : startMeeting();
+  if(resumable) $("resume").onclick = ()=>{ showHome = false; keepAwake(); render(); };
+  tick();
+}
+
+/* ---------- egy lépés ---------- */
+function render(){
+  if(view){ renderView(); return; }
+  if(!state || showHome){ renderHome(); return; }
+  tick();
+  if(state.current === "_vege"){
+    try{ wakeLock && wakeLock.release(); }catch(e){}
+    $("hdrTitle").textContent = "Vége";
+    $("bar").style.width = "100%";
+    $("main").innerHTML = `<div class="done"><div class="big">🌿</div><h1>A gyűlés véget ért</h1>
+      <p class="muted">Időtartam: ${fmt(Date.now()-state.start)}</p></div>`;
+    $("foot").innerHTML = `<div class="row"><button class="back" id="bk">← Vissza</button><button class="back" id="hm">Kezdőlap</button></div>`;
+    $("bk").onclick = back;
+    $("hm").onclick = ()=>{ state.current="_vege"; saveSession(); showHome=true; render(); };
+    return;
+  }
+  if(state.current === "_rogzites"){ renderRogzites(); return; }
+  const s = STEPS[state.current];
+  $("hdrTitle").textContent = s.sec;
+  $("bar").style.width = Math.round(100*progress())+"%";
+
+  let h = `<div class="section">${s.sec}</div><h1>${s.title}</h1>`;
+  if(s.say) h += `<div class="say">${s.say.map(p=>"<p>"+fill(p)+"</p>").join("")}</div>`;
+  if(s.input) h += `<label class="field"><span>${s.input.label}</span><input id="f_in" value="${esc(settings[s.input.key]||"")}"></label>`;
+  if(s.read) [].concat(s.read).forEach(key=>{
+    const r = READINGS[key];
+    h += `<details class="reading"${s.readOpen?" open":""}><summary>📖 ${r.title}</summary><div class="body">${
+      r.text ? esc(r.text) : "<span class='ph'>A szöveg még nincs beírva. Ha elküldöd, beteszem ide, és akkor innen is felolvasható lesz.</span>"}</div></details>`;
+  });
+  if(s.note) h += `<p class="note">${s.note}</p>`;
+  if(wlStatus && state.current==="nyitas") h += `<p class="wl">${wlStatus}</p>`;
+  $("main").innerHTML = h;
+
+  if(s.input){
+    $("f_in").addEventListener("input", e=>{
+      settings[s.input.key] = e.target.value.trim(); saveSettings();
+      document.querySelector(".say").innerHTML = s.say.map(p=>"<p>"+fill(p)+"</p>").join("");
+    });
+  }
+
+  let f = "";
+  if(s.yes){
+    f += `<div class="choices">
+      <button class="btn ${s.yesStyle||"yes"}" id="bYes">${s.yesLabel||"Van"}</button>
+      <button class="btn ${s.noStyle||"no"}" id="bNo">${s.noLabel||"Nincs"}</button></div>`;
+  } else {
+    f += `<div class="choices"><button class="btn next" id="bNext">${s.nextLabel||"Tovább →"}</button></div>`;
+  }
+  f += `<button class="back" id="bBack" ${state.history.length?"":"disabled"}>← Vissza</button>`;
+  $("foot").innerHTML = f;
+  if(s.yes){ $("bYes").onclick = ()=>go(s.yes); $("bNo").onclick = ()=>go(s.no); }
+  else $("bNext").onclick = ()=>go(s.next);
+  $("bBack").onclick = back;
+}
+
+/* =====================================================================
+   PÉNZTÁR, KÉSZLET, KAPCSOLAT  (Google-táblázat a háttérben)
+   ===================================================================== */
+const DEFAULT_URL = "https://script.google.com/macros/s/AKfycbxXR8S2bOY0d7R_YjHnomHGoIbb1dD4JyLG6K8Xdasu9S7Gpxfwq60siN1L7PYerruY/exec";
+const kapcs = Object.assign({ url: DEFAULT_URL, pin: "" }, store.get("aa_kapcs", {}));
+let adat = store.get("aa_adatok", null);          // {kategoriak, szemelyek, keszlet, egyenleg, ido}
+let sor = store.get("aa_sor", []);                // elküldésre váró tételek
+let view = null;                                  // null = gyűlés / kezdőlap; egyébként: penztar, keszlet, leltar, kapcsolat, sor
+let syncAllapot = "";                             // utolsó szinkron üzenete
+let syncFut = false;
+
+function saveKapcs(){ store.set("aa_kapcs", kapcs); }
+function saveSor(){ store.set("aa_sor", sor); updateSorJelzo(); }
+function ma(){ const d = new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function ft(n){ return (Math.round(n)||0).toLocaleString("hu-HU").replace(/ /g," ")+" Ft"; }
+function nevek(){ return adat ? adat.szemelyek.map(s=>s.nev) : (settings.nev ? [settings.nev] : []); }
+function nevOpciok(sel, ures){ return (ures?`<option value="">${ures}</option>`:"") + nevek().map(n=>`<option${n===sel?" selected":""}>${esc(n)}</option>`).join(""); }
+function rogzito(){ return settings.nev || ""; }
+
+async function api(body){
+  if(!kapcs.url) throw new Error("Nincs beállítva a kapcsolat címe.");
+  if(!kapcs.pin) throw new Error("Nincs megadva a PIN-kód.");
+  let r;
+  try{ r = await fetch(kapcs.url, { method:"POST", body: JSON.stringify(Object.assign({ pin: kapcs.pin }, body)) }); }
+  catch(e){ const err = new Error("Nincs kapcsolat (nincs térerő, vagy ez az oldal nem érheti el a táblázatot)."); err.halozat = true; throw err; }
+  let j; try{ j = await r.json(); }catch(e){ const err = new Error("Érthetetlen válasz a táblázattól."); err.halozat = true; throw err; }
+  if(!j.ok) throw new Error(j.hiba || "Ismeretlen hiba.");
+  return j;
+}
+
+async function frissit(){
+  const j = await api({ action:"adatok" });
+  adat = { kategoriak:j.kategoriak, szemelyek:j.szemelyek, keszlet:j.keszlet, egyenleg:j.egyenleg, ido:Date.now() };
+  store.set("aa_adatok", adat);
+  return adat;
+}
+
+/* --- várólista: minden írás ide kerül, és innen megy ki --- */
+function sorba(action, tetelek, leiras){
+  sor.push({ id: Date.now()+"-"+Math.random().toString(36).slice(2,7), action, tetelek, leiras, ido: Date.now() });
+  saveSor();
+  szinkron();
+}
+async function szinkron(){
+  if(syncFut || !sor.length) { updateSorJelzo(); return; }
+  syncFut = true; syncAllapot = "Küldés…"; updateSorJelzo();
+  try{
+    while(sor.length){
+      const t = sor[0];
+      try{ await api({ action:t.action, tetelek:t.tetelek }); }
+      catch(e){
+        if(e.halozat){ syncAllapot = "Nincs kapcsolat – a tételek a telefonon várnak, később újraküldöm."; break; }
+        t.hiba = e.message; saveSor(); syncAllapot = "Hiba: " + e.message; break;
+      }
+      sor.shift(); saveSor(); syncAllapot = "Minden elküldve.";
+    }
+    if(!sor.length){ try{ await frissit(); }catch(e){} }
+  } finally { syncFut = false; updateSorJelzo(); if(view) render(); }
+}
+window.addEventListener("online", szinkron);
+setInterval(()=>{ if(sor.length && !sor[0].hiba) szinkron(); }, 60000);
+
+function updateSorJelzo(){
+  const el = $("sorJelzo"); if(!el) return;
+  el.style.display = sor.length ? "" : "none";
+  el.textContent = "⏳ " + sor.length;
+  el.title = syncAllapot;
+}
+
+/* --- közös fejléc a nézetekhez --- */
+function nezetKeret(cim, alcim, tartalom, labResz){
+  $("hdrTitle").textContent = cim;
+  $("bar").style.width = "0";
+  $("main").innerHTML = `<div class="section">${alcim}</div><h1>${cim}</h1>` + tartalom;
+  $("foot").innerHTML = (labResz||"") + `<button class="back" id="vVissza">← Kezdőlap</button>`;
+  $("vVissza").onclick = ()=>{ view = null; showHome = true; render(); window.scrollTo(0,0); };
+}
+function allapotSor(){
+  const kor = adat ? new Date(adat.ido).toLocaleString("hu-HU",{month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}) : "még soha";
+  let s = `<p class="muted">Adatok frissítve: ${kor}${sor.length?` · <b>${sor.length} tétel vár küldésre</b>`:""}</p>`;
+  if(syncAllapot && sor.length) s += `<p class="note">${esc(syncAllapot)}</p>`;
+  return s;
+}
+function uzen(id, szoveg, jo){ const el=$(id); if(el){ el.innerHTML = szoveg; el.className = "msg " + (jo?"ok":"err"); } }
+
+/* ===================== KAPCSOLAT ===================== */
+function renderKapcsolat(){
+  nezetKeret("Kapcsolat", "Beállítások", `
+    <p class="muted">Az alkalmazás ezen keresztül éri el a Pénztár táblázatot. A PIN-kód csak ezen a telefonon tárolódik.</p>
+    <label class="field"><span>A szkript címe (…/exec)</span><input id="k_url" value="${esc(kapcs.url)}"></label>
+    <label class="field"><span>PIN-kód</span><input id="k_pin" type="password" inputmode="numeric" value="${esc(kapcs.pin)}" autocomplete="off"></label>
+    <div id="k_msg" class="msg"></div>
+    ${allapotSor()}
+    ${sor.length?`<button class="back" id="k_sor">Várakozó tételek megtekintése (${sor.length})</button>`:""}`,
+    `<div class="choices"><button class="btn next" id="k_test">Mentés és próba</button></div>`);
+  $("k_test").onclick = async ()=>{
+    kapcs.url = $("k_url").value.trim(); kapcs.pin = $("k_pin").value.trim(); saveKapcs();
+    uzen("k_msg","Kapcsolódás…",true);
+    try{ const a = await frissit(); uzen("k_msg",`✅ Rendben! Egyenleg: <b>${ft(a.egyenleg)}</b>, ${a.szemelyek.length} név, ${a.keszlet.length} cikk.`,true); szinkron(); }
+    catch(e){ uzen("k_msg","❌ "+esc(e.message),false); }
+  };
+  if($("k_sor")) $("k_sor").onclick = ()=>{ view="sor"; render(); };
+}
+
+/* ===================== VÁRÓLISTA ===================== */
+function renderSor(){
+  const lista = sor.map((t,i)=>`<div class="item"><div class="grow"><b>${esc(t.leiras||t.action)}</b><br>
+      <span class="muted">${new Date(t.ido).toLocaleString("hu-HU")} · ${t.tetelek.length} sor</span>
+      ${t.hiba?`<br><span class="errtxt">Hiba: ${esc(t.hiba)}</span>`:""}</div>
+      <button class="mini" data-del="${i}">Törlés</button></div>`).join("") || `<p class="muted">Nincs várakozó tétel.</p>`;
+  nezetKeret("Várakozó tételek", "Kapcsolat", lista + `<p class="note">A törlés csak a telefonról törli a még el nem küldött tételt, a táblázatban nem változtat semmit.</p>`,
+    sor.length?`<div class="choices"><button class="btn next" id="s_kuld">Újraküldés most</button></div>`:"");
+  document.querySelectorAll("[data-del]").forEach(b=> b.onclick = ()=> ask("Biztosan törlöd ezt a még el nem küldött tételt?", ()=>{ sor.splice(+b.dataset.del,1); saveSor(); render(); }));
+  if($("s_kuld")) $("s_kuld").onclick = ()=>{ sor.forEach(t=>delete t.hiba); saveSor(); szinkron(); };
+}
+
+/* ===================== PÉNZTÁR ===================== */
+let pTipus = "Bevétel";
+function renderPenztar(){
+  const kat = adat ? adat.kategoriak.filter(k=> k.tipus.indexOf(pTipus)>=0 && k.nev.indexOf("összevont")<0 && k.tipus!=="Nyitó") : [];
+  const egyenleg = adat ? ft(adat.egyenleg) : "–";
+  nezetKeret("Pénztár", "Bevétel, kiadás", `
+    <div class="big-num">${egyenleg}<span>egyenleg a táblázat szerint</span></div>
+    ${allapotSor()}
+    ${!adat?`<p class="note"><b>Előbb állítsd be a kapcsolatot</b> (Kezdőlap → Kapcsolat).</p>`:""}
+    <div class="seg"><button data-t="Bevétel" class="${pTipus==="Bevétel"?"on":""}">Bevétel</button><button data-t="Kiadás" class="${pTipus==="Kiadás"?"on":""}">Kiadás</button></div>
+    <label class="field"><span>Dátum</span><input id="p_datum" type="date" value="${ma()}"></label>
+    <label class="field"><span>Kategória</span><select id="p_kat">${kat.map(k=>`<option>${esc(k.nev)}</option>`).join("")}</select></label>
+    <label class="field"><span>Megnevezés</span><input id="p_tetel" placeholder="${pTipus==="Bevétel"?"pl. 7. Hagyomány":"pl. tea, cukor"}"></label>
+    <label class="field"><span>Összeg (Ft)</span><input id="p_osszeg" type="number" inputmode="numeric" min="1" step="1"></label>
+    ${pTipus==="Kiadás"?`
+    <label class="field"><span>Ki vásárolt / kinek fizettünk?</span><select id="p_szem">${nevOpciok("", "– senki / bolt –")}</select></label>
+    <label class="field"><span>Ki fizette ki a kasszából?</span><select id="p_kifiz">${nevOpciok("", "– válassz –")}</select></label>
+    <label class="field"><span>Lelkiismereti határozat (ha van)</span><input id="p_hat" placeholder="pl. 2026. 10. 05-i gyűlés"></label>`:`
+    <label class="field"><span>Megszámolta</span><select id="p_szem">${nevOpciok(rogzito(), "– válassz –")}</select></label>
+    <label class="field"><span>Ellenőrizte (második számoló)</span><select id="p_ell">${nevOpciok("", "– válassz –")}</select></label>`}
+    <label class="field"><span>Megjegyzés</span><input id="p_megj"></label>
+    <div id="p_msg" class="msg"></div>`,
+    `<div class="choices"><button class="btn yes" id="p_ment">Rögzítés</button></div>`);
+  document.querySelectorAll(".seg button").forEach(b=> b.onclick = ()=>{ pTipus = b.dataset.t; render(); });
+  $("p_ment").onclick = ()=>{
+    const osszeg = parseInt($("p_osszeg").value,10);
+    const tetel = $("p_tetel").value.trim() || $("p_kat").value;
+    if(!adat) return uzen("p_msg","Előbb állítsd be a kapcsolatot.",false);
+    if(!$("p_kat").value) return uzen("p_msg","Válassz kategóriát.",false);
+    if(!(osszeg>0)) return uzen("p_msg","Adj meg egy pozitív összeget.",false);
+    if(!rogzito()) return uzen("p_msg","A kezdőlapon add meg a keresztneved – az kerül a „Rögzítette” rovatba.",false);
+    const t = { datum:$("p_datum").value||ma(), tipus:pTipus, kategoria:$("p_kat").value, tetel, rogzitette:rogzito() };
+    let megj = $("p_megj").value.trim();
+    if(pTipus==="Bevétel"){
+      t.bevetel = osszeg; t.szemely = $("p_szem").value; t.ellenorizte = $("p_ell").value;
+    } else {
+      t.kiadas = osszeg; t.szemely = $("p_szem").value;
+      const kf = $("p_kifiz").value, hat = $("p_hat").value.trim();
+      if(!kf) return uzen("p_msg","Válaszd ki, ki fizette ki a kasszából.",false);
+      megj = ["Kifizette: "+kf, hat?"Határozat: "+hat:"", megj].filter(Boolean).join(". ");
+    }
+    t.megjegyzes = megj;
+    ask(`Rögzíted? ${pTipus}: ${tetel}, ${ft(osszeg)}`, ()=>{
+      sorba("naplo",[t], `${pTipus}: ${tetel} – ${ft(osszeg)}`);
+      if(adat){ adat.egyenleg += pTipus==="Bevétel"?osszeg:-osszeg; store.set("aa_adatok",adat); }
+      render(); uzen("p_msg","✅ Rögzítve"+(navigator.onLine?"":" – térerő esetén elküldöm")+".",true);
+    });
+  };
+}
+
+/* ===================== KÉSZLET ===================== */
+let kSzuro = "", kFajta = "Könyv";
+function renderKeszlet(){
+  const lista = adat ? adat.keszlet.filter(k=> k.fajta===kFajta && (!kSzuro || k.cikk.toLowerCase().indexOf(kSzuro.toLowerCase())>=0)) : [];
+  nezetKeret("Készlet", "Irodalom és érmék", `
+    ${allapotSor()}
+    ${!adat?`<p class="note"><b>Előbb állítsd be a kapcsolatot</b> (Kezdőlap → Kapcsolat).</p>`:""}
+    <div class="seg">${["Könyv","Pamflet","Érme"].map(f=>`<button data-f="${f}" class="${kFajta===f?"on":""}">${f}</button>`).join("")}</div>
+    <input id="k_szuro" class="search" placeholder="Keresés…" value="${esc(kSzuro)}">
+    <div id="k_lista">${lista.map(k=>`<div class="item" data-c="${esc(k.cikk)}"><div class="grow">${esc(k.cikk)}<br>
+      <span class="muted">${k.ar!=null?ft(k.ar):"ár nélkül"}</span></div><div class="db ${k.db<=0?"zero":""}">${k.db}</div></div>`).join("") || `<p class="muted">Nincs találat.</p>`}</div>`,
+    `<div class="choices"><button class="btn next" id="k_leltar">📋 Leltár mód</button></div>`);
+  document.querySelectorAll(".seg button").forEach(b=> b.onclick = ()=>{ kFajta = b.dataset.f; render(); });
+  $("k_szuro").oninput = e=>{ kSzuro = e.target.value; const pos = e.target.selectionStart; render(); const s=$("k_szuro"); s.focus(); s.setSelectionRange(pos,pos); };
+  document.querySelectorAll("#k_lista .item").forEach(el=> el.onclick = ()=> cikkPanel(adat.keszlet.find(k=>k.cikk===el.dataset.c)));
+  $("k_leltar").onclick = ()=>{ view = "leltar"; render(); window.scrollTo(0,0); };
+}
+
+function cikkPanel(k){
+  const erme = k.fajta === "Érme";
+  $("modalText").innerHTML = `<b>${esc(k.cikk)}</b><br><span class="muted">Készlet: ${k.db} db${k.ar!=null?" · "+ft(k.ar):""}</span>
+    <div class="seg" id="cp_seg">${(erme?["Átadás","Beszerzés","Javítás"]:["Eladás","Beszerzés","Ajándék","Javítás"]).map((m,i)=>`<button data-m="${m}" class="${i===0?"on":""}">${m}</button>`).join("")}</div>
+    <label class="field"><span id="cp_dbl">Darab</span><input id="cp_db" type="number" inputmode="numeric" value="1" step="1"></label>
+    <div id="cp_extra"></div><div id="cp_msg" class="msg"></div>`;
+  let mod = erme ? "Átadás" : "Eladás";
+  const extra = ()=>{
+    $("cp_dbl").textContent = mod==="Javítás" ? "Eltérés (+ vagy − darab)" : "Darab";
+    $("cp_extra").innerHTML =
+      mod==="Eladás" ? `<p class="muted">Bevétel: <b id="cp_ossz"></b> → „Irodalom eladás”</p>` :
+      mod==="Beszerzés" ? `<label class="field"><span>A kasszából kifizetett összeg (ha most fizettük)</span><input id="cp_ft" type="number" inputmode="numeric" placeholder="0 = nem most / nem a kasszából"></label>
+          <label class="field"><span>Ki vásárolta?</span><select id="cp_szem">${nevOpciok("", "–")}</select></label>
+          <label class="field"><span>Ki fizette ki?</span><select id="cp_kif">${nevOpciok("", "–")}</select></label>` :
+      `<label class="field"><span>Megjegyzés${mod==="Javítás"?" (kötelező)":""}</span><input id="cp_megj"></label>`;
+    const o = $("cp_ossz"); if(o){ const f=()=>o.textContent = ft((parseInt($("cp_db").value,10)||0)*(k.ar||0)); f(); $("cp_db").oninput=f; }
+  };
+  extra();
+  document.querySelectorAll("#cp_seg button").forEach(b=> b.onclick = ()=>{ mod=b.dataset.m; document.querySelectorAll("#cp_seg button").forEach(x=>x.classList.toggle("on",x===b)); extra(); });
+  $("modal").classList.add("on");
+  $("modalNo").onclick = ()=> $("modal").classList.remove("on");
+  $("modalYes").textContent = "Rögzítés";
+  $("modalYes").onclick = ()=>{
+    const db = parseInt($("cp_db").value,10);
+    if(!rogzito()) return uzen("cp_msg","A kezdőlapon add meg a keresztneved.",false);
+    if(!db || (mod!=="Javítás" && db<0)) return uzen("cp_msg","Adj meg érvényes darabszámot.",false);
+    const alap = { datum:ma(), cikk:k.cikk, rogzitette:rogzito() };
+    let ktetel, naplo = null, leiras;
+    if(mod==="Eladás"){
+      if(db > k.db) return uzen("cp_msg",`Csak ${k.db} db van a készletben. Ha mégis van több, előbb javítsd a készletet.`,false);
+      ktetel = Object.assign({ tipus:"Eladás", valtozas:-db }, alap);
+      if(k.ar) naplo = { datum:ma(), tipus:"Bevétel", kategoria:"Irodalom eladás", tetel:k.cikk, db, bevetel:db*k.ar, rogzitette:rogzito() };
+      leiras = `Eladás: ${db} × ${k.cikk}`;
+    } else if(mod==="Átadás"){
+      if(db > k.db) return uzen("cp_msg",`Csak ${k.db} db van a készletben.`,false);
+      ktetel = Object.assign({ tipus:"Érmeátadás", valtozas:-db }, alap); leiras = `Érmeátadás: ${db} × ${k.cikk}`;
+    } else if(mod==="Beszerzés"){
+      const fizetve = parseInt($("cp_ft").value,10)||0, szem=$("cp_szem").value, kif=$("cp_kif").value;
+      ktetel = Object.assign({ tipus:"Beszerzés", valtozas:db, szemely:szem }, alap);
+      if(fizetve>0){
+        if(!kif) return uzen("cp_msg","Válaszd ki, ki fizette ki a kasszából.",false);
+        naplo = { datum:ma(), tipus:"Kiadás", kategoria: erme?"Érme beszerzés":"Irodalom beszerzés", tetel:k.cikk, db, kiadas:fizetve, szemely:szem, rogzitette:rogzito(), megjegyzes:"Kifizette: "+kif };
+      }
+      leiras = `Beszerzés: ${db} × ${k.cikk}`;
+    } else {
+      const megj = $("cp_megj").value.trim();
+      if(mod==="Javítás" && !megj) return uzen("cp_msg","Javításnál írd le az okát.",false);
+      if(mod==="Ajándék" && db > k.db) return uzen("cp_msg",`Csak ${k.db} db van a készletben.`,false);
+      ktetel = Object.assign({ tipus:mod, valtozas: mod==="Ajándék"?-db:db, megjegyzes:megj }, alap);
+      leiras = `${mod}: ${db} × ${k.cikk}`;
+    }
+    sorba("keszlet",[ktetel], leiras);
+    if(naplo){ sorba("naplo",[naplo], (naplo.tipus)+": "+k.cikk+" – "+ft(naplo.bevetel||naplo.kiadas)); adat.egyenleg += naplo.bevetel? naplo.bevetel : -naplo.kiadas; }
+    k.db += ktetel.valtozas; store.set("aa_adatok", adat);
+    $("modal").classList.remove("on"); $("modalYes").textContent = "Igen"; render();
+  };
+}
+
+/* ===================== LELTÁR ===================== */
+let leltarSzam = {};
+function renderLeltar(){
+  if(!adat){ view="keszlet"; return render(); }
+  const csoport = ["Könyv","Pamflet","Érme"].map(f=>`<h2 class="sub">${f}</h2>` + adat.keszlet.filter(k=>k.fajta===f).map(k=>`
+    <div class="item"><div class="grow">${esc(k.cikk)}<br><span class="muted">eddig: ${k.db}</span></div>
+    <input class="cnt" data-c="${esc(k.cikk)}" type="number" inputmode="numeric" min="0" step="1" placeholder="${k.db}" value="${leltarSzam[k.cikk]??""}"></div>`).join("")).join("");
+  nezetKeret("Leltár", "Készlet", `
+    <p class="note">Írd be, <b>hány darabot számoltatok meg</b>. Ahol a szám egyezik az eddigivel, hagyd üresen. A végén csak az eltéréseket küldöm el, „Leltár” típusú korrekcióként.</p>
+    <label class="field"><span>Számolta</span><select id="l_sz">${nevOpciok(rogzito(),"– válassz –")}</select></label>
+    <label class="field"><span>Ellenőrizte</span><select id="l_el">${nevOpciok("","– válassz –")}</select></label>
+    ${csoport}<div id="l_msg" class="msg"></div>`,
+    `<div class="choices"><button class="btn yes" id="l_kesz">Leltár lezárása</button></div>`);
+  document.querySelectorAll(".cnt").forEach(i=> i.oninput = ()=>{ if(i.value==="") delete leltarSzam[i.dataset.c]; else leltarSzam[i.dataset.c] = parseInt(i.value,10); });
+  $("vVissza").onclick = ()=>{ view="keszlet"; render(); };
+  $("vVissza").textContent = "← Vissza a készlethez (a beírt számok megmaradnak)";
+  $("l_kesz").onclick = ()=>{
+    const sz = $("l_sz").value, el = $("l_el").value;
+    if(!sz || !el || sz===el) return uzen("l_msg","Válassz két különböző személyt (számolta, ellenőrizte).",false);
+    const valt = adat.keszlet.filter(k=> leltarSzam[k.cikk]!=null && !isNaN(leltarSzam[k.cikk]) && leltarSzam[k.cikk]!==k.db)
+      .map(k=>({ datum:ma(), tipus:"Leltár", cikk:k.cikk, valtozas: leltarSzam[k.cikk]-k.db, szemely:sz, rogzitette:rogzito()||sz, megjegyzes:`Leltár: megszámolva ${leltarSzam[k.cikk]} db (eddig ${k.db}). Ellenőrizte: ${el}` }));
+    if(!valt.length) return uzen("l_msg","Nincs eltérés – nincs mit rögzíteni.",true);
+    ask(`${valt.length} tételnél van eltérés. Rögzíted a leltárt?`, ()=>{
+      sorba("keszlet", valt, `Leltár: ${valt.length} tétel`);
+      valt.forEach(v=>{ const k = adat.keszlet.find(x=>x.cikk===v.cikk); k.db += v.valtozas; });
+      store.set("aa_adatok", adat); leltarSzam = {};
+      view = "keszlet"; render();
+    });
+  };
+}
+
+/* ===================== GYŰLÉS VÉGI RÖGZÍTÉS ===================== */
+function atadottErmek(){
+  const path = state.history.concat(state.current);
+  const out = [];
+  MEDALS.forEach((m,i)=>{ const n = path.filter(x=>x==="erem_"+i+"_a").length; if(n) out.push({ cikk:m, db:n }); });
+  return { ermek: out, szulinap: path.filter(x=>x==="szn_kosz").length };
+}
+function renderRogzites(){
+  $("hdrTitle").textContent = "Zárás";
+  $("bar").style.width = Math.round(100*progress())+"%";
+  if(state.rogzitve){
+    $("main").innerHTML = `<div class="section">Zárás</div><h1>Rögzítve ✅</h1><p class="muted">A 7. Hagyomány és az átadott érmék már rögzítve vannak${sor.length?" (küldésre várnak)":""}.</p>`;
+    $("foot").innerHTML = `<div class="choices"><button class="btn next" id="r_tov">Tovább →</button></div><button class="back" id="bBack">← Vissza</button>`;
+    $("r_tov").onclick = ()=>go("_vege"); $("bBack").onclick = back; return;
+  }
+  const { ermek, szulinap } = atadottErmek();
+  const evek = Array.from({length:40},(_,i)=>`<option value="${i+1} év">${i+1} év</option>`).join("");
+  $("main").innerHTML = `<div class="section">Zárás</div><h1>Pénztár és érmék</h1>
+    ${!adat?`<p class="note">A kapcsolat még nincs beállítva, de nyugodtan rögzíts: a tételek a telefonon várnak, és a beállítás után elküldöm őket.</p>`:""}
+    <label class="field"><span>7. Hagyomány – összeg (Ft)</span><input id="r_7h" type="number" inputmode="numeric" min="0" step="1"></label>
+    <label class="field"><span>Megszámolta</span><select id="r_sz">${nevOpciok(rogzito(),"– válassz –")}</select></label>
+    <label class="field"><span>Ellenőrizte (második számoló)</span><select id="r_el">${nevOpciok("","– válassz –")}</select></label>
+    <h2 class="sub">Átadott érmék</h2>
+    ${ermek.length? ermek.map((e,i)=>`<div class="item"><div class="grow">${e.cikk}</div><input class="cnt" id="r_e${i}" type="number" min="0" value="${e.db}"></div>`).join("") : `<p class="muted">Ma nem volt éremátadás.</p>`}
+    ${szulinap? `<h2 class="sub">Születésnapi érmék</h2>` + Array.from({length:szulinap},(_,i)=>`<label class="field"><span>${i+1}. születésnapos – hányadik év?</span><select id="r_szn${i}"><option value="">– nem kapott érmét –</option>${evek}</select></label>`).join("") : ""}
+    <div id="r_msg" class="msg"></div>`;
+  $("foot").innerHTML = `<div class="choices"><button class="btn yes" id="r_ok">Rögzítés</button><button class="btn no" id="r_skip">Kihagyom</button></div><button class="back" id="bBack">← Vissza</button>`;
+  $("bBack").onclick = back;
+  $("r_skip").onclick = ()=> ask("Kihagyod a rögzítést? Később a Pénztár menüben pótolhatod.", ()=>go("_vege"));
+  $("r_ok").onclick = ()=>{
+    const osszeg = parseInt($("r_7h").value,10);
+    const sz = $("r_sz").value, el = $("r_el").value;
+    if(!rogzito()) return uzen("r_msg","A kezdőlapon add meg a keresztneved.",false);
+    if(isNaN(osszeg) || osszeg<0) return uzen("r_msg","Írd be a 7. Hagyomány összegét (ha nem gyűlt semmi: 0).",false);
+    if(osszeg>0 && (!sz || !el || sz===el)) return uzen("r_msg","A pénzt két különböző ember számolja: válaszd ki mindkettőt.",false);
+    const d = new Date(state.start); const datum = d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+    const kt = [];
+    ermek.forEach((e,i)=>{ const n = parseInt($("r_e"+i).value,10)||0; if(n>0) kt.push({ datum, tipus:"Érmeátadás", cikk:e.cikk, valtozas:-n, rogzitette:rogzito() }); });
+    for(let i=0;i<szulinap;i++){ const v = $("r_szn"+i).value; if(v) kt.push({ datum, tipus:"Érmeátadás", cikk:v, valtozas:-1, rogzitette:rogzito(), megjegyzes:"Születésnap" }); }
+    const ossz = `7. Hagyomány: ${ft(osszeg)}` + (kt.length?`, érmék: ${kt.reduce((a,t)=>a-t.valtozas,0)} db`:"");
+    ask(`Rögzíted? ${ossz}`, ()=>{
+      if(osszeg>0){
+        sorba("naplo",[{ datum, tipus:"Bevétel", kategoria:"7. Hagyomány", tetel:"7. Hagyomány", bevetel:osszeg, szemely:sz, ellenorizte:el, rogzitette:rogzito() }], `7. Hagyomány – ${ft(osszeg)}`);
+        if(adat){ adat.egyenleg += osszeg; }
+      }
+      if(kt.length){
+        sorba("keszlet", kt, `Érmeátadás: ${kt.length} sor`);
+        if(adat) kt.forEach(t=>{ const k = adat.keszlet.find(x=>x.cikk===t.cikk); if(k) k.db += t.valtozas; });
+      }
+      if(adat) store.set("aa_adatok", adat);
+      state.rogzitve = true; saveSession(); go("_vege");
+    });
+  };
+}
+
+function renderView(){
+  ({ penztar:renderPenztar, keszlet:renderKeszlet, leltar:renderLeltar, kapcsolat:renderKapcsolat, sor:renderSor })[view]();
+}
+
+/* ---------- fejléc gombok ---------- */
+$("homeBtn").onclick = ()=>{ if(view){ view = null; showHome = true; } else { showHome = !showHome; if(!state) showHome = true; } render(); };
+$("sorJelzo").onclick = ()=>{ view = "sor"; render(); };
+$("fsMinus").onclick = ()=>{ settings.fs = Math.max(15, settings.fs-2); saveSettings(); applyLook(); };
+$("fsPlus").onclick  = ()=>{ settings.fs = Math.min(34, settings.fs+2); saveSettings(); applyLook(); };
+$("darkBtn").onclick = ()=>{ settings.dark = !settings.dark; saveSettings(); applyLook(); };
+
+applyLook();
+render();
+updateSorJelzo();
+szinkron();
+
+/* ---------- offline mód (csak saját tárhelyen működik) ---------- */
+if("serviceWorker" in navigator){ try{ navigator.serviceWorker.register("sw.js").catch(()=>{}); }catch(e){} }
+</script>
+</body>
+</html>

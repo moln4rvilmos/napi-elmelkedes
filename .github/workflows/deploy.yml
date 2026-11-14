@@ -37,5 +37,10 @@ jobs:
             --include='fonts/*.txt' \
             --include='icons/*.png' \
             --include='icons/*.ico' \
+            --include='gyules/' \
+            --include='gyules/index.html' \
+            --include='gyules/manifest.webmanifest' \
+            --include='gyules/sw.js' \
+            --include='gyules/*.png' \
             --exclude='*' \
             ./ vh-84024@ssh.nethely.hu:/var/www/customers/vh-84024/web/home/AA/
