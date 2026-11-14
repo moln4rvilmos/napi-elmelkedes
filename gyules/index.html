@@ -316,7 +316,9 @@ const settings = Object.assign({
 if(settings.csoport === "székesfehérvári Lelki Ébredés"){ settings.csoport = "dunaújvárosi Felépülés"; try{ localStorage.setItem("aa_settings", JSON.stringify(settings)); }catch(e){} }
 
 let state = store.get("aa_session", null); // {current, history, start}
-let showHome = !state || state.current==="_vege";
+/* 5 óránál régebbi, félbehagyott gyűlés eldobása */
+if(state && (!state.start || Date.now() - state.start > 5*3600000)){ state = null; try{ localStorage.removeItem("aa_session"); }catch(e){} }
+let showHome = true;   // megnyitáskor mindig a kezdőlap; gyűlés csak gombnyomásra indul / folytatódik
 let wakeLock = null, wlStatus = "";
 
 function saveSettings(){ store.set("aa_settings", settings); }
@@ -339,8 +341,8 @@ function applyLook(){
 function fmt(ms){ const m = Math.floor(Math.abs(ms)/60000); const h = Math.floor(m/60); return (h? h+":"+String(m%60).padStart(2,"0") : m)+" p"; }
 function tick(){
   const c = $("clock");
-  const active = state && state.start && state.current!=="_vege" && !showHome;
-  if(!state || !state.start){ c.innerHTML = ""; document.body.classList.remove("ending"); return; }
+  const active = state && state.start && state.current!=="_vege" && !showHome && !view;
+  if(!active){ c.innerHTML = ""; document.body.classList.remove("ending"); return; }
   const el = Date.now() - state.start, left = settings.hossz*60000 - el;
   c.innerHTML = "<b>"+fmt(el)+"</b><br>"+(left>=0 ? "még "+fmt(left) : "<span class='over'>+"+fmt(left)+"</span>");
   /* az utolsó perctől (és túllépéskor) színes háttér */
