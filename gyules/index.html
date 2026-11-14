@@ -592,8 +592,10 @@ function uzen(id, szoveg, jo){ const el=$(id); if(el){ el.innerHTML = szoveg; el
 function renderKapcsolat(){
   nezetKeret("Kapcsolat", "Beállítások", `
     <p class="muted">Az alkalmazás ezen keresztül éri el a Pénztár táblázatot. A PIN-kód csak ezen a telefonon tárolódik.</p>
-    <label class="field"><span>A szkript címe (…/exec)</span><input id="k_url" value="${esc(kapcs.url)}"></label>
     <label class="field"><span>PIN-kód</span><input id="k_pin" type="password" inputmode="numeric" value="${esc(kapcs.pin)}" autocomplete="off"></label>
+    <details class="reading" ${kapcs.url!==DEFAULT_URL?"open":""}><summary>Haladó beállítások</summary><div class="body" style="white-space:normal">
+      <label class="field"><span>A szkript címe (…/exec) – csak akkor módosítsd, ha a Google-szkript új címet kapott</span><input id="k_url" value="${esc(kapcs.url)}"></label>
+      <button class="mini" id="k_alap" type="button">Alapértelmezett cím visszaállítása</button></div></details>
     <div id="k_msg" class="msg"></div>
     ${allapotSor()}
     ${sor.length?`<button class="back" id="k_sor">Várakozó tételek megtekintése (${sor.length})</button>`:""}`,
@@ -605,6 +607,7 @@ function renderKapcsolat(){
     catch(e){ uzen("k_msg","✗ "+esc(e.message),false); }
   };
   if($("k_sor")) $("k_sor").onclick = ()=>{ view="sor"; render(); };
+  $("k_alap").onclick = ()=>{ $("k_url").value = DEFAULT_URL; };
 }
 
 /* ===================== VÁRÓLISTA ===================== */
