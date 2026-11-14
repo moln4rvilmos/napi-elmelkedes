@@ -480,8 +480,46 @@ function saveKapcs(){ store.set("aa_kapcs", kapcs); }
 function saveSor(){ store.set("aa_sor", sor); updateSorJelzo(); }
 function ma(){ const d = new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
 function ft(n){ return (Math.round(n)||0).toLocaleString("hu-HU").replace(/ /g," ")+" Ft"; }
-function nevek(){ return adat ? adat.szemelyek.map(s=>s.nev) : (settings.nev ? [settings.nev] : []); }
-function nevOpciok(sel, ures){ return (ures?`<option value="">${ures}</option>`:"") + nevek().map(n=>`<option${n===sel?" selected":""}>${esc(n)}</option>`).join(""); }
+let ujNevek = store.get("aa_uj_nevek", []);     // a helyszínen felvett nevek (ezen a telefonon)
+function nevek(){
+  const alap = adat ? adat.szemelyek.map(s=>s.nev) : (settings.nev ? [settings.nev] : []);
+  return alap.concat(ujNevek.filter(n=>alap.indexOf(n)<0));
+}
+function nevOpciok(sel, ures){
+  return (ures?`<option value="">${ures}</option>`:"") + nevek().map(n=>`<option${n===sel?" selected":""}>${esc(n)}</option>`).join("")
+    + `<option value="__uj__">+ Új név…</option>`;
+}
+/* „+ Új név…” választásakor: név bekérése saját ablakban, felvétel a listába, kiválasztás */
+document.addEventListener("change", e=>{
+  const sel = e.target;
+  if(sel.tagName !== "SELECT" || sel.value !== "__uj__") return;
+  sel.value = sel.dataset.elozo || "";
+  let m = $("modalNev");
+  if(!m){
+    m = document.createElement("div"); m.className = "modal"; m.id = "modalNev"; m.style.zIndex = 30;
+    m.innerHTML = `<div class="box"><b>Új név</b><label class="field" style="margin-top:10px"><span>Keresztnév</span><input id="un_nev" autocomplete="off"></label>
+      <p class="muted">Csak keresztnevet írj (névtelenség). A név ezen a telefonon megmarad.</p><div id="un_msg" class="msg"></div>
+      <div class="row"><button class="back" id="un_no">Mégse</button><button class="btn yes" id="un_ok" style="min-height:44px;padding:10px">Felvétel</button></div></div>`;
+    document.body.appendChild(m);
+  }
+  $("un_nev").value = ""; $("un_msg").innerHTML = "";
+  m.classList.add("on");
+  setTimeout(()=>$("un_nev").focus(), 50);
+  $("un_no").onclick = ()=> m.classList.remove("on");
+  $("un_ok").onclick = ()=>{
+    let n = ($("un_nev").value||"").trim().replace(/\s+/g," ");
+    if(!n) return uzen("un_msg","Írj be egy nevet.",false);
+    n = n.charAt(0).toUpperCase() + n.slice(1);
+    if(nevek().indexOf(n) < 0){ ujNevek.push(n); store.set("aa_uj_nevek", ujNevek); }
+    document.querySelectorAll("select").forEach(x=>{
+      const uj = x.querySelector('option[value="__uj__"]');
+      if(uj && ![...x.options].some(o=>o.value===n)){ const o = document.createElement("option"); o.textContent = n; x.insertBefore(o, uj); }
+    });
+    sel.value = n; sel.dataset.elozo = n;
+    m.classList.remove("on");
+  };
+});
+document.addEventListener("focusin", e=>{ if(e.target.tagName==="SELECT") e.target.dataset.elozo = e.target.value; });
 function rogzito(){ return settings.nev || ""; }
 
 async function api(body){
