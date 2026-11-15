@@ -319,7 +319,7 @@ const store = {
 };
 
 const settings = Object.assign({
-  nev:"", tipus:"nyitott", csoport:"dunaújvárosi Felépülők", tema:"", hossz:60, fs:20, dark:false
+  nev:"", tipus:"nyitott", csoport:"dunaújvárosi Felépülők", tema:"", hossz:60, lgyHossz:45, fs:20, dark:false
 }, store.get("aa_settings", {}));
 /* régi alapértelmezés cseréje (a korábbi papír mintájáról maradt) */
 if(settings.csoport === "székesfehérvári Lelki Ébredés" || settings.csoport === "dunaújvárosi Felépülés"){ settings.csoport = "dunaújvárosi Felépülők"; try{ localStorage.setItem("aa_settings", JSON.stringify(settings)); }catch(e){} }
@@ -350,9 +350,11 @@ function applyLook(){
 function fmt(ms){ const m = Math.floor(Math.abs(ms)/60000); const h = Math.floor(m/60); return (h? h+":"+String(m%60).padStart(2,"0") : m)+" p"; }
 function tick(){
   const c = $("clock");
-  const active = state && state.start && state.current!=="_vege" && !showHome && !view;
+  const lgyOra = view==="lgy" && typeof lgy!=="undefined" && lgy && lgyBent && lgy.start && lgy.lepes < LGY_LEPESEK.length-1;
+  const active = lgyOra || (state && state.start && state.current!=="_vege" && !showHome && !view);
   if(!active){ c.innerHTML = ""; document.body.classList.remove("ending"); return; }
-  const el = Date.now() - state.start, left = settings.hossz*60000 - el;
+  const kezd = lgyOra ? lgy.start : state.start, perc = lgyOra ? (settings.lgyHossz||45) : settings.hossz;
+  const el = Date.now() - kezd, left = perc*60000 - el;
   c.innerHTML = "<b>"+fmt(el)+"</b><br>"+(left>=0 ? "még "+fmt(left) : "<span class='over'>+"+fmt(left)+"</span>");
   /* az utolsó perctől (és túllépéskor) színes háttér */
   document.body.classList.toggle("ending", !!active && left <= 60000);
@@ -389,31 +391,41 @@ function startMeeting(){
 function renderHome(){
   $("hdrTitle").textContent = "Gyűlésvezetés";
   $("bar").style.width = "0";
+  const LGYm = settings.tipus === "lelkiismereti";
   const resumable = state && state.current && state.current!=="_vege" && (Date.now()-state.start) < 5*3600000;
   $("main").innerHTML = `
     <div class="section">Gyűlésvezetés segédlet</div>
     <h1>Mielőtt elkezded</h1>
     <label class="field"><span>A keresztneved</span><input id="f_nev" value="${esc(settings.nev)}" placeholder="pl. Vili" autocomplete="off"></label>
     <label class="field"><span>A gyűlés jellege</span>
-      <select id="f_tipus"><option value="nyitott">nyitott</option><option value="zárt">zárt</option></select></label>
+      <select id="f_tipus"><option value="nyitott">nyitott</option><option value="zárt">zárt</option><option value="lelkiismereti">lelkiismereti</option></select></label>
     <label class="field"><span>Csoport (így hangzik el: „az Anonim Alkoholisták <i>…</i> csoportjának”)</span><input id="f_csoport" value="${esc(settings.csoport)}"></label>
-    <label class="field"><span>A következő gyűlés témája (ráér később is)</span><input id="f_tema" value="${esc(settings.tema)}"></label>
-    <label class="field"><span>A gyűlés hossza (perc)</span><input id="f_hossz" type="number" min="15" max="240" step="5" value="${settings.hossz}"></label>
+    ${LGYm ? "" : `<label class="field"><span>A következő gyűlés témája (ráér később is)</span><input id="f_tema" value="${esc(settings.tema)}"></label>`}
+    <label class="field"><span>A gyűlés hossza (perc)</span><input id="f_hossz" type="number" min="15" max="240" step="5" value="${LGYm ? settings.lgyHossz : settings.hossz}"></label>
     <p class="muted">Tipp: a jobb felső gombokkal állíthatod a betűméretet és a sötét módot.</p>
     <h2 class="sub">Szolgálatok</h2>
     <div class="menu">
       <button data-v="penztar"><span class="i"><svg class="ic" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="13" rx="2"/><circle cx="12" cy="12.5" r="3"/><path d="M6 10v5M18 10v5"/></svg></span>Pénztár</button>
       <button data-v="keszlet"><span class="i"><svg class="ic" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h6a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H4z"/><path d="M20 4h-6a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h7z"/></svg></span>Készlet, érmék</button>
       <button data-v="leltar"><span class="i"><svg class="ic" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg></span>Leltár</button>
-      <button data-v="lgy"><span class="i"><svg class="ic" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M2 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M14.5 14.2A6 6 0 0 1 22 20"/></svg></span>Lelkiismereti gyűlés</button>
+      <button data-v="lgy"><span class="i"><svg class="ic" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M2 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M14.5 14.2A6 6 0 0 1 22 20"/></svg></span>LGY jegyzetek</button>
       <button data-v="kapcsolat"><span class="i"><svg class="ic" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>Hozzáférés${sor.length?` (${sor.length} vár)`:""}</button>
     </div>`;
   document.querySelectorAll(".menu button").forEach(b=> b.onclick = ()=>{ view = b.dataset.v; render(); window.scrollTo(0,0); });
   $("f_tipus").value = settings.tipus;
   const bind = (id,key,num)=> $(id).addEventListener("input", e=>{ settings[key] = num? (parseInt(e.target.value)||60) : e.target.value.trim(); saveSettings(); });
-  bind("f_nev","nev"); bind("f_csoport","csoport"); bind("f_tema","tema"); bind("f_hossz","hossz",true);
-  $("f_tipus").addEventListener("change", e=>{ settings.tipus = e.target.value; saveSettings(); });
+  bind("f_nev","nev"); bind("f_csoport","csoport"); if(!LGYm) bind("f_tema","tema");
+  $("f_hossz").addEventListener("input", e=>{ const v = parseInt(e.target.value); if(LGYm) settings.lgyHossz = v||45; else settings.hossz = v||60; saveSettings(); });
+  $("f_tipus").addEventListener("change", e=>{ settings.tipus = e.target.value; saveSettings(); renderHome(); });
 
+  if(LGYm){
+    $("foot").innerHTML = lgy
+      ? `<div class="choices"><button class="btn next" id="lgyFoly">Folytatás</button><button class="btn yes" id="lgyStart">Új LGY</button></div>`
+      : `<div class="choices"><button class="btn yes" id="lgyStart">LGY indítása</button></div>`;
+    $("lgyStart").onclick = ()=>{ const indit = ()=>{ view = "lgy"; lgyUj(); }; lgy ? ask("Új lelkiismereti gyűlést kezdesz? A félbehagyott jegyzet elvész.", indit) : indit(); };
+    if(lgy) $("lgyFoly").onclick = ()=>{ view = "lgy"; lgyBent = true; keepAwake(); render(); window.scrollTo(0,0); };
+    tick(); return;
+  }
   $("foot").innerHTML = resumable
     ? `<div class="choices"><button class="btn next" id="resume">Folytatás</button><button class="btn yes" id="start">Új gyűlés</button></div>`
     : `<div class="choices"><button class="btn yes" id="start">Gyűlés indítása</button></div>`;
@@ -864,7 +876,7 @@ let lgy = store.get("aa_lgy", null);
 let lgyLista = store.get("aa_lgy_lista", []);
 let lgyBent = false;   // a menüből belépve először mindig a kezdő képernyő jön
 function lgyMent(){ if(lgy){ lgy.modositva = Date.now(); store.set("aa_lgy", lgy); } else store.del("aa_lgy"); }
-function lgyUj(){ lgyBent = true; lgy = { id: Date.now(), lepes: 0, datum: ma(), letszam: "", tag: "", jkv: "", pontok: [], fixJegyzet: ["","",""], pontJegyzet: [], jegyzet: "" }; lgyMent(); keepAwake(); render(); window.scrollTo(0,0); }
+function lgyUj(){ lgyBent = true; lgy = { id: Date.now(), start: Date.now(), lepes: 0, datum: ma(), letszam: "", tag: "", jkv: "", pontok: [], fixJegyzet: ["","",""], pontJegyzet: [], jegyzet: "" }; lgyMent(); keepAwake(); render(); window.scrollTo(0,0); }
 function hosszuDatum(d){ const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d||""); return m ? new Date(+m[1], m[2]-1, +m[3]).toLocaleDateString("hu-HU",{year:"numeric",month:"long",day:"numeric"}) : (d||""); }
 function lgySzoveg(g){
   let t = "Lelkiismereti gyűlés – Anonim Alkoholisták " + (settings.csoport||"") + " csoport\n";
@@ -917,8 +929,8 @@ function renderLgy(){
 
   if(L===0){
     h += `<div class="say"><p>Szervusztok! Szeretettel köszöntök mindenkit az Anonim Alkoholisták ${esc(settings.csoport||"…")} csoportjának lelkiismereti gyűlésén!</p>
-      <p>${settings.nev?esc(settings.nev):"<i>(keresztneved)</i>"} vagyok, alkoholista, a csoport titkára.</p></div>
-      <p class="note">A neved a kezdőlapon állítható.</p>`;
+      <p><span id="g_nevKi">${settings.nev?esc(settings.nev):"<i>(keresztneved)</i>"}</span> vagyok, alkoholista, a csoport titkára.</p></div>
+      <label class="field"><span>A keresztneved</span><input id="g_nev" value="${esc(settings.nev)}" placeholder="pl. Vili" autocomplete="off"></label>`;
   } else if(L===1){
     h += `<div class="say"><p>Megkérem társunkat, hogy olvassa fel az Anonim Alkoholisták 12 Hagyományát!</p></div>` + olvas("hagyomanyok12")
       + `<p class="note">Annál van a szöveg, akinél a papír vagy a telefon – itt is lenyitható.</p>`;
@@ -952,6 +964,8 @@ function renderLgy(){
   $("main").innerHTML = h;
 
   const ment = ()=> lgyMent();
+  if(L===0) $("g_nev").oninput = e=>{ settings.nev = e.target.value.trim(); saveSettings(); $("g_nevKi").innerHTML = settings.nev ? esc(settings.nev) : "<i>(keresztneved)</i>"; };
+  tick();
   if(L===2){
     $("g_datum").onchange = e=>{ lgy.datum = e.target.value || ma(); ment(); };
     $("g_letszam").oninput = e=>{ lgy.letszam = e.target.value; ment(); };
