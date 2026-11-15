@@ -666,7 +666,7 @@ function renderTarsaim(){
 
 async function frissit(){
   const j = await api({ action:"adatok" });
-  adat = { kategoriak:j.kategoriak, szemelyek:j.szemelyek, keszlet:j.keszlet, egyenleg:j.egyenleg, ido:Date.now() };
+  adat = { kategoriak:j.kategoriak, szemelyek:j.szemelyek, keszlet:j.keszlet, egyenleg:j.egyenleg, en:j.en||"", jog:j.jog||"", ido:Date.now() };
   store.set("aa_adatok", adat);
   return adat;
 }
@@ -724,7 +724,7 @@ function renderKapcsolat(){
   nezetKeret("Hozzáférés", "PIN-kód és táblázatok", `
     <p class="muted">Ez a telefon be van lépve a csoportkóddal. <button class="mini" id="k_kilep" type="button">Kilépés</button></p>
     <h2 class="sub">Szolgálati PIN-kód</h2>
-    <p class="muted">Csak a pénztárhoz és a készlethez kell. A PIN-kód csak ezen a telefonon tárolódik.</p>
+    <p class="muted">Csak a pénztárhoz és a készlethez kell. A PIN-kód csak ezen a telefonon tárolódik.${kapcs.pin && adat && adat.en ? ` Jelenleg: <b>${esc(adat.en)}</b> (${esc(adat.jog)}).` : ""}</p>
     <label class="field"><span>PIN-kód</span><input id="k_pin" type="password" inputmode="numeric" value="${esc(kapcs.pin)}" autocomplete="off"></label>
     <details class="reading" ${kapcs.url!==DEFAULT_URL?"open":""}><summary>Haladó beállítások</summary><div class="body" style="white-space:normal">
       <label class="field"><span>A szkript címe (…/exec) – csak akkor módosítsd, ha a Google-szkript új címet kapott</span><input id="k_url" value="${esc(kapcs.url)}"></label>
@@ -741,7 +741,7 @@ function renderKapcsolat(){
   $("k_test").onclick = async ()=>{
     kapcs.url = $("k_url").value.trim(); kapcs.pin = $("k_pin").value.trim(); saveKapcs();
     uzen("k_msg","Kapcsolódás…",true);
-    try{ const a = await frissit(); const al=$("allapot"); if(al) al.outerHTML = allapotSor(); uzen("k_msg",`✓ Rendben! Egyenleg: <b>${ft(a.egyenleg)}</b>, ${a.szemelyek.length} név, ${a.keszlet.length} cikk.`,true); szinkron(); }
+    try{ const a = await frissit(); const al=$("allapot"); if(al) al.outerHTML = allapotSor(); uzen("k_msg",`✓ Rendben!${a.en?` Belépve: <b>${esc(a.en)}</b> (${esc(a.jog)}).`:""} Egyenleg: <b>${ft(a.egyenleg)}</b>, ${a.szemelyek.length} név, ${a.keszlet.length} cikk.`,true); szinkron(); }
     catch(e){ uzen("k_msg","✗ "+esc(e.message),false); }
   };
   if($("k_sor")) $("k_sor").onclick = ()=>{ view="sor"; render(); };
