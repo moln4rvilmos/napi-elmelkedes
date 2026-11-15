@@ -162,6 +162,19 @@ const STEPS = {
   nyitas: { sec:"Megnyitás", title:"Köszöntés",
     say:["Szervusztok! Szeretettel köszöntök mindenkit az Anonim Alkoholisták {csoport} csoportjának {tipus} gyűlésén!",
          "{nev} vagyok, alkoholista."],
+    next:"erdeklodo" },
+
+  /* csak nyitott gyűlésen – zártnál a „kihagy” lépésre ugrik */
+  erdeklodo: { sec:"Megnyitás", title:"Érdeklődő a teremben?", kihagy:"meghatarozas",
+    say:["<span class='q'>Van a teremben érdeklődő, nem alkoholista társ?</span>"], note:"Nézz körbe – ha nincs, mehetsz tovább.",
+    yes:"nyitott_kerdes", no:"meghatarozas", yesLabel:"Van", noLabel:"Nincs" },
+  nyitott_kerdes: { sec:"Megnyitás", title:"Lehet a gyűlés nyitott?",
+    say:["Mivel van a teremben érdeklődő, nem alkoholista társ, megkérdezem: <span class='q'>lehet a gyűlésünk nyitott?</span>"],
+    note:"Várd meg, van-e ellenvetés.",
+    yes:"nyitott_ellenvetes", no:"meghatarozas", yesLabel:"Van ellenvetés", noLabel:"Nincs ellenvetés", yesStyle:"no", noStyle:"yes" },
+  nyitott_ellenvetes: { sec:"Megnyitás", title:"Ellenvetés volt",
+    say:["Megkérjük nem függő társunkat, hogy a gyűlésen ne vegyen részt. Megértését köszönjük!",
+         "A gyűlés végén szívesen elbeszélgetünk vele is."],
     next:"meghatarozas" },
 
   meghatarozas: { sec:"Megnyitás", title:"A közösség meghatározása",
@@ -378,7 +391,7 @@ function ask(text, onYes){
 }
 
 /* ---------- navigáció ---------- */
-function go(id){ state.history.push(state.current); state.current = id; saveSession(); render(); window.scrollTo(0,0); }
+function go(id){ while(STEPS[id] && STEPS[id].kihagy && settings.tipus !== "nyitott") id = STEPS[id].kihagy; state.history.push(state.current); state.current = id; saveSession(); render(); window.scrollTo(0,0); }
 function back(){ if(!state.history.length) return; state.current = state.history.pop(); saveSession(); render(); window.scrollTo(0,0); }
 
 function startMeeting(){
