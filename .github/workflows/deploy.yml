@@ -1,6 +1,7 @@
 name: Deploy
 
 # Minden main ágra feltöltés után a weboldal fájljai kimennek az aa.vilix.hu-ra (Nethely, home/AA).
+# A gyules/ mappa (Gyűlésvezetés) a dunaa.vilix.hu-ra (home/dunaa) is kimegy.
 # Csak a weboldalhoz kellő fájlok mennek ki; az Android-app, node_modules, APK stb. a GitHubon marad.
 
 on:
@@ -44,3 +45,13 @@ jobs:
             --include='gyules/*.png' \
             --exclude='*' \
             ./ vh-84024@ssh.nethely.hu:/var/www/customers/vh-84024/web/home/AA/
+      - name: Gyűlésvezetés kiküldése a dunaa.vilix.hu-ra (home/dunaa)
+        run: |
+          rsync -az --delete --itemize-changes \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes" \
+            --include='index.html' \
+            --include='manifest.webmanifest' \
+            --include='sw.js' \
+            --include='*.png' \
+            --exclude='*' \
+            ./gyules/ vh-84024@ssh.nethely.hu:/var/www/customers/vh-84024/web/home/dunaa/
