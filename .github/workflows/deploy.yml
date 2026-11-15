@@ -54,5 +54,6 @@ jobs:
             --include='manifest.webmanifest' \
             --include='sw.js' \
             --include='*.png' \
+            --include='*.ico' \
             --exclude='*' \
             ./gyules/ vh-84024@ssh.nethely.hu:/var/www/customers/vh-84024/web/home/dunaa/
