@@ -107,6 +107,7 @@ h2.sub{font-size:.85em;text-transform:uppercase;letter-spacing:.06em;color:var(-
 .field textarea{width:100%;font:inherit;font-size:.9em;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);min-height:45vh;resize:vertical}
 .pont{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;font-size:.85em}
 .pont .grow{flex:1}
+.field textarea.kicsi{min-height:5.5em}
 .pont.fix{color:var(--muted)}
 .osszegzo{white-space:pre-wrap;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;font-size:.8em}
 .lepesek{font-size:12px;color:var(--muted);margin-bottom:4px}
@@ -858,23 +859,25 @@ function renderRogzites(){
    aa_lgy_lista: a korábban elmentett jegyzetek
    ========================================================================= */
 const LGY_FIX = ["Napirendi pontok megállapítása", "Szolgálattevők beszámolói", "Szolgálatvállalások, cserék"];
-const LGY_LEPESEK = ["Köszöntés", "12 Hagyomány", "Jelenlévők", "Jegyzőkönyvvezető", "Napirendi pontok", "Jegyzet", "Békeima", "Kész"];
+const LGY_LEPESEK = ["Köszöntés", "12 Hagyomány", "Jelenlévők", "Jegyzőkönyvvezető", "Napirendi pontok", "Jegyzetek", "Békeima", "Kész"];
 let lgy = store.get("aa_lgy", null);
 let lgyLista = store.get("aa_lgy_lista", []);
 let lgyBent = false;   // a menüből belépve először mindig a kezdő képernyő jön
 function lgyMent(){ if(lgy){ lgy.modositva = Date.now(); store.set("aa_lgy", lgy); } else store.del("aa_lgy"); }
-function lgyUj(){ lgyBent = true; lgy = { id: Date.now(), lepes: 0, datum: ma(), letszam: "", tag: "", jkv: "", pontok: [], jegyzet: "" }; lgyMent(); keepAwake(); render(); window.scrollTo(0,0); }
+function lgyUj(){ lgyBent = true; lgy = { id: Date.now(), lepes: 0, datum: ma(), letszam: "", tag: "", jkv: "", pontok: [], fixJegyzet: ["","",""], pontJegyzet: [], jegyzet: "" }; lgyMent(); keepAwake(); render(); window.scrollTo(0,0); }
 function hosszuDatum(d){ const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d||""); return m ? new Date(+m[1], m[2]-1, +m[3]).toLocaleDateString("hu-HU",{year:"numeric",month:"long",day:"numeric"}) : (d||""); }
 function lgySzoveg(g){
   let t = "Lelkiismereti gyűlés – Anonim Alkoholisták " + (settings.csoport||"") + " csoport\n";
   t += "Dátum: " + hosszuDatum(g.datum) + "\n";
   if(g.letszam !== "") t += "Jelenlévők száma: " + g.letszam + " fő" + (g.tag !== "" ? ", ebből " + g.tag + " fő honi csoporttag" : "") + "\n";
   if(g.jkv) t += "Jegyzőkönyvvezető: " + g.jkv + "\n";
+  const behuz = (j, b) => (j||"").trim() ? (j.trim().split("\n").map(x=> b + x).join("\n") + "\n") : "";
+  const fj = g.fixJegyzet || [], pj = g.pontJegyzet || [];
   t += "\nNapirendi pontok:\n";
-  LGY_FIX.forEach((p,i)=> t += (i+1) + ". " + p + "\n");
+  LGY_FIX.forEach((p,i)=>{ t += (i+1) + ". " + p + "\n" + behuz(fj[i], "   "); });
   t += "4. Egyéb napirendi pontok" + (g.pontok.length ? ":" : ": –") + "\n";
-  g.pontok.forEach((p,i)=> t += "   4." + (i+1) + ". " + p + "\n");
-  if((g.jegyzet||"").trim()) t += "\nJegyzet:\n" + g.jegyzet.trim() + "\n";
+  g.pontok.forEach((p,i)=>{ t += "   4." + (i+1) + ". " + p + "\n" + behuz(pj[i], "        "); });
+  if((g.jegyzet||"").trim()) t += "\nEgyéb jegyzet:\n" + g.jegyzet.trim() + "\n";
   return t;
 }
 function lgyFajlnev(g){ return "LGY_" + (g.datum||ma()) + ".txt"; }
@@ -934,7 +937,11 @@ function renderLgy(){
     lgy.pontok.forEach((p,i)=> h += `<div class="pont"><span class="grow">4.${i+1}. ${esc(p)}</span><button class="mini" data-tor="${i}">Törlés</button></div>`);
     h += `<div class="row" style="margin-top:6px"><input id="g_pont" class="search" style="flex:1;margin:0" placeholder="Új napirendi pont…" autocomplete="off"><button class="mini" id="g_pontAdd">Hozzáad</button></div>`;
   } else if(L===5){
-    h += `<label class="field"><span>Jegyzet – ide írsz, amit akarsz; magától mentődik ezen a telefonon</span><textarea id="g_jegyzet" placeholder="Beszámolók, döntések, szolgálatvállalások…">${esc(lgy.jegyzet)}</textarea></label>`;
+    lgy.fixJegyzet = lgy.fixJegyzet || ["","",""]; lgy.pontJegyzet = lgy.pontJegyzet || [];
+    h += `<p class="note">Mindegyik napirendi pont alá írd, ami elhangzott vagy amiben megegyeztetek. Magától mentődik ezen a telefonon.</p>`;
+    LGY_FIX.forEach((p,i)=> h += `<label class="field"><span><b>${i+1}. ${esc(p)}</b></span><textarea class="kicsi" data-fj="${i}">${esc(lgy.fixJegyzet[i]||"")}</textarea></label>`);
+    lgy.pontok.forEach((p,i)=> h += `<label class="field"><span><b>4.${i+1}. ${esc(p)}</b></span><textarea class="kicsi" data-pj="${i}">${esc(lgy.pontJegyzet[i]||"")}</textarea></label>`);
+    h += `<label class="field"><span><b>Egyéb jegyzet</b></span><textarea class="kicsi" id="g_jegyzet">${esc(lgy.jegyzet)}</textarea></label>`;
   } else if(L===6){
     h += `<div class="say"><p>Köszönöm, hogy szolgálhattam! Zárjuk a gyűlést a Lelki Béke Imájával!</p></div>` + olvas("ima");
   } else {
@@ -957,9 +964,13 @@ function renderLgy(){
     const add = ()=>{ const v = ($("g_pont").value||"").trim(); if(!v) return; lgy.pontok.push(v); ment(); render(); setTimeout(()=>$("g_pont") && $("g_pont").focus(), 30); };
     $("g_pontAdd").onclick = add;
     $("g_pont").onkeydown = e=>{ if(e.key==="Enter"){ e.preventDefault(); add(); } };
-    document.querySelectorAll("[data-tor]").forEach(b=> b.onclick = ()=>{ lgy.pontok.splice(+b.dataset.tor,1); ment(); render(); });
+    document.querySelectorAll("[data-tor]").forEach(b=> b.onclick = ()=>{ lgy.pontok.splice(+b.dataset.tor,1); (lgy.pontJegyzet||[]).splice(+b.dataset.tor,1); ment(); render(); });
   }
-  if(L===5) $("g_jegyzet").oninput = e=>{ lgy.jegyzet = e.target.value; ment(); };
+  if(L===5){
+    $("g_jegyzet").oninput = e=>{ lgy.jegyzet = e.target.value; ment(); };
+    document.querySelectorAll("[data-fj]").forEach(t=> t.oninput = ()=>{ lgy.fixJegyzet[+t.dataset.fj] = t.value; ment(); });
+    document.querySelectorAll("[data-pj]").forEach(t=> t.oninput = ()=>{ lgy.pontJegyzet[+t.dataset.pj] = t.value; ment(); });
+  }
   if(L===7){
     $("g_masol").onclick = ()=> lgyMasol(lgy, "g_msg2");
     $("g_letolt").onclick = ()=> lgyLetolt(lgy);
