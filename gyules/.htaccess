@@ -1,0 +1,5 @@
+# A régi aa.vilix.hu/gyules/ címről átirányít az új dunaa.vilix.hu-ra.
+# (Ez a fájl csak az AA/gyules mappába kerül ki, a dunaa mappába nem.)
+RewriteEngine On
+RewriteCond %{HTTP_HOST} ^aa\.vilix\.hu$ [NC]
+RewriteRule ^(.*)$ https://dunaa.vilix.hu/$1 [R=301,L]

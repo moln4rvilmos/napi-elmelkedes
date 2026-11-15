@@ -40,6 +40,7 @@ jobs:
             --include='icons/*.ico' \
             --include='gyules/' \
             --include='gyules/index.html' \
+            --include='gyules/.htaccess' \
             --include='gyules/manifest.webmanifest' \
             --include='gyules/sw.js' \
             --include='gyules/*.png' \
