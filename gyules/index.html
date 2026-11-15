@@ -22,6 +22,7 @@ body.dark{
   --bg:#0f1519; --card:#182229; --ink:#e6edf1; --muted:#97a7b3; --line:#2a3842;
   --blue:#5b9bd5; --blue2:#7db3e3; --green:#4fbf8b; --green2:#6fd3a3; --amber:#e0a84a;
 }
+body.dark{ color-scheme:dark; }
 body.dark.ending{ --bg:#4a0f1f; --card:#5c1628; --line:#7a2a3e; }
 body{transition:background-color 1.5s}
 *{box-sizing:border-box}
@@ -922,7 +923,7 @@ function renderLgy(){
     h += `<label class="field"><span>Dátum</span><input id="g_datum" type="date" value="${esc(lgy.datum)}"></label>
       <div class="row"><label class="field" style="flex:1"><span>Jelenlévők (fő)</span><input id="g_letszam" type="number" inputmode="numeric" min="0" value="${esc(lgy.letszam)}"></label>
       <label class="field" style="flex:1"><span>Ebből honi csoporttag (fő)</span><input id="g_tag" type="number" inputmode="numeric" min="0" value="${esc(lgy.tag)}"></label></div>
-      <div id="g_msg" class="msg"></div><p class="note">Szavazni csak a honi csoporttagok szavazhatnak.</p>`;
+      <div id="g_msg" class="msg"></div><p class="note">Csak a honi csoporttagok szavazhatnak.</p>`;
   } else if(L===3){
     h += `<div class="say"><p>Ki vállalja ma a jegyzőkönyv vezetését?</p></div>
       <label class="field"><span>Jegyzőkönyvvezető</span><select id="g_jkv">${nevOpciok(lgy.jkv, "– válassz –")}</select></label>`;
