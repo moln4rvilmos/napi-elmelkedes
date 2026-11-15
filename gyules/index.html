@@ -949,6 +949,8 @@ function renderLgy(){
     $("g_datum").onchange = e=>{ lgy.datum = e.target.value || ma(); ment(); };
     $("g_letszam").oninput = e=>{ lgy.letszam = e.target.value; ment(); };
     $("g_tag").oninput = e=>{ lgy.tag = e.target.value; ment(); };
+    { const t = adat && adat.szemelyek && adat.szemelyek.some(x=>x.tag) ? adat.szemelyek.filter(x=>x.tag==="igen").length : null;
+      if(t!==null) $("g_tag").closest(".field").querySelector("span").textContent = `Ebből honi csoporttag (fő, a listán: ${t})`; }
   }
   if(L===3) $("g_jkv").addEventListener("change", e=>{ if(e.target.value!=="__uj__"){ lgy.jkv = e.target.value; ment(); } });
   if(L===4){
@@ -976,6 +978,13 @@ function renderLgy(){
     if(L===2){
       const a = parseInt(lgy.letszam), b = parseInt(lgy.tag);
       if(!isNaN(a) && !isNaN(b) && b > a){ uzen("g_msg", "A tagok száma nem lehet több a jelenlévőknél.", false); return; }
+      /* honi tagok száma a Személyek lap Tag oszlopa szerint (ha már frissült a lista) */
+      const tagok = adat && adat.szemelyek && adat.szemelyek.some(x=>x.tag) ? adat.szemelyek.filter(x=>x.tag==="igen").length : null;
+      if(tagok!==null && !isNaN(b) && b > tagok && lgy.tagFigy !== b){
+        lgy.tagFigy = b; ment();
+        uzen("g_msg", `A listán csak ${tagok} honi csoporttag szerepel. Ha mégis ${b} tag van jelen, nyomd meg újra a Tovább gombot – és vegyétek fel az új tagokat a Személyek lapra.`, false);
+        return;
+      }
     }
     if(L===4 && ($("g_pont").value||"").trim()){ lgy.pontok.push($("g_pont").value.trim()); }
     lgy.lepes++; if(lgy.lepes===n-1) lgyArchival(); ment(); render(); window.scrollTo(0,0);
