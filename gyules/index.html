@@ -471,6 +471,8 @@ function render(){
 /* =====================================================================
    PÉNZTÁR, KÉSZLET, KAPCSOLAT  (Google-táblázat a háttérben)
    ===================================================================== */
+const PENZTAR_URL = "https://docs.google.com/spreadsheets/d/11hSCPdcMt2f_rpZNQTwmSgwnXgFAvS-kiNxkdIW7dc0/edit";
+const NEVJEGYZEK_URL = "https://docs.google.com/spreadsheets/d/1HRxou3G_GxV57Y8IAL_D-fQpaD6lDghGjDdQyxahJ5Q/edit";
 const DEFAULT_URL = "https://script.google.com/macros/s/AKfycbxXR8S2bOY0d7R_YjHnomHGoIbb1dD4JyLG6K8Xdasu9S7Gpxfwq60siN1L7PYerruY/exec";
 const kapcs = Object.assign({ url: DEFAULT_URL, pin: "" }, store.get("aa_kapcs", {}));
 let adat = store.get("aa_adatok", null);          // {kategoriak, szemelyek, keszlet, egyenleg, ido}
@@ -598,7 +600,12 @@ function renderKapcsolat(){
     <label class="field"><span>PIN-kód</span><input id="k_pin" type="password" inputmode="numeric" value="${esc(kapcs.pin)}" autocomplete="off"></label>
     <details class="reading" ${kapcs.url!==DEFAULT_URL?"open":""}><summary>Haladó beállítások</summary><div class="body" style="white-space:normal">
       <label class="field"><span>A szkript címe (…/exec) – csak akkor módosítsd, ha a Google-szkript új címet kapott</span><input id="k_url" value="${esc(kapcs.url)}"></label>
-      <button class="mini" id="k_alap" type="button">Alapértelmezett cím visszaállítása</button></div></details>
+      <button class="mini" id="k_alap" type="button">Alapértelmezett cím visszaállítása</button>
+      ${kapcs.pin ? `<h2 class="sub">Táblázatok</h2>
+      <p class="muted">Csak annak nyílnak meg, akivel a táblázatot megosztották.</p>
+      <p><a href="${PENZTAR_URL}" target="_blank" rel="noopener">Pénztár táblázat</a></p>
+      <p><a href="${NEVJEGYZEK_URL}" target="_blank" rel="noopener">Névjegyzék – bizalmas (titkár)</a></p>` : ""}
+    </div></details>
     <div id="k_msg" class="msg"></div>
     ${allapotSor()}
     ${sor.length?`<button class="back" id="k_sor">Várakozó tételek megtekintése (${sor.length})</button>`:""}`,
