@@ -397,7 +397,7 @@ function renderHome(){
       <button data-v="penztar"><span class="i"><svg class="ic" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="13" rx="2"/><circle cx="12" cy="12.5" r="3"/><path d="M6 10v5M18 10v5"/></svg></span>Pénztár</button>
       <button data-v="keszlet"><span class="i"><svg class="ic" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h6a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H4z"/><path d="M20 4h-6a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h7z"/></svg></span>Készlet, érmék</button>
       <button data-v="leltar"><span class="i"><svg class="ic" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg></span>Leltár</button>
-      <button data-v="kapcsolat"><span class="i"><svg class="ic" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></span>Kapcsolat${sor.length?` (${sor.length} vár)`:""}</button>
+      <button data-v="kapcsolat"><span class="i"><svg class="ic" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>Hozzáférés${sor.length?` (${sor.length} vár)`:""}</button>
     </div>`;
   document.querySelectorAll(".menu button").forEach(b=> b.onclick = ()=>{ view = b.dataset.v; render(); window.scrollTo(0,0); });
   $("f_tipus").value = settings.tipus;
@@ -528,8 +528,8 @@ document.addEventListener("focusin", e=>{ if(e.target.tagName==="SELECT") e.targ
 function rogzito(){ return settings.nev || ""; }
 
 async function api(body){
-  if(!kapcs.url) throw new Error("Nincs beállítva a kapcsolat címe.");
-  if(!kapcs.pin) throw new Error("Nincs megadva a PIN-kód.");
+  if(!kapcs.url) throw new Error("Nincs beállítva a szkript címe (Hozzáférés → Haladó beállítások).");
+  if(!kapcs.pin) throw new Error("Nincs megadva a PIN-kód (Kezdőlap → Hozzáférés).");
   let r;
   try{ r = await fetch(kapcs.url, { method:"POST", body: JSON.stringify(Object.assign({ pin: kapcs.pin }, body)) }); }
   catch(e){ const err = new Error("Nincs kapcsolat (nincs térerő, vagy ez az oldal nem érheti el a táblázatot)."); err.halozat = true; throw err; }
@@ -595,7 +595,7 @@ function uzen(id, szoveg, jo){ const el=$(id); if(el){ el.innerHTML = szoveg; el
 
 /* ===================== KAPCSOLAT ===================== */
 function renderKapcsolat(){
-  nezetKeret("Kapcsolat", "Beállítások", `
+  nezetKeret("Hozzáférés", "PIN-kód és táblázatok", `
     <p class="muted">Az alkalmazás ezen keresztül éri el a Pénztár táblázatot. A PIN-kód csak ezen a telefonon tárolódik.</p>
     <label class="field"><span>PIN-kód</span><input id="k_pin" type="password" inputmode="numeric" value="${esc(kapcs.pin)}" autocomplete="off"></label>
     <details class="reading" ${kapcs.url!==DEFAULT_URL?"open":""}><summary>Haladó beállítások</summary><div class="body" style="white-space:normal">
@@ -626,7 +626,7 @@ function renderSor(){
       <span class="muted">${new Date(t.ido).toLocaleString("hu-HU")} · ${t.tetelek.length} sor</span>
       ${t.hiba?`<br><span class="errtxt">Hiba: ${esc(t.hiba)}</span>`:""}</div>
       <button class="mini" data-del="${i}">Törlés</button></div>`).join("") || `<p class="muted">Nincs várakozó tétel.</p>`;
-  nezetKeret("Várakozó tételek", "Kapcsolat", lista + `<p class="note">A törlés csak a telefonról törli a még el nem küldött tételt, a táblázatban nem változtat semmit.</p>`,
+  nezetKeret("Várakozó tételek", "Hozzáférés", lista + `<p class="note">A törlés csak a telefonról törli a még el nem küldött tételt, a táblázatban nem változtat semmit.</p>`,
     sor.length?`<div class="choices"><button class="btn next" id="s_kuld">Újraküldés most</button></div>`:"");
   document.querySelectorAll("[data-del]").forEach(b=> b.onclick = ()=> ask("Biztosan törlöd ezt a még el nem küldött tételt?", ()=>{ sor.splice(+b.dataset.del,1); saveSor(); render(); }));
   if($("s_kuld")) $("s_kuld").onclick = ()=>{ sor.forEach(t=>delete t.hiba); saveSor(); szinkron(); };
@@ -640,7 +640,7 @@ function renderPenztar(){
   nezetKeret("Pénztár", "Bevétel, kiadás", `
     <div class="big-num">${egyenleg}<span>egyenleg a táblázat szerint</span></div>
     ${allapotSor()}
-    ${!adat?`<p class="note"><b>Előbb állítsd be a kapcsolatot</b> (Kezdőlap → Kapcsolat).</p>`:""}
+    ${!adat?`<p class="note"><b>Előbb add meg a PIN-kódot</b> (Kezdőlap → Hozzáférés).</p>`:""}
     <div class="seg"><button data-t="Bevétel" class="${pTipus==="Bevétel"?"on":""}">Bevétel</button><button data-t="Kiadás" class="${pTipus==="Kiadás"?"on":""}">Kiadás</button></div>
     <label class="field"><span>Dátum</span><input id="p_datum" type="date" value="${ma()}"></label>
     <label class="field"><span>Kategória</span><select id="p_kat">${kat.map(k=>`<option>${esc(k.nev)}</option>`).join("")}</select></label>
@@ -659,7 +659,7 @@ function renderPenztar(){
   $("p_ment").onclick = ()=>{
     const osszeg = parseInt($("p_osszeg").value,10);
     const tetel = $("p_tetel").value.trim() || $("p_kat").value;
-    if(!adat) return uzen("p_msg","Előbb állítsd be a kapcsolatot.",false);
+    if(!adat) return uzen("p_msg","Előbb add meg a PIN-kódot (Kezdőlap → Hozzáférés).",false);
     if(!$("p_kat").value) return uzen("p_msg","Válassz kategóriát.",false);
     if(!(osszeg>0)) return uzen("p_msg","Adj meg egy pozitív összeget.",false);
     if(!rogzito()) return uzen("p_msg","A kezdőlapon add meg a keresztneved – az kerül a „Rögzítette” rovatba.",false);
@@ -688,7 +688,7 @@ function renderKeszlet(){
   const lista = adat ? adat.keszlet.filter(k=> k.fajta===kFajta && (!kSzuro || k.cikk.toLowerCase().indexOf(kSzuro.toLowerCase())>=0)) : [];
   nezetKeret("Készlet", "Irodalom és érmék", `
     ${allapotSor()}
-    ${!adat?`<p class="note"><b>Előbb állítsd be a kapcsolatot</b> (Kezdőlap → Kapcsolat).</p>`:""}
+    ${!adat?`<p class="note"><b>Előbb add meg a PIN-kódot</b> (Kezdőlap → Hozzáférés).</p>`:""}
     <div class="seg">${["Könyv","Pamflet","Érme"].map(f=>`<button data-f="${f}" class="${kFajta===f?"on":""}">${f}</button>`).join("")}</div>
     <input id="k_szuro" class="search" placeholder="Keresés…" value="${esc(kSzuro)}">
     <div id="k_lista">${lista.map(k=>`<div class="item" data-c="${esc(k.cikk)}"><div class="grow">${esc(k.cikk)}<br>
@@ -807,7 +807,7 @@ function renderRogzites(){
   const { ermek, szulinap } = atadottErmek();
   const evek = Array.from({length:40},(_,i)=>`<option value="${i+1} év">${i+1} év</option>`).join("");
   $("main").innerHTML = `<div class="section">Zárás</div><h1>Pénztár és érmék</h1>
-    ${!adat?`<p class="note">A kapcsolat még nincs beállítva, de nyugodtan rögzíts: a tételek a telefonon várnak, és a beállítás után elküldöm őket.</p>`:""}
+    ${!adat?`<p class="note">A PIN-kód még nincs megadva, de nyugodtan rögzíts: a tételek a telefonon várnak, és a beállítás után elküldöm őket.</p>`:""}
     <label class="field"><span>7. Hagyomány – összeg (Ft)</span><input id="r_7h" type="number" inputmode="numeric" min="0" step="1"></label>
     <label class="field"><span>Megszámolta</span><select id="r_sz">${nevOpciok(rogzito(),"– válassz –")}</select></label>
     <label class="field"><span>Ellenőrizte (második számoló)</span><select id="r_el">${nevOpciok("","– válassz –")}</select></label>
