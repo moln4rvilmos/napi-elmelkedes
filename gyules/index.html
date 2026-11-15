@@ -529,7 +529,7 @@ function szemLista(){ return adat && adat.szemelyek && adat.szemelyek.length ? a
 function nevek(){
   const sz = szemLista();
   const alap = sz ? sz.map(s=>s.nev) : (settings.nev ? [settings.nev] : []);
-  return alap.concat(ujNevek.filter(n=>alap.indexOf(n)<0));
+  return alap.concat(ujNevek.filter(n=>alap.indexOf(n)<0)).sort((a,b)=>a.localeCompare(b,"hu"));
 }
 function nevOpciok(sel, ures){
   return (ures?`<option value="">${ures}</option>`:"") + nevek().map(n=>`<option${n===sel?" selected":""}>${esc(n)}</option>`).join("")
@@ -595,7 +595,8 @@ function kodFrissites(){
   if(!kapcs.kod || !navigator.onLine || kodFut) return;
   if(nevsor && Date.now() - nevsor.ido < 5*60000) return;
   kodFut = true;
-  apiKod({ action:"belepes" }).then(j=>{ nevsor = { szemelyek: j.szemelyek||[], ido: Date.now() }; store.set("aa_nevsor", nevsor); })
+  apiKod({ action:"belepes" }).then(j=>{ nevsor = { szemelyek: j.szemelyek||[], ido: Date.now() }; store.set("aa_nevsor", nevsor);
+      return apiKod({ action:"tarsaim" }).then(t=>{ tarsak = { lista: t.tarsak||[], ido: Date.now() }; store.set("aa_tarsak", tarsak); if(view==="tarsaim") renderTarsaim(); }); })
     .catch(e=>{ if(e.rosszKod) kilep(); }).finally(()=>{ kodFut = false; });
 }
 
@@ -658,9 +659,10 @@ function renderTarsaim(){
     <div id="t_msg" class="msg"></div>
     <div id="t_lista">${sorok || "<p class='muted'>Betöltés…</p>"}</div>`);
   $("t_kereso").oninput = e=>{ const q = e.target.value.trim().toLowerCase(); document.querySelectorAll("#t_lista .item").forEach(x=> x.style.display = !q || x.dataset.q.indexOf(q)>=0 ? "" : "none"); };
-  if(!tarsak || Date.now() - tarsak.ido > 60000){
+  if(!tarsak || Date.now() - tarsak.ido > 5*60000){
+    uzen("t_msg", tarsak ? "Frissítés a háttérben…" : "Betöltés…", true);
     apiKod({ action:"tarsaim" }).then(j=>{ tarsak = { lista: j.tarsak||[], ido: Date.now() }; store.set("aa_tarsak", tarsak); if(view==="tarsaim") renderTarsaim(); })
-      .catch(e=>{ if(e.rosszKod) return kilep(); uzen("t_msg", esc(e.message) + (tarsak?" – a legutóbbi lista látszik.":""), false); });
+      .catch(e=>{ if(e.rosszKod) return kilep(); if(!$("t_msg")) return; uzen("t_msg", esc(e.message) + (tarsak?" – a legutóbbi lista látszik.":""), false); });
   }
 }
 
