@@ -1346,7 +1346,7 @@ function renderAdatlap(){
     <div id="ad_msg" class="msg"></div>
     <h2 class="sub">A csoport szolgálatai</h2>
     ${adSzolgalatok().map(t=>`<div class="item" style="cursor:default"><div class="grow"><span class="muted">${esc(t.szolgalat)}</span><br><b>${esc(t.nev)}</b>${t.telefon?` · ${esc(telSzep(t.telefon))}`:""}${t.email?` · ${esc(t.email)}`:""}${!t.telefon&&!t.email?` <span class="hibaszin">· nincs elérhetőség</span>`:""}</div></div>`).join("") || `<p class="muted">A Társaim listán még senkinél nincs szolgálat.</p>`}
-    <p class="note">A szolgálatokat és az elérhetőségeket a <b>Társaim</b> listában lehet módosítani.</p>
+    <button class="back" id="ad_tarsak" style="margin-bottom:14px">Szolgálatok, elérhetőségek szerkesztése →</button>
     <div class="big-num" style="font-size:1.4em">${tagSzam() ?? "–"} fő<span>a csoport létszáma (honi tagok a Társaim lista szerint)</span></div>
     <label class="field"><span>Az adatlapot kitöltötte</span><select id="ad_kit">${nevOpciok(adKitolto || kapcs.en || settings.nev, "– válassz –")}</select></label>
     <label class="field"><span>Dátum</span><input id="ad_datum" type="date" value="${adDatum || ma()}"></label>
@@ -1370,6 +1370,7 @@ function renderAdatlap(){
   $("ad_kit").onchange = e=>{ if(e.target.value!=="__uj__"){ adKitolto = e.target.value; szovegFrissit(); } };
   $("ad_datum").onchange = e=>{ adDatum = e.target.value; szovegFrissit(); };
   $("ad_pdf").onclick = adatlapNyomtat;
+  $("ad_tarsak").onclick = ()=> megy("tarsaim", "adatlap");
   $("ad_masol").onclick = async ()=>{ try{ await navigator.clipboard.writeText(adatlapSzoveg()); jelez("✓ Kimásolva – beillesztheted az űrlapba"); }catch(e){ jelez("A másolás itt nem sikerült – nyisd le a szöveget, és jelöld ki kézzel."); } };
   $("ad_level").onclick = ()=>{
     const cs = db && db.csoport ? db.csoport.mezok : {};
