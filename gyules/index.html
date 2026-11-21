@@ -415,10 +415,10 @@ const store = {
 };
 
 const settings = Object.assign({
-  nev:"", tipus:"nyitott", csoport:"dunaújvárosi Felépülők", tema:"", hossz:60, lgyHossz:45, fs:20, dark:false
+  nev:"", tipus:"nyitott", csoport:"dunaújvárosi Felépülés", tema:"", hossz:60, lgyHossz:45, fs:20, dark:false
 }, store.get("aa_settings", {}));
 /* régi alapértelmezés cseréje (a korábbi papír mintájáról maradt) */
-if(settings.csoport === "székesfehérvári Lelki Ébredés" || settings.csoport === "dunaújvárosi Felépülés"){ settings.csoport = "dunaújvárosi Felépülők"; try{ localStorage.setItem("aa_settings", JSON.stringify(settings)); }catch(e){} }
+if(settings.csoport === "székesfehérvári Lelki Ébredés" || settings.csoport === "dunaújvárosi Felépülők"){ settings.csoport = "dunaújvárosi Felépülés"; try{ localStorage.setItem("aa_settings", JSON.stringify(settings)); }catch(e){} }
 
 let state = store.get("aa_session", null); // {current, history, start}
 /* 5 óránál régebbi, félbehagyott gyűlés eldobása */
