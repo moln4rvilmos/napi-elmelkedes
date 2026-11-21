@@ -145,6 +145,12 @@ a{color:var(--blue2)}
 .item.naplo .osszeg{text-align:right;white-space:nowrap}
 .item.var{border-style:dashed}
 .btn[disabled]{opacity:.4}
+.kodsor{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:10px}
+.kodsor select{font:inherit;font-size:.85em;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.chipek{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px}
+.chip{font:inherit;font-size:.72em;padding:6px 9px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.chip b{color:var(--blue)} .chip.on{background:var(--blue);border-color:var(--blue);color:#fff} .chip.on b{color:#fff}
+.mondat{font-size:.8em;color:var(--green);font-weight:600;margin:6px 0 0}
 .lgy-pont{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 12px 10px;margin-bottom:12px}
 .lgy-pont .field{margin-bottom:8px}
 .szavaz{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
@@ -594,7 +600,7 @@ document.addEventListener("focusin", e=>{ if(e.target.tagName==="SELECT") e.targ
 /* =====================================================================
    PIN – csak akkor kéri, amikor szükség van rá; utána a telefon megjegyzi
    ===================================================================== */
-const JOG_NEV = { naplo:"pénztári rögzítés", keszlet:"készletkezelés", eladas:"irodalomeladás", penzszamolas:"pénzszámolás", tarsak:"a Társaim szerkesztése", erem:"érmeátadás" };
+const JOG_NEV = { csoport:"a csoportadatok módosítása", naplo:"pénztári rögzítés", keszlet:"készletkezelés", eladas:"irodalomeladás", penzszamolas:"pénzszámolás", tarsak:"a Társaim szerkesztése", erem:"érmeátadás" };
 function joga(muvelet){ return kapcs.pin && kapcs.jogok && kapcs.jogok.indexOf(muvelet) >= 0; }
 function pinKell(muveletek, tovabb){
   muveletek = [].concat(muveletek);
@@ -1225,12 +1231,68 @@ function renderMTitkar(){
   ]));
   menuKotes();
 }
+/* --- gyűlések kódja: „Minden [–/1./2./3./4./utolsó] gyűlés [kódok]” sorok --- */
+const GY_KODOK = [
+  { k:"L",  n:"Lépésgyűlés" }, { k:"H", n:"Hagyománygyűlés" }, { k:"NK", n:"Nagykönyv-gyűlés" }, { k:"SP", n:"Speakergyűlés" },
+  { k:"K",  n:"Kezdő gyűlés" }, { k:"NY", n:"Nyitott gyűlés" }, { k:"Z", n:"Zárt gyűlés (csak érintetteknek)" }, { k:"A", n:"Angol nyelvű gyűlés" },
+  { k:"É",  n:"Érzésgyűlés (érzéskör)" }, { k:"I", n:"Irodalomgyűlés (AA-irodalom)" }
+];
+const GY_MELYIK = [ { v:"", n:"Minden gyűlés" }, { v:"1", n:"Minden hónap 1. gyűlése" }, { v:"2", n:"Minden hónap 2. gyűlése" },
+  { v:"3", n:"Minden hónap 3. gyűlése" }, { v:"4", n:"Minden hónap 4. gyűlése" }, { v:"u", n:"Minden hónap utolsó gyűlése" } ];
+/* táblázatban így tároljuk (ember is olvassa): „Minden: Z; 1.: NY, I; utolsó: H” */
+function kodSorokBol(szoveg){
+  return String(szoveg||"").split(";").map(x=>x.trim()).filter(Boolean).map(x=>{
+    const m = /^(minden|[1-4]\.|utolsó)\s*:\s*(.*)$/i.exec(x); if(!m) return null;
+    const v = /^minden$/i.test(m[1]) ? "" : /^utolsó$/i.test(m[1]) ? "u" : m[1][0];
+    return { v, kodok: m[2].split(",").map(k=>k.trim().toUpperCase()).filter(k=> GY_KODOK.some(g=>g.k===k)) };
+  }).filter(Boolean);
+}
+function kodSorokSzoveg(sorok){
+  return sorok.filter(r=>r.kodok.length).map(r=> (r.v==="" ? "Minden" : r.v==="u" ? "utolsó" : r.v+".") + ": " + r.kodok.join(", ")).join("; ");
+}
+function kodMondat(r){
+  const m = GY_MELYIK.find(x=>x.v===r.v) || GY_MELYIK[0];
+  if(!r.kodok.length) return m.n + ": …";
+  return m.n + ": " + r.kodok.map(k=>{ const n = (GY_KODOK.find(g=>g.k===k)||{n:k}).n; return n.charAt(0).toLowerCase() + n.slice(1); }).join(", ") + ".";
+}
+let adKodok = null;   // szerkesztés alatt
 function renderAdatlap(){
   const cs = db && db.csoport ? db.csoport.mezok : {};
+  if(!adKodok) adKodok = kodSorokBol(cs["Gyűlés kódja"]);
+  if(!adKodok.length) adKodok.push({ v:"", kodok:[] });
+  const sorHtml = (r,i)=>`<div class="kodsor">
+      <div class="row" style="align-items:center"><select data-kv="${i}" style="flex:1">${GY_MELYIK.map(m=>`<option value="${m.v}"${m.v===r.v?" selected":""}>${m.n}</option>`).join("")}</select>
+        ${adKodok.length>1?`<button class="mini" data-kdel="${i}" title="Sor törlése">✕</button>`:""}</div>
+      <div class="chipek">${GY_KODOK.map(g=>`<button type="button" class="chip${r.kodok.indexOf(g.k)>=0?" on":""}" data-ki="${i}" data-kk="${g.k}" title="${esc(g.n)}"><b>${g.k}</b> ${esc(g.n.replace(/ \(.*\)/,""))}</button>`).join("")}</div>
+      <p class="mondat">${esc(kodMondat(r))}</p></div>`;
   nezetKeret("Adatlap", "Titkár", `
-    <p class="note"><b>Hamarosan:</b> a bejelentő adatlap egy gombnyomásra – levél a PannonAA-nak, másolható szöveg az anonimalkoholistak.hu-ra.</p>
+    <p class="note"><b>Készül:</b> a bejelentő adatlap egy gombnyomásra – levél a PannonAA-nak, másolható szöveg az anonimalkoholistak.hu-ra. Most a gyűlések kódja kész.</p>
+    <h2 class="sub">Gyűlések kódja</h2>
+    <div id="ad_kodok">${adKodok.map(sorHtml).join("")}</div>
+    <button class="back" id="ad_plusz">+ Újabb sor</button>
+    <div id="ad_msg" class="msg"></div>
     <h2 class="sub">A csoport adatai (Csoportadatok fül)</h2>
-    ${Object.keys(cs).map(k=>`<div class="item" style="cursor:default"><div class="grow"><span class="muted">${esc(k)}</span><br>${esc(cs[k]||"–")}</div></div>`).join("") || `<p class="muted">Betöltés…</p>`}`);
+    ${Object.keys(cs).filter(k=>k!=="Gyűlés kódja").map(k=>`<div class="item" style="cursor:default"><div class="grow"><span class="muted">${esc(k)}</span><br>${esc(cs[k]||"–")}</div></div>`).join("") || `<p class="muted">Betöltés…</p>`}`,
+    `<div class="choices"><button class="btn yes" id="ad_ment">Gyűléskódok mentése</button></div>`);
+  const ujra = ()=>{ const y = window.scrollY; renderAdatlap(); window.scrollTo(0,y); };
+  document.querySelectorAll("[data-kv]").forEach(sel=> sel.onchange = ()=>{ adKodok[+sel.dataset.kv].v = sel.value; ujra(); });
+  document.querySelectorAll("[data-kdel]").forEach(b=> b.onclick = ()=>{ adKodok.splice(+b.dataset.kdel,1); ujra(); });
+  document.querySelectorAll("[data-kk]").forEach(b=> b.onclick = ()=>{
+    const r = adKodok[+b.dataset.ki], k = b.dataset.kk, j = r.kodok.indexOf(k);
+    if(j>=0) r.kodok.splice(j,1); else { r.kodok.push(k); r.kodok.sort((a,c)=> GY_KODOK.findIndex(g=>g.k===a) - GY_KODOK.findIndex(g=>g.k===c)); }
+    ujra();
+  });
+  $("ad_plusz").onclick = ()=>{ const hasznalt = adKodok.map(r=>r.v); const kov = GY_MELYIK.find(m=> m.v && hasznalt.indexOf(m.v)<0); adKodok.push({ v: kov ? kov.v : "1", kodok:[] }); ujra(); };
+  $("ad_ment").onclick = ()=>{
+    const v = adKodok.map(r=>r.v);
+    if(v.some((x,i)=> v.indexOf(x)!==i)) return uzen("ad_msg","Ugyanaz a gyűlés kétszer szerepel – vond össze a két sort.",false);
+    const szoveg = kodSorokSzoveg(adKodok);
+    pinKell("csoport", ()=>{
+      sorba("csoport", { mezok:{ "Gyűlés kódja": szoveg } }, "Csoportadatok: gyűlések kódja");
+      if(db && db.csoport){ db.csoport.mezok["Gyűlés kódja"] = szoveg; saveDb(); }
+      jelez("✓ Mentve");
+    });
+  };
 }
 
 /* =====================================================================
