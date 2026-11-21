@@ -678,7 +678,7 @@ const SZULO = {
 let honnan = {};   // ha egy nézetbe máshonnan jöttünk (pl. Titkár → Készlet), oda megyünk vissza
 function megy(v, h){ if(h) honnan[v] = h; view = v; showHome = !v; render(); window.scrollTo(0,0); }
 function vissza(){ const v = view; const cel = honnan[v] !== undefined ? honnan[v] : SZULO[v]; delete honnan[v]; megy(cel || null); }
-const KOD_NELKUL = ["m:gyules","gyules_elott","gyules_inditas","m:irodalom","konyvek","pamfletek","lgy"];
+const KOD_NELKUL = ["m:gyules","gyules_elott","gyules_inditas","m:irodalom","konyvek","pamfletek","lgy","hozzaferes"];
 
 function nezetKeret(cim, alcim, tartalom, labResz){
   $("hdrTitle").textContent = cim;
@@ -723,7 +723,7 @@ function renderHome(){
       <button data-go="m:titkar"><span class="i">${ikon("titkar")}</span>Titkár</button>
       <button data-go="tarsaim" class="szeles"><span class="i">${ikon("tarsaim")}</span>Társaim</button>
     </div>`;
-  $("foot").innerHTML = `<button class="back" id="h_hozz">${ikon("zar",16)} ${kapcs.kod ? (kapcs.en ? `Belépve: ${esc(kapcs.en)} (${esc(kapcs.jog)})` : "Belépve a csoportkóddal") : "Belépés a csoportkóddal"}${sor.length?` · ${sor.length} vár`:""}</button>`;
+  $("foot").innerHTML = `<button class="back" id="h_hozz">${ikon("zar",16)} Hozzáférés · ${kapcs.kod ? (kapcs.en ? `${esc(kapcs.en)} (${esc(kapcs.jog)})` : "csoportkóddal belépve") : "nincs belépve"}${sor.length?` · ${sor.length} vár`:""}</button>`;
   menuKotes();
   $("h_hozz").onclick = ()=> megy("hozzaferes");
   if(fut) $("h_foly").onclick = ()=>{ showHome = false; view = null; keepAwake(); render(); };
@@ -770,7 +770,7 @@ function renderHozzaferes(){
     </div></details><div id="z_msg" class="msg"></div>`,
     kapcs.kod?`<div class="choices"><button class="btn next" id="z_friss">Adatok frissítése most</button></div>`:"");
   if($("z_kilep")) $("z_kilep").onclick = ()=> ask("Kilépsz ezen a telefonon? Legközelebb újra be kell írni a csoportkódot (és a PIN-t).", kilep);
-  if($("z_be")) $("z_be").onclick = ()=>{ view = "hozzaferes"; renderBelepes(); };
+  if($("z_be")) $("z_be").onclick = ()=>{ renderBelepes(); $("vVissza").textContent = "← Vissza"; $("vVissza").onclick = ()=> megy("hozzaferes"); };
   if($("z_pin")) $("z_pin").onclick = ()=> ask("Törlöd a PIN-kódot erről a telefonról?", ()=>{ Object.assign(kapcs,{pin:"",en:"",jog:"",jogok:[]}); saveKapcs(); render(); });
   if($("z_sor")) $("z_sor").onclick = ()=> megy("sor");
   $("z_urlment").onclick = ()=>{ kapcs.url = $("z_url").value.trim() || DEFAULT_URL; saveKapcs(); uzen("z_msg","Mentve.",true); };
