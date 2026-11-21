@@ -145,6 +145,8 @@ a{color:var(--blue2)}
 .item.naplo .osszeg{text-align:right;white-space:nowrap}
 .item.var{border-style:dashed}
 .btn[disabled]{opacity:.4}
+.elonezet{margin:10px 0;max-height:50vh;overflow:auto;background:#fff;color:#000;border:1px solid var(--line);border-radius:8px;padding:10px;font-size:11px}
+.elonezet table{font-size:11px !important}
 #nyomtat{display:none}
 @media print{
   @page{size:A4;margin:16mm}
@@ -624,7 +626,7 @@ document.addEventListener("focusin", e=>{ if(e.target.tagName==="SELECT") e.targ
 /* =====================================================================
    PIN – csak akkor kéri, amikor szükség van rá; utána a telefon megjegyzi
    ===================================================================== */
-const JOG_NEV = { csoport:"a csoportadatok módosítása", naplo:"pénztári rögzítés", keszlet:"készletkezelés", eladas:"irodalomeladás", penzszamolas:"pénzszámolás", tarsak:"a Társaim szerkesztése", erem:"érmeátadás" };
+const JOG_NEV = { adatlap:"az adatlap elküldése", csoport:"a csoportadatok módosítása", naplo:"pénztári rögzítés", keszlet:"készletkezelés", eladas:"irodalomeladás", penzszamolas:"pénzszámolás", tarsak:"a Társaim szerkesztése", erem:"érmeátadás" };
 function joga(muvelet){ return kapcs.pin && kapcs.jogok && kapcs.jogok.indexOf(muvelet) >= 0; }
 function pinKell(muveletek, tovabb){
   muveletek = [].concat(muveletek);
@@ -1342,7 +1344,7 @@ function renderAdatlap(){
         <button class="mini" data-knyit="${i}" title="Szerkesztés">${nyil(true)}</button>
         ${adKodok.length>1?`<button class="mini" data-kdel="${i}" title="Sor törlése">${KUKA}</button>`:""}</div>`;
   nezetKeret("Adatlap", "Titkár", `
-    <p class="note">Az adatlap a táblázat adataiból áll össze. A végén <b>Másolás</b> (az anonimalkoholistak.hu űrlapjához) vagy <b>Levél a PannonAA-nak</b> – a levél megírva nyílik meg, csak el kell küldeni.</p>
+    <p class="note">Az adatlap a táblázat adataiból áll össze. A végén <b>Levél a PannonAA-nak</b>: előnézet után a csoport címéről megy ki, formázva, PDF-melléklettel. <b>Másolás</b>: az anonimalkoholistak.hu űrlapjához.</p>
     <h2 class="sub">Gyűlések kódja</h2>
     <div id="ad_kodok">${adKodok.map(sorHtml).join("")}</div>
     <button class="back" id="ad_plusz">+ Újabb sor</button>
@@ -1375,12 +1377,26 @@ function renderAdatlap(){
   $("ad_pdf").onclick = adatlapNyomtat;
   $("ad_tarsak").onclick = ()=> megy("tarsaim", "adatlap");
   $("ad_masol").onclick = async ()=>{ try{ await navigator.clipboard.writeText(adatlapSzoveg()); jelez("✓ Kimásolva – beillesztheted az űrlapba"); }catch(e){ jelez("A másolás itt nem sikerült – nyisd le a szöveget, és jelöld ki kézzel."); } };
-  $("ad_level").onclick = ()=>{
-    const cs = db && db.csoport ? db.csoport.mezok : {};
-    const cim = cs["PannonAA cím"] || "webszolgalat@pannonaa.hu";
-    const targy = "Csoportadatok változása – " + (cs["Helység"]||"") + " " + (cs["Csoport neve"]||"") + " csoport";
-    location.href = "mailto:" + encodeURIComponent(cim) + "?subject=" + encodeURIComponent(targy) + "&body=" + encodeURIComponent("Kedves Webszolgálat!\n\nKérjük, a csoportunk adatait az alábbiak szerint frissítsétek:\n\n" + adatlapSzoveg() + "\n\nKöszönjük a szolgálatot!");
-  };
+  $("ad_level").onclick = ()=> pinKell("adatlap", async ()=>{
+    if(!navigator.onLine) return jelez("A küldéshez internetkapcsolat kell.");
+    const alap = { action:"adatlap", kod:kapcs.kod, pin:kapcs.pin, kitolto: adKitolto || kapcs.en || settings.nev, datum: adDatum || ma() };
+    jelez("Előnézet készül…");
+    let e;
+    try{ e = await hivas(Object.assign({ kuld:false }, alap)); }
+    catch(err){ return jelez(err.message); }
+    $("modalText").innerHTML = `<b>Levél a PannonAA-nak</b><br><span class="muted">Címzett: ${esc(e.cimzett)}<br>Feladó: ${esc(e.felado)}<br>Tárgy: ${esc(e.targy)}<br>Melléklet: az adatlap PDF-ben</span>
+      <div class="elonezet">${e.html}</div><div id="lv_msg" class="msg"></div>`;
+    $("modalYes").textContent = "Küldés";
+    $("modal").classList.add("on");
+    const zar = ()=>{ $("modal").classList.remove("on"); $("modalYes").textContent = "Igen"; };
+    $("modalNo").onclick = zar;
+    $("modalYes").onclick = async ()=>{
+      $("modalYes").disabled = true; uzen("lv_msg","Küldés…",true);
+      try{ await hivas(Object.assign({ kuld:true }, alap)); zar(); jelez("✓ Elküldve a PannonAA-nak"); }
+      catch(err){ uzen("lv_msg", esc(err.message), false); }
+      finally{ $("modalYes").disabled = false; }
+    };
+  });
   $("ad_plusz").onclick = ()=>{ const hasznalt = adKodok.map(r=>r.v); const kov = GY_MELYIK.find(m=> m.v && hasznalt.indexOf(m.v)<0); adKodok.forEach(r=> r.nyitva = false); adKodok.push({ v: kov ? kov.v : "1", kodok:[], nyitva:true }); ujra(); };
   $("ad_ment").onclick = ()=>{
     const v = adKodok.map(r=>r.v);
