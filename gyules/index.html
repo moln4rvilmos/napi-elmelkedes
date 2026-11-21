@@ -509,8 +509,11 @@ function folyoGyules(){ return state && state.current && state.current!=="_vege"
    ADATOK ÉS KAPCSOLAT – DunAA táblázat (Google-szkript)
    ===================================================================== */
 const DUNAA_URL = "https://docs.google.com/spreadsheets/d/1NdANVmJNSKk7eNhrviNF7bbjO-PAjID9b9sh0v-QD5Q/edit";
-const DEFAULT_URL = "https://script.google.com/macros/s/AKfycbxRpdwPTvfqG5G3Q0dm8z-q0t7F20OmXE3Sxmbkq81iEeI-C2lcVGfn0_ZcNFnNtY9WNA/exec";
+const DEFAULT_URL = "https://script.google.com/macros/s/AKfycbxPeWsUfEpqn2NnQClGwkjtRFMRbjPMx-xLEf4saJM_3EAgMQUidG-T6reh_u6MbDxpVg/exec";
+/* korábbi szkriptcímek – ha a telefon ezek valamelyikét jegyezte meg, átállunk az újra */
+const REGI_URLEK = ["https://script.google.com/macros/s/AKfycbxRpdwPTvfqG5G3Q0dm8z-q0t7F20OmXE3Sxmbkq81iEeI-C2lcVGfn0_ZcNFnNtY9WNA/exec"];
 const kapcs = Object.assign({ url: DEFAULT_URL, pin: "", kod: "", en: "", jog: "", jogok: [] }, store.get("aa_kapcs2", {}));
+if(REGI_URLEK.indexOf(kapcs.url) >= 0){ kapcs.url = DEFAULT_URL; store.set("aa_kapcs2", kapcs); }
 let db  = store.get("aa_db", null);          // minden olvasnivaló (csoportkóddal): tarsak, keszlet, naplo, egyenleg, csoport, szamolas
 let arl = store.get("aa_arlista", null);     // {lista, ido} – kód nélkül is
 let sor = store.get("aa_sor2", []);          // elküldésre váró írások
