@@ -1507,10 +1507,14 @@ function renderTarsaim(){
 function renderTarsSzerk(){
   if(!tSzerk) return megy("tarsaim");
   const t = tSzerk;
-  const szolgalatok = [...new Set((db?db.tarsak:[]).map(x=>x.szolgalat).filter(Boolean))];
+  const alap = ["Csoporttitkár","Pénztáros","Irodalom- és érmefelelős","Gyűlésvezető","KGY-küldött","Üzenetátadás felelőse","Telefon"];
+  const rovatSz = (db && db.csoport && db.csoport.rovatok ? db.csoport.rovatok : []).map(r=>r.szolgalat);
+  const szolgalatok = [...new Set(alap.concat(rovatSz, (db?db.tarsak:[]).map(x=>x.szolgalat), [t.szolgalat]).filter(Boolean))]
+    .sort((a,b)=> a.localeCompare(b,"hu"));
   nezetKeret(t.regiNev ? t.regiNev : "Új társ", "Társaim", `
     <label class="field"><span>Keresztnév (egyedi – ha két azonos van, tegyetek mellé valamit, pl. „Péter (Adony)”)</span><input id="ts_nev" value="${esc(t.nev)}"></label>
-    <label class="field"><span>Szolgálat</span><input id="ts_szolg" list="ts_szl" value="${esc(t.szolgalat)}" placeholder="pl. Pénztáros"><datalist id="ts_szl">${szolgalatok.map(s=>`<option value="${esc(s)}">`).join("")}</datalist></label>
+    <label class="field"><span>Szolgálat</span><select id="ts_szsel"><option value="">– nincs szolgálata –</option>${szolgalatok.map(s=>`<option${s===t.szolgalat?" selected":""}>${esc(s)}</option>`).join("")}<option value="__uj__">+ Új szolgálat…</option></select></label>
+    <label class="field" id="ts_ujsz" style="display:none"><span>Az új szolgálat neve</span><input id="ts_szolg" placeholder="pl. Teremfelelős"></label>
     <label class="field"><span>Honi csoporttag (szavazhat az LGY-n)</span><select id="ts_tag"><option value="igen"${t.tag==="igen"?" selected":""}>igen</option><option value="nem"${t.tag==="nem"?" selected":""}>nem</option></select></label>
     <label class="field"><span>Telefonszám</span><input id="ts_tel" type="tel" value="${esc(t.telefon)}" placeholder="pl. 36301234567"></label>
     <label class="field"><span>E-mail</span><input id="ts_email" type="email" value="${esc(t.email)}"></label>
@@ -1518,8 +1522,10 @@ function renderTarsSzerk(){
     <label class="field"><span>Megjegyzés</span><input id="ts_megj" value="${esc(t.megj||"")}"></label>
     <div id="ts_msg" class="msg"></div>`,
     `<div class="choices"><button class="btn yes" id="ts_ok">Mentés</button>${t.regiNev?`<button class="btn no" id="ts_del">Törlés</button>`:""}</div>`);
+  $("ts_szsel").onchange = e=>{ const uj = e.target.value==="__uj__"; $("ts_ujsz").style.display = uj ? "" : "none"; if(uj) $("ts_szolg").focus(); };
   $("ts_ok").onclick = ()=>{
-    const adat = { nev:$("ts_nev").value.trim(), szolgalat:$("ts_szolg").value.trim(), tag:$("ts_tag").value,
+    const szsel = $("ts_szsel").value;
+    const adat = { nev:$("ts_nev").value.trim(), szolgalat: szsel==="__uj__" ? $("ts_szolg").value.trim() : szsel, tag:$("ts_tag").value,
       telefon:$("ts_tel").value.replace(/[^\d]/g,""), email:$("ts_email").value.trim(), jozan:$("ts_jozan").value, megj:$("ts_megj").value.trim() };
     if(!adat.nev) return uzen("ts_msg","A név nem lehet üres.",false);
     if(db && db.tarsak.some(x=> x.nev===adat.nev && x.nev!==t.regiNev)) return uzen("ts_msg","Ez a név már szerepel a listán.",false);
