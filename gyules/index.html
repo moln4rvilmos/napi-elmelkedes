@@ -1260,6 +1260,29 @@ function kodMondat(r){
   return m.n + ": " + r.kodok.map(k=>{ const n = (GY_KODOK.find(g=>g.k===k)||{n:k}).n; return n.charAt(0).toLowerCase() + n.slice(1); }).join(", ") + ".";
 }
 let adKodok = null;   // szerkesztés alatt
+let adKitolto = "", adDatum = "";
+/* szolgálatok a Társaim listából, az adatlap szokásos sorrendjében */
+const SZOLG_SOR = ["titkár","pénztár","irodalom","érme","küldött","kgy","csoportközi","telefon","üzenet","gyűlésvezet","terem","ásványvíz"];
+function adSzolgalatok(){
+  const t = (db && db.tarsak ? db.tarsak : []).filter(x=> x.szolgalat);
+  const hely = sz=>{ const l = sz.toLowerCase(); const i = SZOLG_SOR.findIndex(k=> l.indexOf(k)>=0); return i<0 ? 99 : i; };
+  return t.slice().sort((a,b)=> hely(a.szolgalat)-hely(b.szolgalat) || a.szolgalat.localeCompare(b.szolgalat,"hu"));
+}
+function adatlapSzoveg(){
+  const cs = db && db.csoport ? db.csoport.mezok : {};
+  const sorok = [];
+  sorok.push("Bejelentő adatlap – Anonim Alkoholisták csoport");
+  ["Helység","Csoport neve","Indulás","Cím","Helyszín, intézmény","Időpont(ok)"].forEach(k=>{ if(cs[k]) sorok.push(k + ": " + cs[k]); });
+  const kodok = kodSorokBol(cs["Gyűlés kódja"]);
+  if(kodok.length){ sorok.push("Gyűlések kódja:"); kodok.forEach(r=> sorok.push("  " + kodMondat(r))); }
+  const sz = adSzolgalatok();
+  if(sz.length){ sorok.push("", "A csoport szolgálatai:");
+    sz.forEach(t=> sorok.push("  " + t.szolgalat + " – " + [t.nev, telSzep(t.telefon), t.email].filter(Boolean).join(", "))); }
+  const tag = tagSzam();
+  if(tag != null) sorok.push("", "A csoport létszáma: " + tag + " fő (honi csoporttag)");
+  sorok.push("", "Az adatlapot kitöltötte: " + (adKitolto || kapcs.en || settings.nev || "…"), "Dátum: " + hosszuDatum(adDatum || ma()));
+  return sorok.join("\n");
+}
 const KUKA = '<svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M5 7l1 13h12l1-13M9 7V4h6v3"/></svg>';
 function nyil(le){ return `<svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="${le?"M6 9l6 6 6-6":"M6 15l6-6 6 6"}"/></svg>`; }
 function renderAdatlap(){
@@ -1276,11 +1299,19 @@ function renderAdatlap(){
         <button class="mini" data-knyit="${i}" title="Szerkesztés">${nyil(true)}</button>
         ${adKodok.length>1?`<button class="mini" data-kdel="${i}" title="Sor törlése">${KUKA}</button>`:""}</div>`;
   nezetKeret("Adatlap", "Titkár", `
-    <p class="note"><b>Készül:</b> a bejelentő adatlap egy gombnyomásra – levél a PannonAA-nak, másolható szöveg az anonimalkoholistak.hu-ra. Most a gyűlések kódja kész.</p>
+    <p class="note">Az adatlap a táblázat adataiból áll össze. A végén <b>Másolás</b> (az anonimalkoholistak.hu űrlapjához) vagy <b>Levél a PannonAA-nak</b> – a levél megírva nyílik meg, csak el kell küldeni.</p>
     <h2 class="sub">Gyűlések kódja</h2>
     <div id="ad_kodok">${adKodok.map(sorHtml).join("")}</div>
     <button class="back" id="ad_plusz">+ Újabb sor</button>
     <div id="ad_msg" class="msg"></div>
+    <h2 class="sub">A csoport szolgálatai</h2>
+    ${adSzolgalatok().map(t=>`<div class="item" style="cursor:default"><div class="grow"><span class="muted">${esc(t.szolgalat)}</span><br><b>${esc(t.nev)}</b>${t.telefon?` · ${esc(telSzep(t.telefon))}`:""}${t.email?` · ${esc(t.email)}`:""}${!t.telefon&&!t.email?` <span class="hibaszin">· nincs elérhetőség</span>`:""}</div></div>`).join("") || `<p class="muted">A Társaim listán még senkinél nincs szolgálat.</p>`}
+    <p class="note">A szolgálatokat és az elérhetőségeket a <b>Társaim</b> listában lehet módosítani.</p>
+    <div class="big-num" style="font-size:1.4em">${tagSzam() ?? "–"} fő<span>a csoport létszáma (honi tagok a Társaim lista szerint)</span></div>
+    <label class="field"><span>Az adatlapot kitöltötte</span><select id="ad_kit">${nevOpciok(adKitolto || kapcs.en || settings.nev, "– válassz –")}</select></label>
+    <label class="field"><span>Dátum</span><input id="ad_datum" type="date" value="${adDatum || ma()}"></label>
+    <details class="reading"><summary>A kész adatlap szövege</summary><div class="body" id="ad_szoveg">${esc(adatlapSzoveg())}</div></details>
+    <div class="row" style="margin-bottom:14px"><button class="back" id="ad_masol">Másolás</button><button class="back" id="ad_level">Levél a PannonAA-nak</button></div>
     <h2 class="sub">A csoport adatai (Csoportadatok fül)</h2>
     ${Object.keys(cs).filter(k=>k!=="Gyűlés kódja").map(k=>`<div class="item" style="cursor:default"><div class="grow"><span class="muted">${esc(k)}</span><br>${esc(cs[k]||"–")}</div></div>`).join("") || `<p class="muted">Betöltés…</p>`}`,
     `<div class="choices"><button class="btn yes" id="ad_ment">Gyűléskódok mentése</button></div>`);
@@ -1293,6 +1324,16 @@ function renderAdatlap(){
     if(j>=0) r.kodok.splice(j,1); else { r.kodok.push(k); r.kodok.sort((a,c)=> GY_KODOK.findIndex(g=>g.k===a) - GY_KODOK.findIndex(g=>g.k===c)); }
     ujra();
   });
+  const szovegFrissit = ()=>{ const el = $("ad_szoveg"); if(el) el.textContent = adatlapSzoveg(); };
+  $("ad_kit").onchange = e=>{ if(e.target.value!=="__uj__"){ adKitolto = e.target.value; szovegFrissit(); } };
+  $("ad_datum").onchange = e=>{ adDatum = e.target.value; szovegFrissit(); };
+  $("ad_masol").onclick = async ()=>{ try{ await navigator.clipboard.writeText(adatlapSzoveg()); jelez("✓ Kimásolva – beillesztheted az űrlapba"); }catch(e){ jelez("A másolás itt nem sikerült – nyisd le a szöveget, és jelöld ki kézzel."); } };
+  $("ad_level").onclick = ()=>{
+    const cs = db && db.csoport ? db.csoport.mezok : {};
+    const cim = cs["PannonAA cím"] || "webszolgalat@pannonaa.hu";
+    const targy = "Csoportadatok változása – " + (cs["Helység"]||"") + " " + (cs["Csoport neve"]||"") + " csoport";
+    location.href = "mailto:" + encodeURIComponent(cim) + "?subject=" + encodeURIComponent(targy) + "&body=" + encodeURIComponent("Kedves Webszolgálat!\n\nKérjük, a csoportunk adatait az alábbiak szerint frissítsétek:\n\n" + adatlapSzoveg() + "\n\nKöszönjük a szolgálatot!");
+  };
   $("ad_plusz").onclick = ()=>{ const hasznalt = adKodok.map(r=>r.v); const kov = GY_MELYIK.find(m=> m.v && hasznalt.indexOf(m.v)<0); adKodok.forEach(r=> r.nyitva = false); adKodok.push({ v: kov ? kov.v : "1", kodok:[], nyitva:true }); ujra(); };
   $("ad_ment").onclick = ()=>{
     const v = adKodok.map(r=>r.v);
