@@ -490,7 +490,8 @@ let sor = store.get("aa_sor2", []);          // elküldésre váró írások
 let view = null;                             // null = kezdőlap / gyűlés
 let syncAllapot = "", syncFut = false, dbFut = false;
 
-/* régi (két táblázatos) beállítások eltakarítása */
+/* régi (két táblázatos) beállítások: a csoportkódot átvesszük (a PIN-t nem – azt újra kéri), a többit eltakarítjuk */
+(function(){ const regi = store.get("aa_kapcs", null); if(regi && regi.kod && !kapcs.kod){ kapcs.kod = regi.kod; store.set("aa_kapcs2", kapcs); } })();
 ["aa_kapcs","aa_adatok","aa_nevsor","aa_tarsak","aa_sor"].forEach(k=> store.del(k));
 
 /* QR-kódos belépés: …/?k=KÓD vagy …/#k=KÓD */
