@@ -145,6 +145,16 @@ a{color:var(--blue2)}
 .item.naplo .osszeg{text-align:right;white-space:nowrap}
 .item.var{border-style:dashed}
 .btn[disabled]{opacity:.4}
+.lgy-pont{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 12px 10px;margin-bottom:12px}
+.lgy-pont .field{margin-bottom:8px}
+.szavaz{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.szavaz .sz{display:flex;align-items:center;gap:4px;border-radius:10px;padding:4px 8px;font-size:.9em}
+.szavaz .sz input{width:3.2em;font:inherit;padding:4px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);text-align:center}
+.szavaz .igen{background:rgba(46,125,91,.14);color:#2e9a63}
+.szavaz .nem{background:rgba(192,57,43,.13);color:#d0453a}
+.szavaz .tart{background:rgba(224,168,74,.18);color:#c98a1a}
+.szavaz .tart b{min-width:1.6em;text-align:center;color:var(--ink)}
+.sz-ered{font-size:.75em;font-weight:700}
 .seg.fajtak button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px}
 .seg.fajtak button small{font-size:.78em;font-weight:600;line-height:1.1}
 #toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%) translateY(20px);background:var(--green);color:#fff;padding:12px 18px;border-radius:12px;font-size:.85em;font-weight:600;opacity:0;pointer-events:none;transition:all .25s;z-index:40;max-width:90%;text-align:center}
@@ -1381,13 +1391,44 @@ function lgySzoveg(g){
   if(g.letszam !== "") t += "Jelenlévők száma: " + g.letszam + " fő" + (g.tag !== "" ? ", ebből " + g.tag + " fő honi csoporttag" : "") + "\n";
   if(g.jkv) t += "Jegyzőkönyvvezető: " + g.jkv + "\n";
   const behuz = (j, b) => (j||"").trim() ? (j.trim().split("\n").map(x=> b + x).join("\n") + "\n") : "";
-  const fj = g.fixJegyzet || [], pj = g.pontJegyzet || [];
+  const fj = g.fixJegyzet || [], pj = g.pontJegyzet || [], fs = g.fixSzav || [], ps = g.pontSzav || [];
+  const szav = (v, b) => { const e = szavEredmeny(v, g.tag); return e ? b + "Szavazás: " + e.szoveg + "\n" : ""; };
   t += "\nNapirendi pontok:\n";
-  LGY_FIX.forEach((p,i)=>{ t += (i+1) + ". " + p + "\n" + behuz(fj[i], "   "); });
+  LGY_FIX.forEach((p,i)=>{ t += (i+1) + ". " + p + "\n" + behuz(fj[i], "   ") + szav(fs[i], "   "); });
   t += "4. Egyéb napirendi pontok" + (g.pontok.length ? ":" : ": –") + "\n";
-  g.pontok.forEach((p,i)=>{ t += "   4." + (i+1) + ". " + p + "\n" + behuz(pj[i], "        "); });
+  g.pontok.forEach((p,i)=>{ t += "   4." + (i+1) + ". " + p + "\n" + behuz(pj[i], "        ") + szav(ps[i], "        "); });
   if((g.jegyzet||"").trim()) t += "\nEgyéb jegyzet:\n" + g.jegyzet.trim() + "\n";
   return t;
+}
+/* szavazás: igen és nem beírva, a tartózkodókat a honi tagok számából számolja */
+function szavEredmeny(v, tag){
+  if(!v || (v.i === "" && v.n === "") || (v.i == null && v.n == null)) return null;
+  const i = parseInt(v.i)||0, n = parseInt(v.n)||0, t = parseInt(tag);
+  const tart = isNaN(t) ? null : t - i - n;
+  const dont = i > n ? "elfogadva" : "nem fogadták el";
+  return { i, n, tart, dont, hiba: tart != null && tart < 0,
+    szoveg: `igen ${i}, nem ${n}` + (tart != null && tart >= 0 ? `, tartózkodott ${tart}` : "") + ` – ${dont}` };
+}
+const SZ_IKON = {
+  i:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  n:'<path d="M6 6l12 12M18 6L6 18"/>',
+  t:'<path d="M9.2 9a2.9 2.9 0 1 1 3.8 2.8c-.6.3-1 .9-1 1.6v.6"/><path d="M12 17.5v.5"/>'
+};
+function szIkon(k){ return `<svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">${SZ_IKON[k]}</svg>`; }
+function szavazo(kulcs, v){
+  v = v || {};
+  return `<div class="szavaz" data-szk="${kulcs}">
+    <label class="sz igen" title="Igen">${szIkon("i")}<input type="number" inputmode="numeric" min="0" data-szm="i" value="${esc(v.i??"")}"></label>
+    <label class="sz nem" title="Nem">${szIkon("n")}<input type="number" inputmode="numeric" min="0" data-szm="n" value="${esc(v.n??"")}"></label>
+    <span class="sz tart" title="Tartózkodott">${szIkon("t")}<b data-szt>–</b></span>
+    <span class="sz-ered" data-sze></span></div>`;
+}
+function szavFrissit(el, v){
+  const e = szavEredmeny(v, lgy.tag);
+  el.querySelector("[data-szt]").textContent = !e || e.tart == null ? "–" : e.tart < 0 ? "!" : e.tart;
+  const er = el.querySelector("[data-sze]");
+  er.textContent = !e ? "" : e.hiba ? "több szavazat, mint tag!" : e.dont;
+  er.className = "sz-ered " + (!e ? "" : e.hiba ? "hibaszin" : e.i > e.n ? "okszin" : "hibaszin");
 }
 function lgyFajlnev(g){ return "LGY_" + (g.datum||ma()) + ".txt"; }
 async function lgyMegoszt(g){
@@ -1448,9 +1489,10 @@ function renderLgy(){
     h += `<div class="row" style="margin-top:6px"><input id="g_pont" class="search" style="flex:1;margin:0" placeholder="Új napirendi pont…" autocomplete="off"><button class="mini" id="g_pontAdd">Hozzáad</button></div>`;
   } else if(L===5){
     lgy.fixJegyzet = lgy.fixJegyzet || ["","",""]; lgy.pontJegyzet = lgy.pontJegyzet || [];
-    h += `<p class="note">Mindegyik napirendi pont alá írd, ami elhangzott vagy amiben megegyeztetek. Magától mentődik ezen a telefonon.</p>`;
-    LGY_FIX.forEach((p,i)=> h += `<label class="field"><span><b>${i+1}. ${esc(p)}</b></span><textarea class="kicsi" data-fj="${i}">${esc(lgy.fixJegyzet[i]||"")}</textarea></label>`);
-    lgy.pontok.forEach((p,i)=> h += `<label class="field"><span><b>4.${i+1}. ${esc(p)}</b></span><textarea class="kicsi" data-pj="${i}">${esc(lgy.pontJegyzet[i]||"")}</textarea></label>`);
+    lgy.fixSzav = lgy.fixSzav || [{},{},{}]; lgy.pontSzav = lgy.pontSzav || [];
+    h += `<p class="note">Mindegyik napirendi pont alá írd, ami elhangzott vagy amiben megegyeztetek. Ha szavaztatok: írd be az <b>igen</b> és a <b>nem</b> szavazatokat – a tartózkodókat a honi tagok számából (${lgy.tag!==""?esc(lgy.tag)+" fő":"még nincs megadva"}) számolom. Magától mentődik ezen a telefonon.</p>`;
+    LGY_FIX.forEach((p,i)=> h += `<div class="lgy-pont"><label class="field"><span><b>${i+1}. ${esc(p)}</b></span><textarea class="kicsi" data-fj="${i}">${esc(lgy.fixJegyzet[i]||"")}</textarea></label>${szavazo("f"+i, lgy.fixSzav[i])}</div>`);
+    lgy.pontok.forEach((p,i)=> h += `<div class="lgy-pont"><label class="field"><span><b>4.${i+1}. ${esc(p)}</b></span><textarea class="kicsi" data-pj="${i}">${esc(lgy.pontJegyzet[i]||"")}</textarea></label>${szavazo("p"+i, lgy.pontSzav[i])}</div>`);
     h += `<label class="field"><span><b>Egyéb jegyzet</b></span><textarea class="kicsi" id="g_jegyzet">${esc(lgy.jegyzet)}</textarea></label>`;
   } else if(L===6){
     h += `<div class="say"><p>Köszönöm, hogy szolgálhattam! Zárjuk a gyűlést a Lelki Béke Imájával!</p></div>` + olvas("ima");
@@ -1477,12 +1519,18 @@ function renderLgy(){
     const add = ()=>{ const v = ($("g_pont").value||"").trim(); if(!v) return; lgy.pontok.push(v); ment(); render(); setTimeout(()=>$("g_pont") && $("g_pont").focus(), 30); };
     $("g_pontAdd").onclick = add;
     $("g_pont").onkeydown = e=>{ if(e.key==="Enter"){ e.preventDefault(); add(); } };
-    document.querySelectorAll("[data-tor]").forEach(b=> b.onclick = ()=>{ lgy.pontok.splice(+b.dataset.tor,1); (lgy.pontJegyzet||[]).splice(+b.dataset.tor,1); ment(); render(); });
+    document.querySelectorAll("[data-tor]").forEach(b=> b.onclick = ()=>{ lgy.pontok.splice(+b.dataset.tor,1); (lgy.pontJegyzet||[]).splice(+b.dataset.tor,1); (lgy.pontSzav||[]).splice(+b.dataset.tor,1); ment(); render(); });
   }
   if(L===5){
     $("g_jegyzet").oninput = e=>{ lgy.jegyzet = e.target.value; ment(); };
     document.querySelectorAll("[data-fj]").forEach(t=> t.oninput = ()=>{ lgy.fixJegyzet[+t.dataset.fj] = t.value; ment(); });
     document.querySelectorAll("[data-pj]").forEach(t=> t.oninput = ()=>{ lgy.pontJegyzet[+t.dataset.pj] = t.value; ment(); });
+    document.querySelectorAll(".szavaz").forEach(el=>{
+      const k = el.dataset.szk, tomb = k[0]==="f" ? lgy.fixSzav : lgy.pontSzav, idx = +k.slice(1);
+      tomb[idx] = tomb[idx] || {};
+      szavFrissit(el, tomb[idx]);
+      el.querySelectorAll("[data-szm]").forEach(inp=> inp.oninput = ()=>{ tomb[idx][inp.dataset.szm] = inp.value; ment(); szavFrissit(el, tomb[idx]); });
+    });
   }
   if(L===7){
     $("g_masol").onclick = ()=> lgyMasol(lgy, "g_msg2");
