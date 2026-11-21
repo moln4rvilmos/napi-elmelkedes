@@ -145,6 +145,23 @@ a{color:var(--blue2)}
 .item.naplo .osszeg{text-align:right;white-space:nowrap}
 .item.var{border-style:dashed}
 .btn[disabled]{opacity:.4}
+#nyomtat{display:none}
+@media print{
+  @page{size:A4;margin:16mm}
+  body{background:#fff !important;color:#000 !important;padding:0}
+  .app,.modal,#toast{display:none !important}
+  #nyomtat{display:block;font-family:Georgia,"Times New Roman",serif;font-size:11pt;color:#000}
+  #nyomtat h1{font-size:18pt;margin:0;color:#000;text-align:center}
+  #nyomtat .ny-al{text-align:center;margin:2pt 0 14pt;font-size:10pt}
+  #nyomtat h2{font-size:12pt;margin:14pt 0 6pt;text-transform:uppercase;letter-spacing:.05em}
+  html,body{height:auto !important;width:auto !important}
+  #nyomtat table{width:100%;border-collapse:collapse;margin-bottom:8pt;table-layout:fixed}
+  #nyomtat td{overflow-wrap:anywhere}
+  #nyomtat th,#nyomtat td{border:0.6pt solid #000;padding:5pt 7pt;text-align:left;vertical-align:top}
+  #nyomtat th{width:34%;background:#eee;font-weight:600}
+  #nyomtat .ny-szolg th{width:auto}
+  #nyomtat .ny-lab{margin-top:18pt;font-size:9pt;font-style:italic;text-align:center}
+}
 .kodsor{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:10px}
 .kodsor select{font:inherit;font-size:.85em;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
 .chipek{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px}
@@ -1268,6 +1285,29 @@ function adSzolgalatok(){
   const hely = sz=>{ const l = sz.toLowerCase(); const i = SZOLG_SOR.findIndex(k=> l.indexOf(k)>=0); return i<0 ? 99 : i; };
   return t.slice().sort((a,b)=> hely(a.szolgalat)-hely(b.szolgalat) || a.szolgalat.localeCompare(b.szolgalat,"hu"));
 }
+/* nyomtatható (PDF-be menthető) adatlap – A4, a hivatalos lap sorrendjében */
+function adatlapNyomtat(){
+  const cs = db && db.csoport ? db.csoport.mezok : {};
+  const sor = (c, e)=> `<tr><th>${esc(c)}</th><td>${e ? esc(e) : "&nbsp;"}</td></tr>`;
+  const kodok = kodSorokBol(cs["Gyűlés kódja"]);
+  const sz = adSzolgalatok();
+  const html = `<div class="ny-lap">
+    <h1>Bejelentő adatlap</h1><p class="ny-al">Anonim Alkoholisták – csoport és gyűlés adatai</p>
+    <table>${sor("Helység", cs["Helység"])}${sor("A csoport neve", cs["Csoport neve"])}${sor("Indulás", cs["Indulás"])}
+      ${sor("Cím", cs["Cím"])}${sor("Helyszín, intézmény", cs["Helyszín, intézmény"])}${sor("Időpont(ok)", cs["Időpont(ok)"])}
+      <tr><th>Gyűlések kódja</th><td>${kodok.length ? kodok.map(r=> esc(kodMondat(r))).join("<br>") : "&nbsp;"}</td></tr></table>
+    <h2>A csoport szolgálatai</h2>
+    <table class="ny-szolg"><tr><th>Szolgálat</th><th>Keresztnév</th><th>Telefon</th><th>E-mail</th></tr>
+      ${sz.map(t=>`<tr><td>${esc(t.szolgalat)}</td><td>${esc(t.nev)}</td><td>${esc(telSzep(t.telefon))}</td><td>${esc(t.email)}</td></tr>`).join("")}</table>
+    <table>${sor("A csoport létszáma", (tagSzam() ?? "") + " fő (honi csoporttag)")}
+      ${sor("Az adatlapot kitöltötte", adKitolto || kapcs.en || settings.nev)}${sor("Dátum", hosszuDatum(adDatum || ma()))}</table>
+    <p class="ny-lab">Az adatok csak az A.A.-n belül használhatók.</p></div>`;
+  let d = $("nyomtat"); if(!d){ d = document.createElement("div"); d.id = "nyomtat"; document.body.appendChild(d); }
+  d.innerHTML = html;
+  const regiCim = document.title;
+  document.title = "Adatlap_" + (cs["Helység"]||"") + "_" + (cs["Csoport neve"]||"") + "_" + (adDatum || ma());
+  setTimeout(()=>{ window.print(); document.title = regiCim; }, 50);
+}
 function adatlapSzoveg(){
   const cs = db && db.csoport ? db.csoport.mezok : {};
   const sorok = [];
@@ -1311,7 +1351,9 @@ function renderAdatlap(){
     <label class="field"><span>Az adatlapot kitöltötte</span><select id="ad_kit">${nevOpciok(adKitolto || kapcs.en || settings.nev, "– válassz –")}</select></label>
     <label class="field"><span>Dátum</span><input id="ad_datum" type="date" value="${adDatum || ma()}"></label>
     <details class="reading"><summary>A kész adatlap szövege</summary><div class="body" id="ad_szoveg">${esc(adatlapSzoveg())}</div></details>
-    <div class="row" style="margin-bottom:14px"><button class="back" id="ad_masol">Másolás</button><button class="back" id="ad_level">Levél a PannonAA-nak</button></div>
+    <div class="row" style="margin-bottom:8px"><button class="back" id="ad_masol">Másolás</button><button class="back" id="ad_level">Levél a PannonAA-nak</button></div>
+    <button class="back" id="ad_pdf" style="margin-bottom:6px">PDF / nyomtatás</button>
+    <p class="note">PDF-hez: a megnyíló nyomtatási ablakban a nyomtató helyett válaszd a <b>Mentés PDF-ként</b> lehetőséget.</p>
     <h2 class="sub">A csoport adatai (Csoportadatok fül)</h2>
     ${Object.keys(cs).filter(k=>k!=="Gyűlés kódja").map(k=>`<div class="item" style="cursor:default"><div class="grow"><span class="muted">${esc(k)}</span><br>${esc(cs[k]||"–")}</div></div>`).join("") || `<p class="muted">Betöltés…</p>`}`,
     `<div class="choices"><button class="btn yes" id="ad_ment">Gyűléskódok mentése</button></div>`);
@@ -1327,6 +1369,7 @@ function renderAdatlap(){
   const szovegFrissit = ()=>{ const el = $("ad_szoveg"); if(el) el.textContent = adatlapSzoveg(); };
   $("ad_kit").onchange = e=>{ if(e.target.value!=="__uj__"){ adKitolto = e.target.value; szovegFrissit(); } };
   $("ad_datum").onchange = e=>{ adDatum = e.target.value; szovegFrissit(); };
+  $("ad_pdf").onclick = adatlapNyomtat;
   $("ad_masol").onclick = async ()=>{ try{ await navigator.clipboard.writeText(adatlapSzoveg()); jelez("✓ Kimásolva – beillesztheted az űrlapba"); }catch(e){ jelez("A másolás itt nem sikerült – nyisd le a szöveget, és jelöld ki kézzel."); } };
   $("ad_level").onclick = ()=>{
     const cs = db && db.csoport ? db.csoport.mezok : {};
