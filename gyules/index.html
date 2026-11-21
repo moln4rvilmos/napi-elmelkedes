@@ -162,6 +162,8 @@ a{color:var(--blue2)}
   #nyomtat th,#nyomtat td{border:0.6pt solid #000;padding:5pt 7pt;text-align:left;vertical-align:top}
   #nyomtat th{width:34%;background:#eee;font-weight:600}
   #nyomtat .ny-szolg th{width:auto}
+  #nyomtat .ny-szerver table{table-layout:auto}
+  #nyomtat .ny-szerver td,#nyomtat .ny-szerver th{border:0;padding:0;background:none;width:auto}
   #nyomtat .ny-lab{margin-top:18pt;font-size:9pt;font-style:italic;text-align:center}
 }
 .kodsor{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:10px}
@@ -1374,7 +1376,18 @@ function renderAdatlap(){
   const szovegFrissit = ()=>{ const el = $("ad_szoveg"); if(el) el.textContent = adatlapSzoveg(); };
   $("ad_kit").onchange = e=>{ if(e.target.value!=="__uj__"){ adKitolto = e.target.value; szovegFrissit(); } };
   $("ad_datum").onchange = e=>{ adDatum = e.target.value; szovegFrissit(); };
-  $("ad_pdf").onclick = adatlapNyomtat;
+  /* PDF: a szkript által összerakott, a hivatalos laphoz igazodó változat (ugyanaz, mint a levélben) */
+  $("ad_pdf").onclick = ()=> pinKell("adatlap", async ()=>{
+    if(!navigator.onLine){ adatlapNyomtat(); return; }
+    jelez("PDF készül…");
+    try{
+      const e = await hivas({ action:"adatlap", kod:kapcs.kod, pin:kapcs.pin, kuld:false, kitolto: adKitolto || kapcs.en || settings.nev, datum: adDatum || ma() });
+      let d = $("nyomtat"); if(!d){ d = document.createElement("div"); d.id = "nyomtat"; document.body.appendChild(d); }
+      d.innerHTML = `<div class="ny-szerver">${e.html}</div>`;
+      const regi = document.title; document.title = e.pdfNev || "Adatlap";
+      setTimeout(()=>{ window.print(); document.title = regi; }, 50);
+    }catch(err){ jelez(err.message); }
+  });
   $("ad_tarsak").onclick = ()=> megy("tarsaim", "adatlap");
   $("ad_masol").onclick = async ()=>{ try{ await navigator.clipboard.writeText(adatlapSzoveg()); jelez("✓ Kimásolva – beillesztheted az űrlapba"); }catch(e){ jelez("A másolás itt nem sikerült – nyisd le a szöveget, és jelöld ki kézzel."); } };
   $("ad_level").onclick = ()=> pinKell("adatlap", async ()=>{
