@@ -145,6 +145,8 @@ a{color:var(--blue2)}
 .item.naplo .osszeg{text-align:right;white-space:nowrap}
 .item.var{border-style:dashed}
 .btn[disabled]{opacity:.4}
+.seg.fajtak button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px}
+.seg.fajtak button small{font-size:.78em;font-weight:600;line-height:1.1}
 #toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%) translateY(20px);background:var(--green);color:#fff;padding:12px 18px;border-radius:12px;font-size:.85em;font-weight:600;opacity:0;pointer-events:none;transition:all .25s;z-index:40;max-width:90%;text-align:center}
 #toast.on{opacity:1;transform:translateX(-50%)}
 </style>
@@ -196,7 +198,7 @@ const READINGS = {
 const STEPS = {
   nyitas: { sec:"Megnyitás", title:"Köszöntés",
     say:["Szervusztok! Szeretettel köszöntök mindenkit az Anonim Alkoholisták {csoport} csoportjának {tipus} gyűlésén!",
-         "{nev} vagyok, alkoholista."],
+         "{nev} vagyok, {jelzo}."],
     next:"erdeklodo" },
 
   /* csak nyitott gyűlésen – zártnál a „kihagy” lépésre ugrik */
@@ -384,6 +386,7 @@ function saveSession(){ if(state) store.set("aa_session", state); else store.del
 function esc(s){ return String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 function fill(t){
   return t.replace(/\{nev\}/g, settings.nev ? esc(settings.nev) : "<i>(keresztneved)</i>")
+          .replace(/\{jelzo\}/g, esc(settings.jelzo || "alkoholista"))
           .replace(/\{csoport\}/g, esc(settings.csoport || "…"))
           .replace(/\{tipus\}/g, esc(settings.tipus))
           .replace(/\{tema\}/g, settings.tema ? esc(settings.tema) : "……………");
@@ -396,14 +399,17 @@ const TEMA_IKON = {
   sotet:'<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>'
 };
 const TEMA_NEV = { auto:"Téma: a telefon beállítása szerint", vilagos:"Téma: világos", sotet:"Téma: sötét" };
-if(!settings.tema){ settings.tema = "auto"; delete settings.dark; try{ localStorage.setItem("aa_settings", JSON.stringify(settings)); }catch(e){} }
+/* (a megjelenési téma kulcsa „szin” – a „tema” a gyűlés témája!) */
+if(["auto","vilagos","sotet"].indexOf(settings.tema) >= 0){ if(!settings.szin) settings.szin = settings.tema; settings.tema = ""; }
+if(!settings.szin){ settings.szin = "auto"; delete settings.dark; }
+try{ localStorage.setItem("aa_settings", JSON.stringify(settings)); }catch(e){}
 const rendszerSotet = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
 function applyLook(){
   document.documentElement.style.setProperty("--fs", settings.fs+"px");
-  const sotet = settings.tema==="sotet" || (settings.tema==="auto" && rendszerSotet && rendszerSotet.matches);
+  const sotet = settings.szin==="sotet" || (settings.szin==="auto" && rendszerSotet && rendszerSotet.matches);
   document.body.classList.toggle("dark", sotet);
   const b = $("darkBtn");
-  if(b){ b.innerHTML = `<svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${TEMA_IKON[settings.tema]}</svg>`; b.title = TEMA_NEV[settings.tema]; }
+  if(b){ b.innerHTML = `<svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${TEMA_IKON[settings.szin]}</svg>`; b.title = TEMA_NEV[settings.szin]; }
   const m = document.querySelector('meta[name="theme-color"]'); if(m) m.content = sotet ? "#182229" : "#1f4e79";
 }
 if(rendszerSotet){ try{ rendszerSotet.addEventListener("change", applyLook); }catch(e){ rendszerSotet.addListener && rendszerSotet.addListener(applyLook); } }
@@ -447,6 +453,18 @@ function startMeeting(){
   showHome = false; view = null;
   state = { current:"nyitas", history:[], start:Date.now() };
   saveSession(); keepAwake(); render();
+}
+/* így mutatkozom be: „… vagyok, alkoholista” vagy „… vagyok, függő” */
+function jelzoValaszto(){
+  const j = settings.jelzo || "alkoholista";
+  return `<div class="field"><span>Így mutatkozom be</span><div class="seg" style="margin:0">${["alkoholista","függő"].map(x=>`<button type="button" data-jelzo="${x}" class="${j===x?"on":""}">${x}</button>`).join("")}</div></div>`;
+}
+function jelzoKotes(utana){
+  document.querySelectorAll("[data-jelzo]").forEach(b=> b.onclick = ()=>{
+    settings.jelzo = b.dataset.jelzo; saveSettings();
+    document.querySelectorAll("[data-jelzo]").forEach(x=> x.classList.toggle("on", x===b));
+    if(utana) utana();
+  });
 }
 function folyoGyules(){ return state && state.current && state.current!=="_vege" && (Date.now()-state.start) < 5*3600000; }
 
@@ -793,13 +811,14 @@ function renderGyulesInditas(){
   const zart = settings.tipus === "zárt";
   nezetKeret(zart ? "Zárt gyűlés" : "Nyitott gyűlés", "Gyűlésvezetés", `
     <label class="field"><span>A keresztneved</span><input id="f_nev" value="${esc(settings.nev)}" placeholder="pl. Vili" autocomplete="off"></label>
+    ${jelzoValaszto()}
     <label class="field"><span>Csoport (így hangzik el: „az Anonim Alkoholisták <i>…</i> csoportjának”)</span><input id="f_csoport" value="${esc(settings.csoport)}"></label>
     <label class="field"><span>A következő gyűlés témája (ráér később is)</span><input id="f_tema" value="${esc(settings.tema)}"></label>
     <label class="field"><span>A gyűlés hossza (perc)</span><input id="f_hossz" type="number" min="15" max="240" step="5" value="${settings.hossz}"></label>
     <p class="muted">Tipp: a jobb felső gombokkal állíthatod a betűméretet és a sötét módot.</p>`,
     `<div class="choices"><button class="btn yes" id="start">Gyűlés indítása</button></div>`);
   const bind = (id,key)=> $(id).addEventListener("input", e=>{ settings[key] = e.target.value.trim(); saveSettings(); });
-  bind("f_nev","nev"); bind("f_csoport","csoport"); bind("f_tema","tema");
+  bind("f_nev","nev"); bind("f_csoport","csoport"); bind("f_tema","tema"); jelzoKotes();
   $("f_hossz").addEventListener("input", e=>{ settings.hossz = parseInt(e.target.value)||60; saveSettings(); });
   $("start").onclick = ()=> folyoGyules() ? ask("Új gyűlést kezdesz? Az előző menete elvész.", startMeeting) : startMeeting();
 }
@@ -876,13 +895,18 @@ function renderBoritok(fajta){
 }
 
 /* --- irodalomeladás: kosár --- */
-let kosar = {};
+let kosar = {}, eFajta = "Könyv";
 function renderEladas(){
-  const lista = (db ? db.keszlet : []).filter(k=>k.fajta!=="Érme").slice().sort((a,b)=> (a.fajta===b.fajta?0:(a.fajta==="Könyv"?-1:1)) || a.cikk.localeCompare(b.cikk,"hu"));
-  const ossz = Object.keys(kosar).reduce((s,c)=>{ const k = lista.find(x=>x.cikk===c); return s + (k&&k.ar?k.ar*kosar[c]:0); }, 0);
+  const mind = (db ? db.keszlet : []).filter(k=>k.fajta!=="Érme");
+  const eFajtak = fajtak().filter(f=>f!=="Érme");
+  if(eFajtak.indexOf(eFajta) < 0) eFajta = eFajtak[0];
+  const lista = mind.filter(k=>k.fajta===eFajta).sort((a,b)=> a.cikk.localeCompare(b.cikk,"hu"));
+  const kosarban = f=> mind.filter(k=>k.fajta===f && kosar[k.cikk]).reduce((s,k)=>s+kosar[k.cikk],0);
+  const ossz = Object.keys(kosar).reduce((s,c)=>{ const k = mind.find(x=>x.cikk===c); return s + (k&&k.ar?k.ar*kosar[c]:0); }, 0);
   const n = Object.values(kosar).reduce((a,b)=>a+b,0);
   nezetKeret("Irodalomeladás", "Bevétel és készlet egyszerre", `
     <label class="field"><span>Dátum</span><input id="e_datum" type="date" value="${ma()}"></label>
+    ${fajtaGombok(eFajta, "ef", eFajtak, kosarban)}
     <input class="search" id="e_szuro" placeholder="Keresés…" autocomplete="off">
     <div id="e_lista">${lista.map(k=>`<div class="item" data-q="${esc(k.cikk.toLowerCase())}" style="cursor:default">
       ${k.kep?`<img class="mini-kep" src="${esc(k.kep)}" alt="">`:""}
@@ -891,6 +915,7 @@ function renderEladas(){
     <div id="e_msg" class="msg"></div>`,
     `<div class="osszesito">${n} db · <b>${ft(ossz)}</b></div><div class="choices"><button class="btn yes" id="e_ok"${n?"":" disabled"}>Eladás rögzítése</button></div>`);
   if(!db) return uzen("e_msg","Ehhez be kell lépni a csoportkóddal.",false);
+  document.querySelectorAll("[data-ef]").forEach(b=> b.onclick = ()=>{ eFajta = b.dataset.ef; render(); });
   const szuro = $("e_szuro");
   szuro.oninput = ()=>{ const q = szuro.value.trim().toLowerCase(); document.querySelectorAll("#e_lista .item").forEach(x=> x.style.display = !q || x.dataset.q.indexOf(q)>=0 ? "" : "none"); };
   const y = ()=> window.scrollY;
@@ -898,7 +923,7 @@ function renderEladas(){
   document.querySelectorAll("[data-m]").forEach(b=> b.onclick = ()=>{ const s=y(); const c=b.dataset.m; if(kosar[c]){ kosar[c]--; if(!kosar[c]) delete kosar[c]; } render(); window.scrollTo(0,s); });
   $("e_ok").onclick = ()=>{
     const datum = $("e_datum").value || ma();
-    const hiany = Object.keys(kosar).filter(c=>{ const k = lista.find(x=>x.cikk===c); return k && kosar[c] > k.db; });
+    const hiany = Object.keys(kosar).filter(c=>{ const k = mind.find(x=>x.cikk===c); return k && kosar[c] > k.db; });
     if(hiany.length) return uzen("e_msg", "Több van a kosárban, mint a készleten: " + esc(hiany.join(", ")) + ". Ha mégis van, előbb javítsd a készletet.", false);
     ask(`Rögzíted az eladást? ${n} db, ${ft(ossz)}`, ()=> pinKell("eladas", ()=>{
       const tetelek = Object.keys(kosar).map(c=>({ datum, cikk:c, db:kosar[c] }));
@@ -912,6 +937,16 @@ function renderEladas(){
 
 /* --- készlet --- */
 let kSzuro = "", kFajta = "Könyv";
+const FAJTA_IKON = {
+  "Könyv":'<path d="M4 4h6a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H4z"/><path d="M20 4h-6a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h7z"/>',
+  "Pamflet":'<path d="M3 5l6-2 6 2 6-2v16l-6 2-6-2-6 2z"/><path d="M9 3v16M15 5v16"/>',
+  "Érme":'<circle cx="12" cy="14" r="6"/><path d="M8.5 3l3.5 5 3.5-5"/><path d="M12 11v6M10 13l2-2"/>',
+  "Kulcstartó":'<circle cx="8" cy="15" r="4"/><path d="M10.8 12.2L20 3M16 7l3 3M14 9l2 2"/>',
+  "_":'<path d="M20 12l-8 8-9-9V3h8z"/><circle cx="7.5" cy="7.5" r="1.5"/>'
+};
+function fajtaGombok(akt, attr, lista, szamlalo){
+  return `<div class="seg fajtak">${(lista||fajtak()).map(f=>`<button data-${attr}="${esc(f)}" class="${akt===f?"on":""}"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${FAJTA_IKON[f]||FAJTA_IKON._}</svg><small>${esc(f)}${szamlalo&&szamlalo(f)?` (${szamlalo(f)})`:""}</small></button>`).join("")}</div>`;
+}
 const FAJTA_SOR = ["Könyv","Pamflet","Érme"];
 function fajtak(){ const f = db ? [...new Set(db.keszlet.map(k=>k.fajta).filter(Boolean))] : FAJTA_SOR;
   return f.sort((a,b)=> (FAJTA_SOR.indexOf(a)<0?99:FAJTA_SOR.indexOf(a)) - (FAJTA_SOR.indexOf(b)<0?99:FAJTA_SOR.indexOf(b)) || a.localeCompare(b,"hu")); }
@@ -920,14 +955,14 @@ function renderKeszlet(){
   const ertek = db ? db.keszlet.filter(k=>k.fajta===kFajta).reduce((s,k)=>s+(k.ar||0)*Math.max(k.db,0),0) : 0;
   nezetKeret("Készlet", "Irodalom és érmék", `
     ${frissitveSor()}
-    <div class="seg">${fajtak().map(f=>`<button data-f="${esc(f)}" class="${kFajta===f?"on":""}">${esc(f)}</button>`).join("")}</div>
+    ${fajtaGombok(kFajta, "f")}
     ${kFajta!=="Érme"?`<p class="muted">Készletérték: <b>${ft(ertek)}</b></p>`:""}
     <input id="k_szuro" class="search" placeholder="Keresés…" value="${esc(kSzuro)}">
     <div id="k_lista">${lista.map(k=>`<div class="item" data-c="${esc(k.cikk)}"><div class="grow">${esc(k.cikk)}<br>
       <span class="muted">${k.ar!=null?ft(k.ar):"ár nélkül"}${k.megj?" · "+esc(k.megj):""}</span></div><div class="db ${k.db<=0?"zero":""}">${k.db}</div></div>`).join("") || `<p class="muted">Nincs találat.</p>`}</div>
     <p class="note">Egy tételre koppintva: beszerzés, ajándék, javítás (irodalom- és érmefelelős).</p>`,
     `<div class="choices"><button class="btn next" id="k_leltar">Leltár</button></div>`);
-  document.querySelectorAll(".seg button").forEach(b=> b.onclick = ()=>{ kFajta = b.dataset.f; render(); });
+  document.querySelectorAll("[data-f]").forEach(b=> b.onclick = ()=>{ kFajta = b.dataset.f; render(); });
   $("k_szuro").oninput = e=>{ kSzuro = e.target.value; const pos = e.target.selectionStart; render(); const s=$("k_szuro"); s.focus(); s.setSelectionRange(pos,pos); };
   document.querySelectorAll("#k_lista .item").forEach(el=> el.onclick = ()=> cikkPanel(db.keszlet.find(k=>k.cikk===el.dataset.c)));
   $("k_leltar").onclick = ()=> megy("leltar", "keszlet");
@@ -995,7 +1030,7 @@ function renderLeltar(){
   if(!db) return nezetKeret("Leltár", "Készlet", `<p class="muted">Betöltés…</p>`);
   if(fajtak().indexOf(lFajta) < 0) lFajta = fajtak()[0];
   const beirt = f=> db.keszlet.filter(k=>k.fajta===f && leltarSzam[k.cikk]!=null).length;
-  const csoport = `<div class="seg">${fajtak().map(f=>`<button data-lf="${esc(f)}" class="${lFajta===f?"on":""}">${esc(f)}${beirt(f)?` <small>(${beirt(f)})</small>`:""}</button>`).join("")}</div>`
+  const csoport = fajtaGombok(lFajta, "lf", null, beirt)
     + db.keszlet.filter(k=>k.fajta===lFajta).map(k=>`
     <div class="item"><div class="grow">${esc(k.cikk)}<br><span class="muted">eddig: ${k.db}</span></div>
     <input class="cnt" data-c="${esc(k.cikk)}" type="number" inputmode="numeric" min="0" step="1" placeholder="${k.db}" value="${leltarSzam[k.cikk]??""}"></div>`).join("");
@@ -1391,21 +1426,22 @@ function renderLgy(){
 
   if(L===0){
     h += `<div class="say"><p>Szervusztok! Szeretettel köszöntök mindenkit az Anonim Alkoholisták ${esc(settings.csoport||"…")} csoportjának lelkiismereti gyűlésén!</p>
-      <p><span id="g_nevKi">${settings.nev?esc(settings.nev):"<i>(keresztneved)</i>"}</span> vagyok, alkoholista, a csoport titkára.</p></div>
-      <label class="field"><span>A keresztneved</span><input id="g_nev" value="${esc(settings.nev)}" placeholder="pl. Vili" autocomplete="off"></label>`;
+      <p><span id="g_nevKi">${settings.nev?esc(settings.nev):"<i>(keresztneved)</i>"}</span> vagyok, <span id="g_jelzoKi">${esc(settings.jelzo||"alkoholista")}</span>, a csoport titkára.</p></div>
+      <label class="field"><span>A keresztneved</span><input id="g_nev" value="${esc(settings.nev)}" placeholder="pl. Vili" autocomplete="off"></label>
+      ${jelzoValaszto()}`;
   } else if(L===1){
     h += `<div class="say"><p>Megkérem társunkat, hogy olvassa fel az Anonim Alkoholisták 12 Hagyományát!</p></div>` + olvas("hagyomanyok12")
       + `<p class="note">Annál van a szöveg, akinél a papír vagy a telefon – itt is lenyitható.</p>`;
   } else if(L===2){
     h += `<label class="field"><span>Dátum</span><input id="g_datum" type="date" value="${esc(lgy.datum)}"></label>
-      <div class="row"><label class="field" style="flex:1"><span>Jelenlévők (fő)</span><input id="g_letszam" type="number" inputmode="numeric" min="0" value="${esc(lgy.letszam)}"></label>
-      <label class="field" style="flex:1"><span>Ebből honi csoporttag (fő)</span><input id="g_tag" type="number" inputmode="numeric" min="0" value="${esc(lgy.tag)}"></label></div>
+      <label class="field"><span>Jelenlévők (fő)</span><input id="g_letszam" type="number" inputmode="numeric" min="0" value="${esc(lgy.letszam)}"></label>
+      <label class="field"><span>Ebből honi csoporttag (fő)</span><input id="g_tag" type="number" inputmode="numeric" min="0" value="${esc(lgy.tag)}"></label>
       <div id="g_msg" class="msg"></div><p class="note">Csak a honi csoporttagok szavazhatnak.</p>`;
   } else if(L===3){
     h += `<div class="say"><p>Ki vállalja ma a jegyzőkönyv vezetését?</p></div>
       <label class="field"><span>Jegyzőkönyvvezető</span><select id="g_jkv">${nevOpciok(lgy.jkv, "– válassz –")}</select></label>`;
   } else if(L===4){
-    h += `<p class="note">Az első három pont mindig napirenden van. Ha kell, vegyetek fel egyéb pontokat – miről kellene ma megegyeznünk?</p>`;
+    h += `<p class="note">Az első négy pont mindig napirenden van. A 4. pont alá vegyétek fel az egyéb pontokat – miről kellene ma megegyeznünk?</p>`;
     LGY_FIX.forEach((p,i)=> h += `<div class="pont fix"><span class="grow">${i+1}. ${esc(p)}</span></div>`);
     h += `<div class="pont fix"><span class="grow">4. Egyéb napirendi pontok</span></div>`;
     lgy.pontok.forEach((p,i)=> h += `<div class="pont"><span class="grow">4.${i+1}. ${esc(p)}</span><button class="mini" data-tor="${i}">Törlés</button></div>`);
@@ -1426,6 +1462,7 @@ function renderLgy(){
   $("main").innerHTML = h;
 
   const ment = ()=> lgyMent();
+  if(L===0) jelzoKotes(()=>{ $("g_jelzoKi").textContent = settings.jelzo; });
   if(L===0) $("g_nev").oninput = e=>{ settings.nev = e.target.value.trim(); saveSettings(); $("g_nevKi").innerHTML = settings.nev ? esc(settings.nev) : "<i>(keresztneved)</i>"; };
   tick();
   if(L===2){
@@ -1507,7 +1544,7 @@ $("homeBtn").onclick = ()=>{ honnan = {}; view = null; showHome = true; render()
 $("sorJelzo").onclick = ()=> megy("sor");
 $("fsMinus").onclick = ()=>{ settings.fs = Math.max(15, settings.fs-2); saveSettings(); applyLook(); };
 $("fsPlus").onclick  = ()=>{ settings.fs = Math.min(34, settings.fs+2); saveSettings(); applyLook(); };
-$("darkBtn").onclick = ()=>{ settings.tema = { auto:"vilagos", vilagos:"sotet", sotet:"auto" }[settings.tema] || "auto"; saveSettings(); applyLook(); jelez(TEMA_NEV[settings.tema]); };
+$("darkBtn").onclick = ()=>{ settings.szin = { auto:"vilagos", vilagos:"sotet", sotet:"auto" }[settings.szin] || "auto"; saveSettings(); applyLook(); jelez(TEMA_NEV[settings.szin]); };
 
 if(settings.tipus !== "zárt" && settings.tipus !== "nyitott"){ settings.tipus = "nyitott"; saveSettings(); }
 applyLook();
