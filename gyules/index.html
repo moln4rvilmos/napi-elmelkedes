@@ -175,6 +175,8 @@ a{color:var(--blue2)}
 .idosor{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .idosor select,.idosor input{font:inherit;font-size:.85em;padding:8px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
 .idosor select{flex:1;min-width:7em}
+.adgomb{gap:8px;margin-bottom:8px} .adgomb .back{margin:0;padding:10px 6px}
+.adgomb .kuldgomb{font-weight:700;border-color:var(--green);color:var(--green)}
 .eltero{border:2px solid #c0392b;border-radius:12px;padding:10px 12px;margin:0 0 14px;font-size:.85em}
 .eltero ul{margin:6px 0 0;padding-left:18px} .eltero s{color:var(--muted)}
 .kodsor .row{gap:6px} .kodsor .row select{min-width:0}
@@ -1290,6 +1292,7 @@ function kodMondat(r){
 }
 let adKodok = null;   // szerkesztés alatt
 let adKitolto = "", adDatum = "", adIdok = null;
+const MEZO_NEV = { "PannonAA cím":"Címzettek", "Csoport e-mail-címe":"Feladó (a csoport e-mail-címe)" };
 const NAPOK = ["hétfő","kedd","szerda","csütörtök","péntek","szombat","vasárnap"];
 /* „hétfő 18:00–19:00; péntek 9:00–10:00” ↔ [{nap,tol,ig}] */
 function idokBol(t){
@@ -1370,7 +1373,7 @@ function renderAdatlap(){
         <button class="mini" data-knyit="${i}" title="Szerkesztés">${nyil(true)}</button>
         ${adKodok.length>1?`<button class="mini" data-kdel="${i}" title="Sor törlése">${KUKA}</button>`:""}</div>`;
   nezetKeret("Adatlap", "Titkár", `
-    <p class="note">Az adatlap a táblázat adataiból áll össze. A végén <b>Levél a PannonAA-nak</b>: előnézet után a csoport címéről megy ki, formázva, PDF-melléklettel. <b>Másolás</b>: az anonimalkoholistak.hu űrlapjához.</p>
+    <p class="note">Az adatlap a táblázat adataiból áll össze. Lent a <b>Küldés</b>: előnézet után a csoport címéről megy ki a címzetteknek, formázva, PDF-melléklettel. <b>Másolás</b>: az anonimalkoholistak.hu űrlapjához. <b>PDF</b>: a nyomtatási ablakban válaszd a <b>Mentés PDF-ként</b> lehetőséget.</p>
     ${(()=>{ const ny = db && db.csoport ? db.csoport.nyilv : null; const most = Object.assign({}, cs, { "Gyűlés kódja": kodSorokSzoveg(adKodok), "Időpont(ok)": idokSzoveg(adIdok) });
        const e = elteresek(most, ny);
        return e.length ? `<div class="eltero"><b>Eltér a nyilvántartástól (ezt kérjük majd javítani):</b><ul>${e.map(x=>`<li><b>${esc(x.mezo)}:</b> <s>${esc(x.regi)}</s> → ${esc(x.uj)}</li>`).join("")}</ul></div>`
@@ -1391,12 +1394,10 @@ function renderAdatlap(){
     <label class="field"><span>Az adatlapot kitöltötte</span><select id="ad_kit">${nevOpciok(adKitolto || kapcs.en || settings.nev, "– válassz –")}</select></label>
     <label class="field"><span>Dátum</span><input id="ad_datum" type="date" value="${adDatum || ma()}"></label>
     <details class="reading"><summary>A kész adatlap szövege</summary><div class="body" id="ad_szoveg">${esc(adatlapSzoveg())}</div></details>
-    <div class="row" style="margin-bottom:8px"><button class="back" id="ad_masol">Másolás</button><button class="back" id="ad_level">Levél a PannonAA-nak</button></div>
-    <button class="back" id="ad_pdf" style="margin-bottom:6px">PDF / nyomtatás</button>
-    <p class="note">PDF-hez: a megnyíló nyomtatási ablakban a nyomtató helyett válaszd a <b>Mentés PDF-ként</b> lehetőséget.</p>
     <h2 class="sub">A csoport adatai (Csoportadatok fül)</h2>
-    ${Object.keys(cs).filter(k=>k!=="Gyűlés kódja").map(k=>`<div class="item" style="cursor:default"><div class="grow"><span class="muted">${esc(k)}</span><br>${esc(cs[k]||"–")}</div></div>`).join("") || `<p class="muted">Betöltés…</p>`}`,
-    `<div class="choices"><button class="btn yes" id="ad_ment">Időpontok és kódok mentése</button></div>`);
+    ${Object.keys(cs).filter(k=>k!=="Gyűlés kódja").map(k=>`<div class="item" style="cursor:default"><div class="grow"><span class="muted">${esc(MEZO_NEV[k]||k)}</span><br>${esc(cs[k]||"–")}</div></div>`).join("") || `<p class="muted">Betöltés…</p>`}`,
+    `<div class="row adgomb"><button class="back" id="ad_masol">Másolás</button><button class="back" id="ad_pdf">PDF</button><button class="back kuldgomb" id="ad_level">Küldés</button></div>
+     <div class="choices"><button class="btn yes" id="ad_ment">Időpontok és kódok mentése</button></div>`);
   const ujra = ()=>{ const y = window.scrollY; renderAdatlap(); window.scrollTo(0,y); };
   document.querySelectorAll("[data-kv]").forEach(sel=> sel.onchange = ()=>{ adKodok[+sel.dataset.kv].v = sel.value; ujra(); });
   document.querySelectorAll("[data-kdel]").forEach(b=> b.onclick = ()=> ask("Törlöd ezt a sort?", ()=>{ adKodok.splice(+b.dataset.kdel,1); ujra(); }));
@@ -1430,7 +1431,7 @@ function renderAdatlap(){
     let e;
     try{ e = await hivas(Object.assign({ kuld:false }, alap)); }
     catch(err){ return jelez(err.message); }
-    $("modalText").innerHTML = `<b>Levél a PannonAA-nak</b><br><span class="muted">Címzett: ${esc(e.cimzett)}<br>Feladó: ${esc(e.felado)}<br>Tárgy: ${esc(e.targy)}<br>Melléklet: az adatlap PDF-ben</span>
+    $("modalText").innerHTML = `<b>Adatlap küldése</b><br><span class="muted">Címzettek: ${esc(e.cimzett)}<br>Másolat: a csoport címére<br>Feladó: ${esc(e.felado)}<br>Tárgy: ${esc(e.targy)}<br>Melléklet: az adatlap PDF-ben</span>
       <div class="elonezet">${e.html}</div><div id="lv_msg" class="msg"></div>`;
     $("modalYes").textContent = "Küldés";
     $("modal").classList.add("on");
