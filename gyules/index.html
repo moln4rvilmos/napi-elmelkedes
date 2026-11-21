@@ -934,7 +934,7 @@ function renderKeszlet(){
 }
 function cikkPanel(k){
   const erme = k.fajta === "Érme";
-  const modok = erme ? ["Átadás","Beszerzés","Javítás"] : ["Beszerzés","Ajándék","Javítás"];
+  const modok = erme ? ["Átadás","Beszerzés","Korrekció"] : ["Beszerzés","Ajándék","Korrekció"];
   $("modalText").innerHTML = `<b>${esc(k.cikk)}</b><br><span class="muted">Készlet: ${k.db} db${k.ar!=null?" · "+ft(k.ar):""}</span>
     ${erme?"":`<p class="note">Eladás: Irodalom → Irodalomeladás.</p>`}
     <div class="seg" id="cp_seg">${modok.map((m,i)=>`<button data-m="${m}" class="${i===0?"on":""}">${m}</button>`).join("")}</div>
@@ -943,12 +943,12 @@ function cikkPanel(k){
     <div id="cp_extra"></div><div id="cp_msg" class="msg"></div>`;
   let mod = modok[0];
   const extra = ()=>{
-    $("cp_dbl").textContent = mod==="Javítás" ? "Eltérés (+ vagy − darab)" : "Darab";
+    $("cp_dbl").textContent = mod==="Korrekció" ? "Eltérés (+ vagy − darab)" : "Darab";
     $("cp_extra").innerHTML =
       mod==="Beszerzés" ? `<label class="field"><span>A kasszából kifizetett összeg (ha most fizettük)</span><input id="cp_ft" type="number" inputmode="numeric" placeholder="0 = nem most / nem a kasszából"></label>
           <label class="field"><span>Ki vásárolta?</span><select id="cp_szem">${nevOpciok("", "–")}</select></label>
           <label class="field"><span>Ki fizette ki?</span><select id="cp_kif">${nevOpciok("", "–")}</select></label>` :
-      `<label class="field"><span>Megjegyzés${mod==="Javítás"?" (kötelező)":""}</span><input id="cp_megj"></label>`;
+      `<label class="field"><span>Megjegyzés${mod==="Korrekció"?" (kötelező)":""}</span><input id="cp_megj"></label>`;
   };
   extra();
   document.querySelectorAll("#cp_seg button").forEach(b=> b.onclick = ()=>{ mod=b.dataset.m; document.querySelectorAll("#cp_seg button").forEach(x=>x.classList.toggle("on",x===b)); extra(); });
@@ -958,7 +958,7 @@ function cikkPanel(k){
   $("modalYes").textContent = "Rögzítés";
   $("modalYes").onclick = ()=>{
     const dbsz = parseInt($("cp_db").value,10), datum = $("cp_datum").value || ma();
-    if(!dbsz || (mod!=="Javítás" && dbsz<0)) return uzen("cp_msg","Adj meg érvényes darabszámot.",false);
+    if(!dbsz || (mod!=="Korrekció" && dbsz<0)) return uzen("cp_msg","Adj meg érvényes darabszámot.",false);
     let ktetel, naplo = null, leiras;
     if(mod==="Átadás"){
       if(dbsz > k.db) return uzen("cp_msg",`Csak ${k.db} db van a készletben.`,false);
@@ -973,7 +973,7 @@ function cikkPanel(k){
       leiras = `Beszerzés: ${dbsz} × ${k.cikk}`;
     } else {
       const megj = $("cp_megj").value.trim();
-      if(mod==="Javítás" && !megj) return uzen("cp_msg","Javításnál írd le az okát.",false);
+      if(mod==="Korrekció" && !megj) return uzen("cp_msg","Korrekciónál írd le az okát.",false);
       if(mod==="Ajándék" && dbsz > k.db) return uzen("cp_msg",`Csak ${k.db} db van a készletben.`,false);
       ktetel = { datum, tipus:mod, cikk:k.cikk, valtozas: mod==="Ajándék"?-dbsz:dbsz, megjegyzes:megj };
       leiras = `${mod}: ${dbsz} × ${k.cikk}`;
