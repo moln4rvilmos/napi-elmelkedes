@@ -34,8 +34,9 @@ body{background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"
 header{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line);
   background:var(--card);position:sticky;top:0;z-index:5}
 header .title{flex:1;font-weight:600;font-size:15px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.clock{font-variant-numeric:tabular-nums;font-size:15px;color:var(--muted);text-align:right;line-height:1.2}
-.clock b{color:var(--ink)}
+.clock{font-variant-numeric:tabular-nums;font-size:12px;color:var(--muted);text-align:right;line-height:1.15}
+.clock b{display:block;font-size:21px;color:var(--ink)}
+.clock small{font-size:12px}
 .clock .over{color:#c0392b}
 .icon-btn{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:10px;
   min-width:40px;height:40px;font-size:16px;font-weight:600;cursor:pointer}
@@ -125,11 +126,11 @@ a{color:var(--blue2)}
 .banner{width:100%;font:inherit;font-size:.85em;text-align:left;padding:12px 14px;margin-bottom:12px;border-radius:12px;border:0;background:var(--amber);color:#fff;cursor:pointer}
 .boritok{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px}
 .borito{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px;text-align:center}
-.borito img{width:100%;aspect-ratio:3/4;object-fit:contain;border-radius:4px;background:#fff}
+.borito img{width:100%;aspect-ratio:3/4;object-fit:contain;border-radius:4px}
 .borito .nokep{width:100%;aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;padding:8px;font-size:.7em;color:var(--muted);border:1px dashed var(--line);border-radius:4px}
 .borito .cim{font-size:.72em;margin-top:6px;line-height:1.25}
 .borito .ar{font-size:.8em;font-weight:700;color:var(--green);margin-top:4px}
-.mini-kep{width:34px;height:46px;object-fit:contain;border-radius:3px;background:#fff}
+.mini-kep{width:34px;height:46px;object-fit:contain;border-radius:3px}
 .osszesito{font-size:.95em;text-align:center;margin:4px 0 10px}
 .cimletek{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
 .cimlet{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 10px}
@@ -151,7 +152,7 @@ a{color:var(--blue2)}
 <body>
 <div class="app">
   <header>
-    <button class="icon-btn" id="homeBtn" title="Kezdőlap / beállítások">☰</button>
+    <button class="icon-btn" id="homeBtn" title="Kezdőlap"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg></button>
     <div class="title" id="hdrTitle">Gyűlésvezetés</div>
     <button class="pill" id="sorJelzo" style="display:none" title=""></button>
     <div class="clock" id="clock"></div>
@@ -388,10 +389,24 @@ function fill(t){
           .replace(/\{tema\}/g, settings.tema ? esc(settings.tema) : "……………");
 }
 
+/* téma: auto (a rendszer beállítása szerint) / világos / sötét */
+const TEMA_IKON = {
+  auto:'<circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/>',
+  vilagos:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  sotet:'<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>'
+};
+const TEMA_NEV = { auto:"Téma: a telefon beállítása szerint", vilagos:"Téma: világos", sotet:"Téma: sötét" };
+if(!settings.tema){ settings.tema = "auto"; delete settings.dark; try{ localStorage.setItem("aa_settings", JSON.stringify(settings)); }catch(e){} }
+const rendszerSotet = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
 function applyLook(){
   document.documentElement.style.setProperty("--fs", settings.fs+"px");
-  document.body.classList.toggle("dark", !!settings.dark);
+  const sotet = settings.tema==="sotet" || (settings.tema==="auto" && rendszerSotet && rendszerSotet.matches);
+  document.body.classList.toggle("dark", sotet);
+  const b = $("darkBtn");
+  if(b){ b.innerHTML = `<svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${TEMA_IKON[settings.tema]}</svg>`; b.title = TEMA_NEV[settings.tema]; }
+  const m = document.querySelector('meta[name="theme-color"]'); if(m) m.content = sotet ? "#182229" : "#1f4e79";
 }
+if(rendszerSotet){ try{ rendszerSotet.addEventListener("change", applyLook); }catch(e){ rendszerSotet.addListener && rendszerSotet.addListener(applyLook); } }
 
 /* ---------- óra ---------- */
 function fmt(ms){ const m = Math.floor(Math.abs(ms)/60000); const h = Math.floor(m/60); return (h? h+":"+String(m%60).padStart(2,"0") : m)+" p"; }
@@ -402,7 +417,7 @@ function tick(){
   if(!active){ c.innerHTML = ""; document.body.classList.remove("ending"); return; }
   const kezd = lgyOra ? lgy.start : state.start, perc = lgyOra ? (settings.lgyHossz||45) : settings.hossz;
   const el = Date.now() - kezd, left = perc*60000 - el;
-  c.innerHTML = "<b>"+fmt(el)+"</b><br>"+(left>=0 ? "még "+fmt(left) : "<span class='over'>+"+fmt(left)+"</span>");
+  c.innerHTML = (left>=0 ? "<b>még "+fmt(left)+"</b>" : "<b class='over'>+"+fmt(left)+"</b>") + "<small>"+fmt(el)+" telt el</small>";
   /* az utolsó perctől (és túllépéskor) színes háttér */
   document.body.classList.toggle("ending", !!active && left <= 60000);
 }
@@ -897,12 +912,15 @@ function renderEladas(){
 
 /* --- készlet --- */
 let kSzuro = "", kFajta = "Könyv";
+const FAJTA_SOR = ["Könyv","Pamflet","Érme"];
+function fajtak(){ const f = db ? [...new Set(db.keszlet.map(k=>k.fajta).filter(Boolean))] : FAJTA_SOR;
+  return f.sort((a,b)=> (FAJTA_SOR.indexOf(a)<0?99:FAJTA_SOR.indexOf(a)) - (FAJTA_SOR.indexOf(b)<0?99:FAJTA_SOR.indexOf(b)) || a.localeCompare(b,"hu")); }
 function renderKeszlet(){
   const lista = db ? db.keszlet.filter(k=> k.fajta===kFajta && (!kSzuro || k.cikk.toLowerCase().indexOf(kSzuro.toLowerCase())>=0)) : [];
   const ertek = db ? db.keszlet.filter(k=>k.fajta===kFajta).reduce((s,k)=>s+(k.ar||0)*Math.max(k.db,0),0) : 0;
   nezetKeret("Készlet", "Irodalom és érmék", `
     ${frissitveSor()}
-    <div class="seg">${["Könyv","Pamflet","Érme"].map(f=>`<button data-f="${f}" class="${kFajta===f?"on":""}">${f}</button>`).join("")}</div>
+    <div class="seg">${fajtak().map(f=>`<button data-f="${esc(f)}" class="${kFajta===f?"on":""}">${esc(f)}</button>`).join("")}</div>
     ${kFajta!=="Érme"?`<p class="muted">Készletérték: <b>${ft(ertek)}</b></p>`:""}
     <input id="k_szuro" class="search" placeholder="Keresés…" value="${esc(kSzuro)}">
     <div id="k_lista">${lista.map(k=>`<div class="item" data-c="${esc(k.cikk)}"><div class="grow">${esc(k.cikk)}<br>
@@ -972,20 +990,25 @@ function cikkPanel(k){
     });
   };
 }
-let leltarSzam = {};
+let leltarSzam = {}, lFajta = "Könyv", lSz = "", lEl = "", lDatum = "";
 function renderLeltar(){
   if(!db) return nezetKeret("Leltár", "Készlet", `<p class="muted">Betöltés…</p>`);
-  const csoport = ["Könyv","Pamflet","Érme"].map(f=>`<h2 class="sub">${f}</h2>` + db.keszlet.filter(k=>k.fajta===f).map(k=>`
+  if(fajtak().indexOf(lFajta) < 0) lFajta = fajtak()[0];
+  const beirt = f=> db.keszlet.filter(k=>k.fajta===f && leltarSzam[k.cikk]!=null).length;
+  const csoport = `<div class="seg">${fajtak().map(f=>`<button data-lf="${esc(f)}" class="${lFajta===f?"on":""}">${esc(f)}${beirt(f)?` <small>(${beirt(f)})</small>`:""}</button>`).join("")}</div>`
+    + db.keszlet.filter(k=>k.fajta===lFajta).map(k=>`
     <div class="item"><div class="grow">${esc(k.cikk)}<br><span class="muted">eddig: ${k.db}</span></div>
-    <input class="cnt" data-c="${esc(k.cikk)}" type="number" inputmode="numeric" min="0" step="1" placeholder="${k.db}" value="${leltarSzam[k.cikk]??""}"></div>`).join("")).join("");
+    <input class="cnt" data-c="${esc(k.cikk)}" type="number" inputmode="numeric" min="0" step="1" placeholder="${k.db}" value="${leltarSzam[k.cikk]??""}"></div>`).join("");
   nezetKeret("Leltár", "Készlet", `
     <p class="note">Írd be, <b>hány darabot számoltatok meg</b>. Ahol a szám egyezik az eddigivel, hagyd üresen. A végén csak az eltéréseket küldöm el. A beírt számok megmaradnak, ha közben kilépsz.</p>
-    <label class="field"><span>Dátum</span><input id="l_datum" type="date" value="${ma()}"></label>
-    <label class="field"><span>Számolta</span><select id="l_sz">${nevOpciok(settings.nev,"– válassz –")}</select></label>
-    <label class="field"><span>Ellenőrizte</span><select id="l_el">${nevOpciok("","– válassz –")}</select></label>
+    <label class="field"><span>Dátum</span><input id="l_datum" type="date" value="${lDatum||ma()}"></label>
+    <label class="field"><span>Számolta</span><select id="l_sz">${nevOpciok(lSz||settings.nev,"– válassz –")}</select></label>
+    <label class="field"><span>Ellenőrizte</span><select id="l_el">${nevOpciok(lEl,"– válassz –")}</select></label>
     ${csoport}<div id="l_msg" class="msg"></div>`,
     `<div class="choices"><button class="btn yes" id="l_kesz">Leltár lezárása</button></div>`);
   document.querySelectorAll(".cnt").forEach(i=> i.oninput = ()=>{ if(i.value==="") delete leltarSzam[i.dataset.c]; else leltarSzam[i.dataset.c] = parseInt(i.value,10); });
+  $("l_sz").onchange = e=> lSz = e.target.value; $("l_el").onchange = e=> lEl = e.target.value; $("l_datum").onchange = e=> lDatum = e.target.value;
+  document.querySelectorAll("[data-lf]").forEach(b=> b.onclick = ()=>{ lFajta = b.dataset.lf; const y = window.scrollY; render(); window.scrollTo(0, Math.min(y, 400)); });
   $("l_kesz").onclick = ()=>{
     const sz = $("l_sz").value, el = $("l_el").value, datum = $("l_datum").value || ma();
     if(!sz || !el || sz===el) return uzen("l_msg","Válassz két különböző személyt (számolta, ellenőrizte).",false);
@@ -995,7 +1018,7 @@ function renderLeltar(){
     ask(`${valt.length} tételnél van eltérés. Rögzíted a leltárt?`, ()=> pinKell("keszlet", ()=>{
       sorba("keszlet", { tetelek:valt }, `Leltár: ${valt.length} tétel`);
       valt.forEach(v=> helyiKeszlet(v.cikk, v.valtozas));
-      leltarSzam = {}; jelez("✓ Leltár rögzítve"); vissza();
+      leltarSzam = {}; lSz = lEl = lDatum = ""; jelez("✓ Leltár rögzítve"); vissza();
     }));
   };
 }
@@ -1480,11 +1503,11 @@ function renderLgyKezdo(){
 }
 
 /* ---------- fejléc gombok ---------- */
-$("homeBtn").onclick = ()=>{ if(view){ honnan = {}; megy(null); } else { showHome = !showHome; if(!state) showHome = true; render(); } };
+$("homeBtn").onclick = ()=>{ honnan = {}; view = null; showHome = true; render(); window.scrollTo(0,0); };
 $("sorJelzo").onclick = ()=> megy("sor");
 $("fsMinus").onclick = ()=>{ settings.fs = Math.max(15, settings.fs-2); saveSettings(); applyLook(); };
 $("fsPlus").onclick  = ()=>{ settings.fs = Math.min(34, settings.fs+2); saveSettings(); applyLook(); };
-$("darkBtn").onclick = ()=>{ settings.dark = !settings.dark; saveSettings(); applyLook(); };
+$("darkBtn").onclick = ()=>{ settings.tema = { auto:"vilagos", vilagos:"sotet", sotet:"auto" }[settings.tema] || "auto"; saveSettings(); applyLook(); jelez(TEMA_NEV[settings.tema]); };
 
 if(settings.tipus !== "zárt" && settings.tipus !== "nyitott"){ settings.tipus = "nyitott"; saveSettings(); }
 applyLook();
