@@ -172,6 +172,11 @@ a{color:var(--blue2)}
 .chip{font:inherit;font-size:.72em;padding:6px 9px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
 .chip b{color:var(--blue)} .chip.on{background:var(--blue);border-color:var(--blue);color:#fff} .chip.on b{color:#fff}
 .mondat{font-size:.8em;color:var(--green);font-weight:600;margin:6px 0 0}
+.idosor{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.idosor select,.idosor input{font:inherit;font-size:.85em;padding:8px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.idosor select{flex:1;min-width:7em}
+.eltero{border:2px solid #c0392b;border-radius:12px;padding:10px 12px;margin:0 0 14px;font-size:.85em}
+.eltero ul{margin:6px 0 0;padding-left:18px} .eltero s{color:var(--muted)}
 .kodsor .row{gap:6px} .kodsor .row select{min-width:0}
 .kodsor.csukott{display:flex;align-items:center;gap:8px;padding:8px 10px}
 .kodsor.csukott .mondat{margin:0;flex:1;cursor:pointer}
@@ -1284,7 +1289,25 @@ function kodMondat(r){
   return m.n + ": " + r.kodok.map(k=>{ const n = (GY_KODOK.find(g=>g.k===k)||{n:k}).n; return n.charAt(0).toLowerCase() + n.slice(1); }).join(", ") + ".";
 }
 let adKodok = null;   // szerkesztés alatt
-let adKitolto = "", adDatum = "";
+let adKitolto = "", adDatum = "", adIdok = null;
+const NAPOK = ["hétfő","kedd","szerda","csütörtök","péntek","szombat","vasárnap"];
+/* „hétfő 18:00–19:00; péntek 9:00–10:00” ↔ [{nap,tol,ig}] */
+function idokBol(t){
+  return String(t||"").split(";").map(x=>x.trim()).filter(Boolean).map(x=>{
+    const m = /^(\S+)[,\s]+(\d{1,2}:\d{2})\s*[–—-]\s*(\d{1,2}:\d{2})/.exec(x);
+    return m ? { nap:m[1].toLowerCase(), tol:m[2].padStart(5,"0"), ig:m[3].padStart(5,"0") } : null;
+  }).filter(Boolean);
+}
+function idokSzoveg(l){ return l.map(i=> `${i.nap} ${i.tol.replace(/^0/,"")}–${i.ig.replace(/^0/,"")}`).join("; "); }
+function plusOra(t){ const [h,m] = t.split(":").map(Number); return String((h+1)%24).padStart(2,"0")+":"+String(m).padStart(2,"0"); }
+/* eltérés a nyilvántartott (honlapon lévő) adatoktól – ugyanúgy, mint a szkriptben */
+const OSSZEVET = ["Csoport neve","Cím","Helyszín, intézmény","Időpont(ok)","Gyűlés kódja","Csoport telefonszáma"];
+function normal(x){ return String(x||"").toLowerCase().replace(/[–—-]/g,"-").replace(/\butca\b/g,"u").replace(/[.,;:()]/g," ").replace(/\s*-\s*/g,"-").replace(/\s+/g," ").trim(); }
+function elteresek(mezok, nyilv){
+  return OSSZEVET.filter(m=> nyilv && nyilv[m]!==undefined && mezok[m] && normal(nyilv[m])!==normal(mezok[m]))
+    .map(m=>({ mezo:m, regi: m==="Gyűlés kódja" ? kodSorokBol(nyilv[m]).map(kodMondat).join(" ") : m==="Csoport telefonszáma" ? telSzep(nyilv[m]) : nyilv[m],
+               uj:   m==="Gyűlés kódja" ? kodSorokBol(mezok[m]).map(kodMondat).join(" ") : m==="Csoport telefonszáma" ? telSzep(mezok[m]) : mezok[m] }));
+}
 /* szolgálatok a Társaim listából, az adatlap szokásos sorrendjében */
 const SZOLG_SOR = ["titkár","pénztár","irodalom","érme","küldött","kgy","csoportközi","telefon","üzenet","gyűlésvezet","terem","ásványvíz"];
 function adSzolgalatok(){
@@ -1335,6 +1358,7 @@ function nyil(le){ return `<svg class="ic" width="16" height="16" viewBox="0 0 2
 function renderAdatlap(){
   const cs = db && db.csoport ? db.csoport.mezok : {};
   if(!adKodok){ adKodok = kodSorokBol(cs["Gyűlés kódja"]); adKodok.forEach(r=> r.nyitva = false); }
+  if(!adIdok){ adIdok = idokBol(cs["Időpont(ok)"]); if(!adIdok.length) adIdok = [{ nap:"hétfő", tol:"18:00", ig:"19:00" }]; }
   if(!adKodok.length) adKodok.push({ v:"", kodok:[], nyitva:true });
   const sorHtml = (r,i)=> r.nyitva ? `<div class="kodsor">
       <div class="row" style="align-items:center"><select data-kv="${i}" style="flex:1">${GY_MELYIK.map(m=>`<option value="${m.v}"${m.v===r.v?" selected":""}>${m.n}</option>`).join("")}</select>
@@ -1347,6 +1371,15 @@ function renderAdatlap(){
         ${adKodok.length>1?`<button class="mini" data-kdel="${i}" title="Sor törlése">${KUKA}</button>`:""}</div>`;
   nezetKeret("Adatlap", "Titkár", `
     <p class="note">Az adatlap a táblázat adataiból áll össze. A végén <b>Levél a PannonAA-nak</b>: előnézet után a csoport címéről megy ki, formázva, PDF-melléklettel. <b>Másolás</b>: az anonimalkoholistak.hu űrlapjához.</p>
+    ${(()=>{ const ny = db && db.csoport ? db.csoport.nyilv : null; const most = Object.assign({}, cs, { "Gyűlés kódja": kodSorokSzoveg(adKodok), "Időpont(ok)": idokSzoveg(adIdok) });
+       const e = elteresek(most, ny);
+       return e.length ? `<div class="eltero"><b>Eltér a nyilvántartástól (ezt kérjük majd javítani):</b><ul>${e.map(x=>`<li><b>${esc(x.mezo)}:</b> <s>${esc(x.regi)}</s> → ${esc(x.uj)}</li>`).join("")}</ul></div>`
+         : (ny ? `<p class="note okszin">✓ Minden egyezik a nyilvántartással.</p>` : ""); })()}
+    <h2 class="sub">Gyűlések időpontja</h2>
+    <div id="ad_idok">${adIdok.map((t,i)=>`<div class="kodsor idosor"><select data-in="${i}">${NAPOK.map(n=>`<option${n===t.nap?" selected":""}>${n}</option>`).join("")}</select>
+      <input type="time" data-it="${i}" value="${t.tol}"><span>–</span><input type="time" data-ii="${i}" value="${t.ig}">
+      ${adIdok.length>1?`<button class="mini" data-idel="${i}" title="Törlés">${KUKA}</button>`:""}</div>`).join("")}</div>
+    <button class="back" id="ad_idplusz">+ Újabb időpont</button>
     <h2 class="sub">Gyűlések kódja</h2>
     <div id="ad_kodok">${adKodok.map(sorHtml).join("")}</div>
     <button class="back" id="ad_plusz">+ Újabb sor</button>
@@ -1363,7 +1396,7 @@ function renderAdatlap(){
     <p class="note">PDF-hez: a megnyíló nyomtatási ablakban a nyomtató helyett válaszd a <b>Mentés PDF-ként</b> lehetőséget.</p>
     <h2 class="sub">A csoport adatai (Csoportadatok fül)</h2>
     ${Object.keys(cs).filter(k=>k!=="Gyűlés kódja").map(k=>`<div class="item" style="cursor:default"><div class="grow"><span class="muted">${esc(k)}</span><br>${esc(cs[k]||"–")}</div></div>`).join("") || `<p class="muted">Betöltés…</p>`}`,
-    `<div class="choices"><button class="btn yes" id="ad_ment">Gyűléskódok mentése</button></div>`);
+    `<div class="choices"><button class="btn yes" id="ad_ment">Időpontok és kódok mentése</button></div>`);
   const ujra = ()=>{ const y = window.scrollY; renderAdatlap(); window.scrollTo(0,y); };
   document.querySelectorAll("[data-kv]").forEach(sel=> sel.onchange = ()=>{ adKodok[+sel.dataset.kv].v = sel.value; ujra(); });
   document.querySelectorAll("[data-kdel]").forEach(b=> b.onclick = ()=> ask("Törlöd ezt a sort?", ()=>{ adKodok.splice(+b.dataset.kdel,1); ujra(); }));
@@ -1410,14 +1443,20 @@ function renderAdatlap(){
       finally{ $("modalYes").disabled = false; }
     };
   });
+  document.querySelectorAll("[data-in]").forEach(x=> x.onchange = ()=>{ adIdok[+x.dataset.in].nap = x.value; ujra(); });
+  document.querySelectorAll("[data-it]").forEach(x=> x.onchange = ()=>{ const t = adIdok[+x.dataset.it]; const regiIg = plusOra(t.tol); t.tol = x.value; if(!t.ig || t.ig===regiIg) t.ig = plusOra(x.value); ujra(); });
+  document.querySelectorAll("[data-ii]").forEach(x=> x.onchange = ()=>{ adIdok[+x.dataset.ii].ig = x.value; ujra(); });
+  document.querySelectorAll("[data-idel]").forEach(b=> b.onclick = ()=> ask("Törlöd ezt az időpontot?", ()=>{ adIdok.splice(+b.dataset.idel,1); ujra(); }));
+  $("ad_idplusz").onclick = ()=>{ adIdok.push({ nap:"péntek", tol:"18:00", ig:"19:00" }); ujra(); };
   $("ad_plusz").onclick = ()=>{ const hasznalt = adKodok.map(r=>r.v); const kov = GY_MELYIK.find(m=> m.v && hasznalt.indexOf(m.v)<0); adKodok.forEach(r=> r.nyitva = false); adKodok.push({ v: kov ? kov.v : "1", kodok:[], nyitva:true }); ujra(); };
   $("ad_ment").onclick = ()=>{
     const v = adKodok.map(r=>r.v);
     if(v.some((x,i)=> v.indexOf(x)!==i)) return uzen("ad_msg","Ugyanaz a gyűlés kétszer szerepel – vond össze a két sort.",false);
-    const szoveg = kodSorokSzoveg(adKodok);
+    const szoveg = kodSorokSzoveg(adKodok), idok = idokSzoveg(adIdok);
+    if(adIdok.some(t=> !t.tol || !t.ig || t.ig <= t.tol)) return uzen("ad_msg","Egy időpontnál a vége nem lehet a kezdés előtt.",false);
     pinKell("csoport", ()=>{
-      sorba("csoport", { mezok:{ "Gyűlés kódja": szoveg } }, "Csoportadatok: gyűlések kódja");
-      if(db && db.csoport){ db.csoport.mezok["Gyűlés kódja"] = szoveg; saveDb(); }
+      sorba("csoport", { mezok:{ "Gyűlés kódja": szoveg, "Időpont(ok)": idok } }, "Csoportadatok: időpontok, gyűléskódok");
+      if(db && db.csoport){ db.csoport.mezok["Gyűlés kódja"] = szoveg; db.csoport.mezok["Időpont(ok)"] = idok; saveDb(); }
       adKodok.forEach(r=> r.nyitva = false); ujra();
       jelez("✓ Mentve");
     });
